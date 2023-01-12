@@ -35,21 +35,25 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
+    // instantiate branch and commit files from deploy directory
     File branchFile = new File(Filesystem.getDeployDirectory(), "branch.txt");
     File commitFile = new File(Filesystem.getDeployDirectory(), "commit.txt");
 
     String branch, commit;
     branch = commit = "";
 
+    // try/catch since file operations can fail
     try {
-      // convert file contents to string
-      branch = new String(Files.readAllBytes(branchFile.toPath()));
+      // attempt to convert file contents to string
+      branch = new String(Files.readAllBytes(branchFile.toPath())); // read all text from file into string
       commit = new String(Files.readAllBytes(commitFile.toPath()));
     } catch (IOException e) {
-      System.err.println(e);
-      commit = branch = "Not found";
+      // Files#readAllBytes can throw an IOException if the file is not present or not readable
+      System.err.println(e); // print error to console
+      commit = branch = "Not found"; // set dashboard strings to error message
     }
 
+    // send data from files to dashboard
     SmartDashboard.putString("Git Branch", branch);
     SmartDashboard.putString("Git Commit", commit);
   }
