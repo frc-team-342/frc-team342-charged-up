@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -28,6 +34,28 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    // instantiate branch and commit files from deploy directory
+    File branchFile = new File(Filesystem.getDeployDirectory(), "branch.txt");
+    File commitFile = new File(Filesystem.getDeployDirectory(), "commit.txt");
+
+    String branch, commit;
+    branch = commit = "";
+
+    // try/catch since file operations can fail
+    try {
+      // attempt to convert file contents to string
+      branch = new String(Files.readAllBytes(branchFile.toPath())); // read all text from file into string
+      commit = new String(Files.readAllBytes(commitFile.toPath()));
+    } catch (IOException e) {
+      // Files#readAllBytes can throw an IOException if the file is not present or not readable
+      System.err.println(e); // print error to console
+      commit = branch = "Not found"; // set dashboard strings to error message
+    }
+
+    // send data from files to dashboard
+    SmartDashboard.putString("Git Branch", branch);
+    SmartDashboard.putString("Git Commit", commit);
   }
 
   /**

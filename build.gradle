@@ -8,6 +8,48 @@ targetCompatibility = JavaVersion.VERSION_11
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
+// deploy git branch name to robot
+tasks.register("writeBranchName") {
+    // write to output stream instead of terminal
+    def stdout = new ByteArrayOutputStream()
+
+    // read branch name from git command
+    exec {
+        commandLine "git", "rev-parse", "--abbrev-ref", "HEAD"
+
+        // write to output stream instead of terminal
+        standardOutput = stdout
+    }
+
+    def branch = stdout.toString().trim()
+
+    // create a new file in deploy dir
+    new File(
+        // deploy dir
+        projectDir.toString() + "/src/main/deploy",
+        // file name
+        "branch.txt"
+    ).text = branch
+}
+
+// deploy git commit hash to robot
+tasks.register("writeCommitHash") {
+    def stdout = new ByteArrayOutputStream()
+
+    // read short commit hash from git command
+    exec {
+        commandLine "git", "rev-parse", "--short", "HEAD"
+        standardOutput = stdout
+    }
+
+    def commit = stdout.toString().trim()
+
+    new File(
+        projectDir.toString() + "/src/main/deploy",
+        "commit.txt"
+    ).text = commit
+}
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
@@ -36,6 +78,9 @@ deploy {
         }
     }
 }
+
+deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeBranchName)
+deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeCommitHash)
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
