@@ -4,6 +4,9 @@
 src/main/deploy/commit.txt
 src/main/deploy/branch.txt
 
+simgui-ds.json
+simgui.json
+
 ### C++ ###
 # Prerequisites
 *.d
