@@ -22,6 +22,20 @@ public class DriveSystem extends SubsystemBase {
   private final DifferentialDrive drive;
 
 
+  // speeds are statically imported constants 
+  private enum Mode{ 
+
+    NORMAL(NORMAL_SPEED),
+    SLOW(SLOW_SPEED);
+
+    public final double speedMultiplier;
+
+    private Mode (double speedMultiplier){
+      this.speedMultiplier = speedMultiplier;
+    }
+  }
+    private Mode currentMode = Mode.NORMAL;
+
   /** Creates a new DriveSystem. */
   public DriveSystem() {
     frontLeft = new CANSparkMax(FRONT_LEFT_MOTOR, MotorType.kBrushless);
@@ -39,7 +53,16 @@ public class DriveSystem extends SubsystemBase {
   }
 
   public void drive(double leftSpeed, double rightSpeed){
-    drive.tankDrive(leftSpeed, rightSpeed);
+    drive.tankDrive(leftSpeed * currentMode.speedMultiplier, rightSpeed * currentMode.speedMultiplier);
+  }
+    /**  Changes the speed multiplier between the normal mode to  slow mode
+     */
+  public void toggleSlowMode(){
+    if (currentMode != Mode.SLOW){
+      currentMode = Mode.SLOW;
+    } else {
+      currentMode = Mode.NORMAL;
+    }
   }
 
 
