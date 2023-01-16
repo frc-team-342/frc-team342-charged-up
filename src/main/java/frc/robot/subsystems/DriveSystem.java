@@ -6,8 +6,11 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.DriveConstants.*;
@@ -33,17 +36,37 @@ public class DriveSystem extends SubsystemBase {
     right = new MotorControllerGroup(frontRight, backRight);
 
     drive = new DifferentialDrive(left, right);
-
-
-
   }
 
-  public void drive(double leftSpeed, double rightSpeed){
+  /**
+   * drives the robot with tank drive
+   * @param leftSpeed values -1.0 through 1.0
+   * @param rightSpeed values -1.0 through 1.0
+   */
+  public void drive(double leftSpeed, double rightSpeed) {
     drive.tankDrive(leftSpeed, rightSpeed);
   }
 
-
-
+  /**
+   * 
+   * @param xbox the xbox controller being used to drive the robot
+   * @return command that drives with joystick
+   */
+  public CommandBase driveWithJoystick(XboxController xbox) {
+    return runEnd(
+      // Runs drive repeatedly until command is stopped
+      () -> {
+        double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
+        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        
+        drive(left, right);
+      },
+      // Stops robot after command is stopped
+      () -> {
+        drive(0, 0);
+      }
+    );
+  }
 
 
 
