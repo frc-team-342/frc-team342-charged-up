@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -56,8 +57,9 @@ public class DriveSystem extends SubsystemBase {
     return runEnd(
       // Runs drive repeatedly until command is stopped
       () -> {
-        double left = xbox.getLeftY();
-        double right = xbox.getRightY();
+        double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
+        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        
         drive(left, right);
       },
       // Stops robot after command is stopped
@@ -66,6 +68,8 @@ public class DriveSystem extends SubsystemBase {
       }
     );
   }
+
+
 
   @Override
   public void periodic() {
