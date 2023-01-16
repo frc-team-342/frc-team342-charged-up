@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.REVPhysicsSim;
@@ -28,6 +29,8 @@ public class DriveSystem extends SubsystemBase {
   private final SparkMaxPIDController leftController;
   private final SparkMaxPIDController rightController;
 
+  private final AHRS gyro;
+
   /** Creates a new DriveSystem. */
   public DriveSystem() {
     // motors
@@ -43,6 +46,9 @@ public class DriveSystem extends SubsystemBase {
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
+
+    // gyro 
+    gyro = new AHRS();
 
     // simulation initiation
     if (Robot.isSimulation()) {
@@ -112,5 +118,6 @@ public class DriveSystem extends SubsystemBase {
 
     // drivetrain velocity + direction
     // TODO
+    builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
   }
 }
