@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -21,20 +22,20 @@ public class DriveSystem extends SubsystemBase {
   private final MotorControllerGroup right;
   private final DifferentialDrive drive;
 
-
-  // speeds are statically imported constants 
-  private enum Mode{ 
+  // speeds are statically imported constants
+  private enum Mode {
 
     NORMAL(NORMAL_SPEED),
     SLOW(SLOW_SPEED);
 
     public final double speedMultiplier;
 
-    private Mode (double speedMultiplier){
+    private Mode(double speedMultiplier) {
       this.speedMultiplier = speedMultiplier;
     }
   }
-      private Mode currentMode = Mode.NORMAL;
+
+  private Mode currentMode = Mode.NORMAL;
 
   /** Creates a new DriveSystem. */
   public DriveSystem() {
@@ -48,26 +49,20 @@ public class DriveSystem extends SubsystemBase {
 
     drive = new DifferentialDrive(left, right);
 
-
-
   }
 
-  public void drive(double leftSpeed, double rightSpeed){
+  public void drive(double leftSpeed, double rightSpeed) {
     drive.tankDrive(leftSpeed * currentMode.speedMultiplier, rightSpeed * currentMode.speedMultiplier);
   }
-    /**  Changes the speed multiplier between the normal mode to  slow mode */
-  public void toggleSlowMode(){
-    if (currentMode != Mode.SLOW){
+
+  /** Changes the speed multiplier between the normal mode to slow mode */
+  public void toggleSlowMode() {
+    if (currentMode != Mode.SLOW) {
       currentMode = Mode.SLOW;
     } else {
-      currentMode = Mode.NORMAL;
+      currentMode = Mode.NORMAL;   
     }
   }
-
-
-
-
-
 
   @Override
   public void periodic() {
