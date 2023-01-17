@@ -34,7 +34,7 @@ public class DriveSystem extends SubsystemBase {
       this.speedMultiplier = speedMultiplier;
     }
   }
-    private Mode currentMode = Mode.NORMAL;
+      private Mode currentMode = Mode.NORMAL;
 
   /** Creates a new DriveSystem. */
   public DriveSystem() {
@@ -55,8 +55,7 @@ public class DriveSystem extends SubsystemBase {
   public void drive(double leftSpeed, double rightSpeed){
     drive.tankDrive(leftSpeed * currentMode.speedMultiplier, rightSpeed * currentMode.speedMultiplier);
   }
-    /**  Changes the speed multiplier between the normal mode to  slow mode
-     */
+    /**  Changes the speed multiplier between the normal mode to  slow mode */
   public void toggleSlowMode(){
     if (currentMode != Mode.SLOW){
       currentMode = Mode.SLOW;
