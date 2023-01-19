@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.SendableBuilder;
 
 
 class Limelight {
@@ -125,14 +126,14 @@ class Limelight {
      * Returns the position of where the robot is on the field
      * This is the form of a number array containing (X, Y, Z) and (Pitch, Yaw, Roll)
      */
-    public NetworkTableEntry getRobotPosition3D(){
+    public NetworkTableEntry getRobotPosition3D() {
         
         return robotPosition3D;
 
     }
 
 
-    public Rotation2d createRotation2D(){
+    public Rotation2d createRotation2D() {
 
         /*
          * Gets the pitch value from the robotPositionValues array & converts it to radians
@@ -155,7 +156,7 @@ class Limelight {
     }
 
 
-    public Translation2d createTranslation2D(){
+    public Translation2d createTranslation2D() {
         
         /*
          * Gets the x & y values from the robotPositionValues array
@@ -171,8 +172,7 @@ class Limelight {
 
     }
 
-    public Transform2d createTransform2D(Translation2d constructorTranslation2d, Rotation2d constructorRotation2d)
-    {
+    public Transform2d createTransform2D(Translation2d constructorTranslation2d, Rotation2d constructorRotation2d) {
         /*
          * Uses a translation2d & a rotation2d parameter to construct a transform2d, then returns it
          */
@@ -181,14 +181,19 @@ class Limelight {
 
     }
 
-    
+
     /*
      * returns a boolean value that lets us know if the limelight has any targets
      */
-    public boolean hasTargets()
-    {
+    public boolean hasTargets() {
         return(targets.getBoolean(false));
     }
 
-
+    
+    public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("Limelight");
+        builder.addBooleanProperty("Has Targets", this::hasTargets, null);
+        builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
+        builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
+    }
 }
