@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -25,6 +27,12 @@ public final class Constants {
     public static final int FRONT_RIGHT_MOTOR = 2;
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
+
+    /* meters */
+    public static final double WHEEL_RADIUS = Units.inchesToMeters(3.0);
+
+    /* meters */
+    public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
     /* meters / second */
     public static final double MAX_SPEED = 5.0;

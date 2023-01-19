@@ -7,10 +7,14 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.REVPhysicsSim;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
@@ -29,7 +33,12 @@ public class DriveSystem extends SubsystemBase {
   private final SparkMaxPIDController leftController;
   private final SparkMaxPIDController rightController;
 
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+
   private final AHRS gyro;
+
+  private final PIDController rotateController;
 
   /** Creates a new DriveSystem. */
   public DriveSystem() {
@@ -42,6 +51,17 @@ public class DriveSystem extends SubsystemBase {
     // pid controllers
     leftController = frontLeft.getPIDController();
     rightController = frontRight.getPIDController();
+
+    // encoders
+    leftEncoder = frontLeft.getEncoder();
+    rightEncoder = frontRight.getEncoder();
+
+    // makes encoders return meters
+    leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE);
+    rightEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE);
+
+    leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE);
+    rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE);
     
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
@@ -49,6 +69,10 @@ public class DriveSystem extends SubsystemBase {
 
     // gyro 
     gyro = new AHRS();
+
+    // pid
+    rotateController = new PIDController(0, 0, 0);
+    rotateController.setTolerance(0, 0);
 
     // simulation initiation
     if (Robot.isSimulation()) {
@@ -66,14 +90,14 @@ public class DriveSystem extends SubsystemBase {
    * @param leftSpeed values -1.0 through 1.0, scaled by max speed
    * @param rightSpeed values -1.0 through 1.0, scaled by max speed
    */
-  public void driveVelocity(double leftSpeed, double rightSpeed) {
+  public void drivePercent(double leftSpeed, double rightSpeed) {
     // left side
     double leftVelocity = leftSpeed * MAX_SPEED;
-    leftController.setReference(leftVelocity, ControlType.kVelocity);
+    leftController.setReference(leftVelocity, ControlType.kDutyCycle);
 
     // right side
     double rightVelocity = rightSpeed * MAX_SPEED;
-    rightController.setReference(rightVelocity, ControlType.kVelocity);
+    rightController.setReference(rightVelocity, ControlType.kDutyCycle);
   }
 
   /**
@@ -88,12 +112,112 @@ public class DriveSystem extends SubsystemBase {
         double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
         double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
         
-        driveVelocity(left, right);
+        drivePercent(left, right);
       },
       // Stops robot after command is stopped
       () -> {
-        driveVelocity(0, 0);
+        drivePercent(0, 0);
       }
+    );
+  }
+
+  /**
+   * 
+   * @param distance meters
+   * @return command that drives 
+   */
+  public CommandBase driveDistance(double distance) {
+    // meters
+    double startPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
+    double endPos = startPos + distance;
+
+    return runEnd(
+      // runs repeatedly during command
+      () -> {
+        leftController.setReference(endPos, ControlType.kPosition);
+        rightController.setReference(endPos, ControlType.kPosition);
+      }, 
+      // runs once at end of command
+      () -> {
+        // stops motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
+      }
+    ).until(
+      () -> {
+        // meters
+        double currPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
+
+        // TODO: check if at distacne
+        return false; 
+      }
+    );
+  }
+
+  /**
+   * 
+   * @param velocity meters/second
+   * @return command that drives at given velocity without an end condition
+   */
+  public CommandBase driveVelocity(double velocity) {
+    return runEnd(
+      // runs repeatedly until end of command
+      () -> {
+        // convert from m/s to rpm
+        double velocityRpm = velocity * 60 / WHEEL_CIRCUMFERENCE;
+      
+        // pid controllers take input as rpm
+        leftController.setReference(velocityRpm, ControlType.kVelocity);
+        rightController.setReference(velocityRpm, ControlType.kVelocity);
+      }, 
+      // runs once at command end
+      () -> {
+        // stop motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
+      }
+    );
+  }
+
+  /**
+   * 
+   * @param angle robot-relative angle
+   * @return
+   */
+  public CommandBase rotateToAngle(Rotation2d angle) {
+    // radians
+    double startAngle = Math.toRadians(gyro.getAngle());
+    double endAngle = startAngle + angle.getRadians();
+
+    return runEnd(
+      // runs repeatedly until end of command
+      () -> {
+        // radians
+        double currAngle = Math.toRadians(gyro.getAngle());
+        double nextAngle = rotateController.calculate(currAngle, endAngle);
+
+        // TODO: drivetrain motion to angular velocities
+      },
+      // runs once at end of command 
+      () -> {
+        rotateController.reset();
+
+        // stop motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
+      }
+    ).until(
+      // at setpoint
+      rotateController::atSetpoint
     );
   }
 
@@ -113,8 +237,8 @@ public class DriveSystem extends SubsystemBase {
     builder.setSmartDashboardType("Drive");
 
     // motor velocities
-    builder.addDoubleProperty("Left velocity", frontLeft.getEncoder()::getVelocity, null);
-    builder.addDoubleProperty("Right Velocity", frontRight.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Left velocity (RPM)", frontLeft.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Right Velocity (RPM)", frontRight.getEncoder()::getVelocity, null);
 
     // drivetrain velocity + direction
     // TODO
