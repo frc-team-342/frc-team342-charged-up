@@ -6,18 +6,22 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -40,6 +44,9 @@ public class DriveSystem extends SubsystemBase {
 
   private final PIDController rotateController;
 
+  private final DifferentialDriveKinematics kinematics;
+  private final DifferentialDriveOdometry odometry;
+
   /** Creates a new DriveSystem. */
   public DriveSystem() {
     // motors
@@ -57,11 +64,11 @@ public class DriveSystem extends SubsystemBase {
     rightEncoder = frontRight.getEncoder();
 
     // makes encoders return meters
-    leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE);
-    rightEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE);
+    leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
+    rightEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
 
-    leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE);
-    rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE);
+    leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
+    rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
     
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
@@ -73,6 +80,14 @@ public class DriveSystem extends SubsystemBase {
     // pid
     rotateController = new PIDController(0, 0, 0);
     rotateController.setTolerance(0, 0);
+    
+    // kinematics + odometry
+    kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
+    odometry = new DifferentialDriveOdometry(
+      Rotation2d.fromDegrees(gyro.getAngle()), 
+      leftEncoder.getPosition(), 
+      rightEncoder.getPosition()
+    );
 
     // simulation initiation
     if (Robot.isSimulation()) {
@@ -122,20 +137,23 @@ public class DriveSystem extends SubsystemBase {
   }
 
   /**
-   * 
+   * @param velocityIn meters/second
    * @param distance meters
    * @return command that drives 
    */
-  public CommandBase driveDistance(double distance) {
+  public CommandBase driveDistance(double velocityIn, double distance) {
+    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+
     // meters
+    // TODO: refactor to use odometry
     double startPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
     double endPos = startPos + distance;
 
     return runEnd(
       // runs repeatedly during command
       () -> {
-        leftController.setReference(endPos, ControlType.kPosition);
-        rightController.setReference(endPos, ControlType.kPosition);
+        leftController.setReference(velocity, ControlType.kVelocity);
+        rightController.setReference(velocity, ControlType.kVelocity);
       }, 
       // runs once at end of command
       () -> {
@@ -151,7 +169,7 @@ public class DriveSystem extends SubsystemBase {
         // meters
         double currPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
 
-        // TODO: check if at distacne
+        // TODO: refactor to use odometry
         return false; 
       }
     );
@@ -159,19 +177,18 @@ public class DriveSystem extends SubsystemBase {
 
   /**
    * 
-   * @param velocity meters/second
+   * @param velocityIn meters/second
    * @return command that drives at given velocity without an end condition
    */
-  public CommandBase driveVelocity(double velocity) {
+  public CommandBase driveVelocity(double velocityIn) {
+    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+
     return runEnd(
       // runs repeatedly until end of command
-      () -> {
-        // convert from m/s to rpm
-        double velocityRpm = velocity * 60 / WHEEL_CIRCUMFERENCE;
-      
-        // pid controllers take input as rpm
-        leftController.setReference(velocityRpm, ControlType.kVelocity);
-        rightController.setReference(velocityRpm, ControlType.kVelocity);
+      () -> {      
+        // units don't need to be adjusted because of encoder conversion factor
+        leftController.setReference(velocity, ControlType.kVelocity);
+        rightController.setReference(velocity, ControlType.kVelocity);
       }, 
       // runs once at command end
       () -> {
@@ -200,9 +217,17 @@ public class DriveSystem extends SubsystemBase {
       () -> {
         // radians
         double currAngle = Math.toRadians(gyro.getAngle());
-        double nextAngle = rotateController.calculate(currAngle, endAngle);
 
-        // TODO: drivetrain motion to angular velocities
+        // rad/s ????
+        double nextVel = rotateController.calculate(currAngle, endAngle);
+
+        // convert radial velocity to drivetrain speeds
+        ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
+
+        // apply drivetrain speeds to drive pid controllers
+        leftController.setReference(wheelSpeeds.leftMetersPerSecond, ControlType.kVelocity);
+        rightController.setReference(wheelSpeeds.rightMetersPerSecond, ControlType.kVelocity);
       },
       // runs once at end of command 
       () -> {
@@ -216,7 +241,7 @@ public class DriveSystem extends SubsystemBase {
         frontRight.stopMotor();
       }
     ).until(
-      // at setpoint
+      // returns true if robot is at end angle
       rotateController::atSetpoint
     );
   }
@@ -224,6 +249,13 @@ public class DriveSystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // update robot position
+    odometry.update(
+      Rotation2d.fromDegrees(gyro.getAngle()), 
+      leftEncoder.getPosition(), 
+      rightEncoder.getPosition()
+    );
 
     // simulation periodic
     if (Robot.isSimulation()) {

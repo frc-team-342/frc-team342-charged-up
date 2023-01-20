@@ -34,6 +34,9 @@ public final class Constants {
     /* meters */
     public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
+    /* distance between left and right wheels - meters */
+    public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
+
     /* meters / second */
     public static final double MAX_SPEED = 5.0;
   }
