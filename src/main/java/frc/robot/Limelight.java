@@ -3,10 +3,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import frc.robot.Constants;
+import static frc.robot.Constants.LimelightConstants.*;
 
 
 class Limelight {
@@ -15,12 +14,6 @@ class Limelight {
      * Creates a network table instance and an entry for each necessary value
      */
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    private NetworkTableEntry targets = table.getEntry("tv");
-    private NetworkTableEntry horizontalOffset = table.getEntry("tx");
-    private NetworkTableEntry verticalOffset = table.getEntry("ty");
-    private NetworkTableEntry targetArea = table.getEntry("ta");
-    private NetworkTableEntry robotPosition3D = table.getEntry("camtran");
-    private NetworkTableEntry robotSkew = table.getEntry("ts0");
 
     /*
      * Creates a default array of values for use with the cam-tran table entry
@@ -35,13 +28,15 @@ class Limelight {
         0.0f
     };
 
-
     /*
      * Creates a number Array to store the robot position values from the cam-tran entry
      * Fills it with the numbers from the defaultValues array
      */
-    private Number[] robotPositionValues = getRobotPosition3D().getNumberArray(defaultValues);
-
+    public Number[] getRobotPosition3D()
+    {
+        Number[] robotPositionValues = table.getEntry("camtran").getNumberArray(defaultValues);
+        return robotPositionValues;
+    }
 
     /*
      * Gets the current pipeline of the limelight
@@ -52,7 +47,6 @@ class Limelight {
         return table.getEntry("pipeline").getNumber(0).intValue();
 
     }
-
 
     /*
      * Switches between the retroreflective tape & Apriltag pipelines
@@ -68,27 +62,24 @@ class Limelight {
 
     }
 
-
     /*
      * Gets the horizontal offset from the limelight to the target
      * Outputs in degrees because it sees how far to the left or right the camera is
      */
     public double getHorizontalOffset() {
         
-        return horizontalOffset.getDouble(0.0);
+        return table.getEntry("tx").getNumber(0).doubleValue();
 
     }
-
 
     /*
      * Returns the vertical offset angle from the limelight to the target
      */
     public double getVerticalOffset() {
 
-        return verticalOffset.getDouble(0.0);
+        return table.getEntry("tx").getNumber(0).doubleValue();
 
     }
-
 
     /*
      * Returns the skew of the robot
@@ -96,10 +87,9 @@ class Limelight {
      */
     public double getSkew() {
 
-        return robotSkew.getDouble(0.0);
+        return table.getEntry("ts0").getNumber(0).doubleValue();
 
     }
-
 
     /*
      * Returns the total area that the current target takes up on the limelight's screen
@@ -107,10 +97,9 @@ class Limelight {
      */
     public double getTargetArea() {
 
-        return targetArea.getDouble(0.0);
+        return table.getEntry("ta").getNumber(0).doubleValue();
 
     }
-
 
     /*
      * Uses the horizontal offset to determine if the robot is facing left of the target
@@ -122,30 +111,18 @@ class Limelight {
 
     }
 
-
-    /*
-     * Returns the position of where the robot is on the field
-     * This is the form of a number array containing (X, Y, Z) and (Pitch, Yaw, Roll)
-     */
-    public NetworkTableEntry getRobotPosition3D() {
-        
-        return robotPosition3D;
-
-    }
-
-
     public Rotation2d createRotation2D() {
 
         /*
          * Gets the pitch value from the robotPositionValues array & converts it to radians
          */
-        double robotRotationPitch = robotPositionValues[3].doubleValue();
+        double robotRotationPitch = getRobotPosition3D()[3].doubleValue();
         double robotRotationPitchRadians = Math.toRadians(robotRotationPitch);
 
         /*
          * Gets the yaw value from the robotPositionValues array & converts it to radians
          */
-        double robotRotationYaw = robotPositionValues[4].doubleValue();
+        double robotRotationYaw = getRobotPosition3D()[4].doubleValue();
         double robotRotationYawRadians = Math.toRadians(robotRotationYaw);
 
         /*
@@ -156,14 +133,13 @@ class Limelight {
 
     }
 
-
     public Translation2d createTranslation2D() {
         
         /*
          * Gets the x & y values from the robotPositionValues array
          */
-        double robotPositionX = robotPositionValues[0].doubleValue();
-        double robotPositionY = robotPositionValues[1].doubleValue();
+        double robotPositionX = getRobotPosition3D()[0].doubleValue();
+        double robotPositionY = getRobotPosition3D()[1].doubleValue();
 
         /*
          * Uses the x & y values to construct a translation2d, then returns it
@@ -182,12 +158,11 @@ class Limelight {
 
     }
 
-
     /*
      * returns a boolean value that lets us know if the limelight has any targets
      */
     public boolean hasTargets() {
-        return(targets.getBoolean(false));
+        return table.getEntry("tv").getBoolean(false);
     }
 
     /*
@@ -196,8 +171,15 @@ class Limelight {
      */
     public double getHorizontalFromLow()
     {
-        double horizontalFromLow = Constants.LimelightConstants.HEIGHT_TO_LOW / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_LOW);
-        return horizontalFromLow;
+        double verticalOffset = getVerticalOffset();
+
+        if(verticalOffset > 0 && verticalOffset <= Constants.LimelightConstants.MAX_VERT_OFFSET_FOR_LOW)
+        {
+            double horizontalFromLow = Constants.LimelightConstants.HEIGHT_TO_LOW / Math.tan(verticalOffset);
+            return horizontalFromLow;
+        }
+        
+        return 0.0;
     }
 
     /*
@@ -206,8 +188,15 @@ class Limelight {
      */
     public double getHorizontalFromMed()
     {
-        double horizontalFromMed = Constants.LimelightConstants.HEIGHT_TO_MED / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_MED);
-        return horizontalFromMed;
+        double verticalOffset = getVerticalOffset();
+
+        if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED)
+        {
+            double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
+            return horizontalFromMed;
+        }
+
+        return 0.0;
     }
 
     /*
@@ -216,10 +205,16 @@ class Limelight {
     */
     public double getHorizontalFromHigh()
     {
-        double horizontalFromHigh = Constants.LimelightConstants.HEIGHT_TO_HIGH / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_HIGH);
-        return horizontalFromHigh;
-    }
+        double verticalOffset = getVerticalOffset();
 
+        if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH)
+        {
+            double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
+            return horizontalFromHigh; 
+        }
+
+        return 0.0;
+    }
 
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
