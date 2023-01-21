@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import frc.robot.Constants;
 
 
 class Limelight {
@@ -189,11 +190,44 @@ class Limelight {
         return(targets.getBoolean(false));
     }
 
-    
+    /*
+     * Uses the vertical distance from and the angle from the limelight to the low target to calculate the horizontal distance
+     * Will need to be updated later as the height and angle are currently unknown
+     */
+    public double getHorizontalFromLow()
+    {
+        double horizontalFromLow = Constants.LimelightConstants.HEIGHT_TO_LOW / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_LOW);
+        return horizontalFromLow;
+    }
+
+    /*
+     * Uses the vertical distance from and the angle from the limelight to the mid target to calculate the horizontal distance
+     * Will need to be updated later as the height and angle are currently unknown
+     */
+    public double getHorizontalFromMed()
+    {
+        double horizontalFromMed = Constants.LimelightConstants.HEIGHT_TO_MED / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_MED);
+        return horizontalFromMed;
+    }
+
+    /*
+     * Uses the vertical distance from and the angle from the limelight to the high target to calculate the horizontal distance
+     * Will need to be updated later as the height and angle are currently unknown
+    */
+    public double getHorizontalFromHigh()
+    {
+        double horizontalFromHigh = Constants.LimelightConstants.HEIGHT_TO_HIGH / Math.tan(Constants.LimelightConstants.LIMELIGHT_ANGLE_TO_HIGH);
+        return horizontalFromHigh;
+    }
+
+
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
+        builder.addDoubleProperty("Horizontal Distance from Low Target", this::getHorizontalFromLow, null);
+        builder.addDoubleProperty("Horizontal Distance from Med Target", this::getHorizontalFromMed, null);
+        builder.addDoubleProperty("Horizontal Distance from High Target", this::getHorizontalFromHigh, null);
     }
 }
