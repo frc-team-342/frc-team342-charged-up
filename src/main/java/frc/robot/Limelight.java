@@ -32,7 +32,7 @@ class Limelight {
      * Creates a number Array to store the robot position values from the cam-tran entry
      * Fills it with the numbers from the defaultValues array
      */
-    public Number[] getRobotPosition3D()
+    private Number[] getRobotPosition3D()
     {
         Number[] robotPositionValues = table.getEntry("camtran").getNumberArray(defaultValues);
         return robotPositionValues;
@@ -66,18 +66,27 @@ class Limelight {
      * Gets the horizontal offset from the limelight to the target
      * Outputs in degrees because it sees how far to the left or right the camera is
      */
-    public double getHorizontalOffset() {
+    public Double getHorizontalOffset() {
         
-        return table.getEntry("tx").getNumber(0).doubleValue();
+        if(hasTargets()){
 
+        return table.getEntry("tx").getNumber(0).doubleValue();
+        
+        }
+        return Double.NaN;
     }
 
     /*
      * Returns the vertical offset angle from the limelight to the target
      */
-    public double getVerticalOffset() {
+    public Double getVerticalOffset() {
 
-        return table.getEntry("tx").getNumber(0).doubleValue();
+        if(hasTargets()){
+
+            return table.getEntry("tx").getNumber(0).doubleValue();
+
+        }
+            return Double.NaN;
 
     }
 
@@ -85,20 +94,29 @@ class Limelight {
      * Returns the skew of the robot
      * Outputs between -90 and 0 degrees
      */
-    public double getSkew() {
+    public Double getSkew() {
 
-        return table.getEntry("ts0").getNumber(0).doubleValue();
+        if(hasTargets()){
 
+            return table.getEntry("ts0").getNumber(0).doubleValue();
+
+        }
+            return Double.NaN;
+        
+        
     }
 
     /*
      * Returns the total area that the current target takes up on the limelight's screen
      * Outputs a value associated with the percent of the screen being taken up
      */
-    public double getTargetArea() {
+    public Double getTargetArea() {
 
+        if(hasTargets()){
         return table.getEntry("ta").getNumber(0).doubleValue();
+        }
 
+        return Double.NaN;
     }
 
     /*
@@ -128,8 +146,7 @@ class Limelight {
         /*
          * Uses the pitch & yaw value to construct a rotation2d, then returns it
          */
-        Rotation2d limelightRotation2d = new Rotation2d(robotRotationPitchRadians, robotRotationYawRadians);
-        return limelightRotation2d;
+        return new Rotation2d(robotRotationPitchRadians, robotRotationYawRadians);
 
     }
 
@@ -144,8 +161,7 @@ class Limelight {
         /*
          * Uses the x & y values to construct a translation2d, then returns it
          */
-        Translation2d limelightTranslation2d = new Translation2d(robotPositionX, robotPositionY);
-        return limelightTranslation2d;
+        return new Translation2d(robotPositionX, robotPositionY);
 
     }
 
@@ -153,8 +169,7 @@ class Limelight {
         /*
          * Uses a translation2d & a rotation2d parameter to construct a transform2d, then returns it
          */
-        Transform2d limelightTransform2d = new Transform2d(constructorTranslation2d, constructorRotation2d);
-        return limelightTransform2d;
+        return new Transform2d(constructorTranslation2d, constructorRotation2d);
 
     }
 
@@ -165,64 +180,38 @@ class Limelight {
         return table.getEntry("tv").getBoolean(false);
     }
 
-    /*
-     * Uses the vertical distance from and the angle from the limelight to the low target to calculate the horizontal distance
-     * Will need to be updated later as the height and angle are currently unknown
-     */
-    public double getHorizontalFromLow()
+
+    public Double getHorizontalDistance()
     {
-        double verticalOffset = getVerticalOffset();
+        if(hasTargets()){
+            double verticalOffset = getVerticalOffset();
 
-        if(verticalOffset > 0 && verticalOffset <= Constants.LimelightConstants.MAX_VERT_OFFSET_FOR_LOW)
-        {
-            double horizontalFromLow = Constants.LimelightConstants.HEIGHT_TO_LOW / Math.tan(verticalOffset);
-            return horizontalFromLow;
+            if(verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW){
+                double horizontalFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
+                return horizontalFromLow;
+            }
+
+            if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED){
+                double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
+                return horizontalFromMed;
+            }
+
+            if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH){
+                double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
+                return horizontalFromHigh;
+            }
+
+            return 0.0;
+         }
+
+            return Double.NaN;
         }
-        
-        return 0.0;
-    }
-
-    /*
-     * Uses the vertical distance from and the angle from the limelight to the mid target to calculate the horizontal distance
-     * Will need to be updated later as the height and angle are currently unknown
-     */
-    public double getHorizontalFromMed()
-    {
-        double verticalOffset = getVerticalOffset();
-
-        if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED)
-        {
-            double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-            return horizontalFromMed;
-        }
-
-        return 0.0;
-    }
-
-    /*
-     * Uses the vertical distance from and the angle from the limelight to the high target to calculate the horizontal distance
-     * Will need to be updated later as the height and angle are currently unknown
-    */
-    public double getHorizontalFromHigh()
-    {
-        double verticalOffset = getVerticalOffset();
-
-        if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH)
-        {
-            double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-            return horizontalFromHigh; 
-        }
-
-        return 0.0;
-    }
 
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Horizontal Distance from Low Target", this::getHorizontalFromLow, null);
-        builder.addDoubleProperty("Horizontal Distance from Med Target", this::getHorizontalFromMed, null);
-        builder.addDoubleProperty("Horizontal Distance from High Target", this::getHorizontalFromHigh, null);
+        builder.addDoubleProperty("Horizontal Offset From Target", this::getHorizontalDistance, null);
     }
 }
