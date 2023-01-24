@@ -13,7 +13,10 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
@@ -21,7 +24,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -78,7 +80,7 @@ public class DriveSystem extends SubsystemBase {
     gyro = new AHRS();
 
     // pid
-    rotateController = new PIDController(0, 0, 0);
+    rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(0, 0);
     
     // kinematics + odometry
@@ -144,16 +146,32 @@ public class DriveSystem extends SubsystemBase {
   public CommandBase driveDistance(double velocityIn, double distance) {
     double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
 
-    // meters
     // TODO: refactor to use odometry
-    double startPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
-    double endPos = startPos + distance;
+    Pose2d start = odometry.getPoseMeters();
+    Transform2d transform = new Transform2d(
+      // distance from current position facing current direction
+      new Translation2d(distance, start.getRotation()), 
+      // don't rotate while driving
+      new Rotation2d(0.0)
+    );
+    Pose2d end = start.plus(transform);
+
+    // start heading is recorded to make sure it stays straight
+    Rotation2d startAngle = start.getRotation();
 
     return runEnd(
       // runs repeatedly during command
       () -> {
-        leftController.setReference(velocity, ControlType.kVelocity);
-        rightController.setReference(velocity, ControlType.kVelocity);
+        // get current heading
+        Rotation2d currentAngle = Rotation2d.fromDegrees(gyro.getAngle());
+        Rotation2d error = currentAngle.minus(startAngle); // radians
+
+        // use rotation controller to drive error to zero to drive straight
+        double rotation = rotateController.calculate(error.getRadians(), 0);
+
+        // drive at velocity from parameter
+        leftController.setReference(velocity + (-1 * rotation), ControlType.kVelocity); 
+        rightController.setReference(velocity + rotation, ControlType.kVelocity);
       }, 
       // runs once at end of command
       () -> {
@@ -166,17 +184,18 @@ public class DriveSystem extends SubsystemBase {
       }
     ).until(
       () -> {
-        // meters
-        double currPos = (leftEncoder.getPosition() + rightEncoder.getPosition()) / 2;
-
-        // TODO: refactor to use odometry
-        return false; 
+        // get current distance from original position
+        Pose2d curr = odometry.getPoseMeters();
+        Transform2d distTraveled = curr.minus(start);
+        
+        // check that current distance is close to intended distance
+        double dist = Math.hypot(distTraveled.getX(), distTraveled.getY());
+        return (distance - 0.3) < dist && (distance + 0.3) > dist; // TODO: replace tolerance with constant 
       }
     );
   }
 
   /**
-   * 
    * @param velocityIn meters/second
    * @return command that drives at given velocity without an end condition
    */
@@ -225,9 +244,13 @@ public class DriveSystem extends SubsystemBase {
         ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
 
+        // clamp wheel speeds to max velocity
+        double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+        double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+
         // apply drivetrain speeds to drive pid controllers
-        leftController.setReference(wheelSpeeds.leftMetersPerSecond, ControlType.kVelocity);
-        rightController.setReference(wheelSpeeds.rightMetersPerSecond, ControlType.kVelocity);
+        leftController.setReference(left, ControlType.kVelocity);
+        rightController.setReference(right, ControlType.kVelocity);
       },
       // runs once at end of command 
       () -> {

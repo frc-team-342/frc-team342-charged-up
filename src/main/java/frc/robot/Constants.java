@@ -16,11 +16,9 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
-
   
   public static class DriveConstants{
     public static final int FRONT_LEFT_MOTOR = 1;
@@ -28,18 +26,20 @@ public final class Constants {
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
-    /* meters */
+    /** meters */
     public static final double WHEEL_RADIUS = Units.inchesToMeters(3.0);
 
-    /* meters */
+    /** meters */
     public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
-    /* distance between left and right wheels - meters */
+    /** distance between left and right wheels - meters */
     public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
+
+    /** driving to driven */
+    public static final double GEAR_RATIO = 5.45 / 1;
 
     /* meters / second */
     public static final double MAX_SPEED = 5.0;
   }
-
 
 }
