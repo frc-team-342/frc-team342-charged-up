@@ -298,5 +298,10 @@ public class DriveSystem extends SubsystemBase {
     // drivetrain velocity + direction
     // TODO
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
+
+    // odometry positions
+    builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
+    builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
+    builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
   }
 }
