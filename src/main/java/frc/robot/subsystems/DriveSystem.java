@@ -61,6 +61,14 @@ public class DriveSystem extends SubsystemBase {
     leftController = frontLeft.getPIDController();
     rightController = frontRight.getPIDController();
 
+    leftController.setP(0.0);
+    leftController.setD(0.0);
+    leftController.setFF(0.0);
+
+    rightController.setP(0.0);
+    rightController.setD(0.0);
+    rightController.setFF(0.0);
+
     // encoders
     leftEncoder = frontLeft.getEncoder();
     rightEncoder = frontRight.getEncoder();
@@ -69,8 +77,8 @@ public class DriveSystem extends SubsystemBase {
     leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
     rightEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
 
-    leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
-    rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
+    leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
+    rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
