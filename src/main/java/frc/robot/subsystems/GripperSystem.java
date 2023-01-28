@@ -5,25 +5,71 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorMatchResult;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.GripperConstants.*;
 
 
 
 public class GripperSystem extends SubsystemBase {
-  /** Creates a new GripperSystem. */
+
+  //controls the speed of the spinning wheels
+  private final double rollerSpeed = 0.5;
   private final ColorSensorV3 colorSensor;
+  private CANSparkMax rollerMotor;
+
+  /** Creates a new GripperSystem. */
   public GripperSystem() {
     colorSensor = new ColorSensorV3(i2cPort);
-
+    rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
   }
 
+  public void spin(double speed){
+    rollerMotor.set(speed);
+  }
+
+  /*
+   * Spins the gripper roller to intake
+   * sets speed to 0 to stop
+   */
+  public CommandBase intake(){
+    return runEnd(
+      //run
+      () -> {
+        spin(rollerSpeed);
+      },
+      //end
+      () -> {
+        spin(0);
+      }
+
+    );
+  }
+
+  /*
+   * spins the gripper roller at a negative speed to outtake
+   * sets speed to 0 to stop
+   */
+  public CommandBase outtake(){
+    return runEnd(
+      //run
+      () -> {
+        spin(-(rollerSpeed));
+      },
+      //end
+      () -> {
+        spin(0);
+      }
+    );
+  }
 
   @Override
   public void initSendable(SendableBuilder builder){
