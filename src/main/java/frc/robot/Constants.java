@@ -23,6 +23,7 @@ public final class Constants {
 
   
   public static class DriveConstants{
+
     public static final int FRONT_LEFT_MOTOR = 1;
     public static final int FRONT_RIGHT_MOTOR = 2;
     public static final int BACK_LEFT_MOTOR = 3;
@@ -34,5 +35,6 @@ public final class Constants {
 
   public static class GripperConstants{
     public static final I2C.Port i2cPort = I2C.Port.kOnboard;
+    public static final int ROLLER_MOTOR = 5;
   }
 }
