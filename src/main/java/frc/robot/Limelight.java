@@ -180,6 +180,21 @@ class Limelight {
         return table.getEntry("tv").getBoolean(false);
     }
 
+    /*
+     * checks if the limelight is in Apriltag, and if it has a target,  returns the ID of the Apriltag
+     * Otherwise, it returns null.
+     */
+    public Double getTargetID(){
+        if(getPipeline() == 1)
+        {
+            if(hasTargets()){
+            return table.getEntry("tid").getDouble(0.0);
+            }
+         }
+
+        return null;
+
+    }
 
     public Double getHorizontalDistance()
     {
