@@ -30,6 +30,9 @@ public final class Constants {
     public static final double SLOW_SPEED = 0.4; 
   }
 
+  /*
+   * todo: add actual values for all of the constants, they are currently placeholders
+   */
   public static class LimelightConstants{
     public static final double HEIGHT_TO_LOW = 0.0;
     public static final double HEIGHT_TO_MED = 0.0;
