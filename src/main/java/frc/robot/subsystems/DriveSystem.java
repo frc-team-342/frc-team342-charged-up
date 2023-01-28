@@ -3,7 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+
 import com.kauailabs.navx.frc.AHRS;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -41,6 +43,19 @@ import frc.robot.Robot;
 import static frc.robot.Constants.DriveConstants.*;
 
 public class DriveSystem extends SubsystemBase {
+  // speeds are statically imported constants
+  private enum Mode {
+
+    NORMAL(NORMAL_SPEED),
+    SLOW(SLOW_SPEED);
+
+    public final double speedMultiplier;
+
+    private Mode(double speedMultiplier) {
+      this.speedMultiplier = speedMultiplier;
+    }
+  }
+
   private final CANSparkMax frontLeft;
   private final CANSparkMax frontRight;
   private final CANSparkMax backLeft;
@@ -63,6 +78,8 @@ public class DriveSystem extends SubsystemBase {
   private final DifferentialDrivetrainSim drivetrainSim;
 
   private final Field2d field;
+
+  private Mode currentMode = Mode.NORMAL;
 
   /** Creates a new DriveSystem. */
   public DriveSystem() {
@@ -163,6 +180,15 @@ public class DriveSystem extends SubsystemBase {
     }
   }
 
+  /** Changes the speed multiplier between the normal mode to slow mode */
+  public void toggleSlowMode() {
+    if (currentMode != Mode.SLOW) {
+      currentMode = Mode.SLOW;
+    } else {
+      currentMode = Mode.NORMAL;   
+    }
+  }
+
   /**
    * drives the robot with tank drive
    * 
@@ -171,11 +197,11 @@ public class DriveSystem extends SubsystemBase {
    */
   public void drivePercent(double leftSpeed, double rightSpeed) {
     // left side
-    double leftVelocity = leftSpeed * MAX_SPEED;
+    double leftVelocity = leftSpeed * currentMode.speedMultiplier;
     leftController.setReference(leftVelocity, ControlType.kDutyCycle);
 
     // right side
-    double rightVelocity = rightSpeed * MAX_SPEED;
+    double rightVelocity = rightSpeed * currentMode.speedMultiplier;
     rightController.setReference(rightVelocity, ControlType.kDutyCycle);
   }
 
