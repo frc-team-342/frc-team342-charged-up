@@ -6,11 +6,14 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,9 +24,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -49,6 +59,11 @@ public class DriveSystem extends SubsystemBase {
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
 
+  private final LinearSystem<N2, N2, N2> model;
+  private final DifferentialDrivetrainSim drivetrainSim;
+
+  private final Field2d field;
+
   /** Creates a new DriveSystem. */
   public DriveSystem() {
     // motors
@@ -57,24 +72,29 @@ public class DriveSystem extends SubsystemBase {
     backLeft = new CANSparkMax(BACK_LEFT_MOTOR, MotorType.kBrushless);
     backRight = new CANSparkMax(BACK_RIGHT_MOTOR, MotorType.kBrushless);
 
+    frontLeft.setIdleMode(IdleMode.kBrake);
+    frontRight.setIdleMode(IdleMode.kBrake);
+    backLeft.setIdleMode(IdleMode.kBrake);
+    backRight.setIdleMode(IdleMode.kBrake);
+
     // pid controllers
     leftController = frontLeft.getPIDController();
     rightController = frontRight.getPIDController();
 
-    leftController.setP(0.0);
-    leftController.setD(0.0);
-    leftController.setFF(0.0);
+    leftController.setP(0.001);
+    leftController.setD(0.001);
+    leftController.setFF(1.0);
 
-    rightController.setP(0.0);
-    rightController.setD(0.0);
-    rightController.setFF(0.0);
+    rightController.setP(0.001);
+    rightController.setD(0.001);
+    rightController.setFF(1.0);
 
     // encoders
     leftEncoder = frontLeft.getEncoder();
     rightEncoder = frontRight.getEncoder();
 
     // makes encoders return meters
-    leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
+    leftEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO );
     rightEncoder.setPositionConversionFactor(WHEEL_CIRCUMFERENCE / GEAR_RATIO);
 
     leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
@@ -89,15 +109,34 @@ public class DriveSystem extends SubsystemBase {
 
     // pid
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
-    rotateController.setTolerance(0, 0);
+    rotateController.setTolerance(Math.PI / 4, 0);
     
-    // kinematics + odometry
-    kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);
-    odometry = new DifferentialDriveOdometry(
-      Rotation2d.fromDegrees(gyro.getAngle()), 
-      leftEncoder.getPosition(), 
-      rightEncoder.getPosition()
+    // kinematics
+    kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
+    
+    // state-space system model
+    model = LinearSystemId.createDrivetrainVelocitySystem(
+      DCMotor.getNEO(4), // motors used in the drivetrain 
+      MASS, 
+      WHEEL_RADIUS, 
+      TRACK_WIDTH / 2, 
+      MOMENT_OF_INERTIA, 
+      1 / GEAR_RATIO
     );
+
+    // drivetrain simulation
+    drivetrainSim = new DifferentialDrivetrainSim(
+      model, // drivetrain state-space model
+      DCMotor.getNEO(4),
+      1 / GEAR_RATIO,
+      TRACK_WIDTH,
+      WHEEL_RADIUS,
+      null
+    );
+
+    // robot pose on field visualization
+    field = new Field2d();
+    SmartDashboard.putData(field);
 
     // simulation initiation
     if (Robot.isSimulation()) {
@@ -106,6 +145,21 @@ public class DriveSystem extends SubsystemBase {
       REVPhysicsSim.getInstance().addSparkMax(frontRight, DCMotor.getNEO(1));
       REVPhysicsSim.getInstance().addSparkMax(backLeft, DCMotor.getNEO(1));
       REVPhysicsSim.getInstance().addSparkMax(backRight, DCMotor.getNEO(1));
+    }
+
+    // odometry instantiated differently in sim or real robot
+    if (Robot.isReal()) {
+      odometry = new DifferentialDriveOdometry(
+        Rotation2d.fromDegrees(gyro.getAngle()), 
+        leftEncoder.getPosition(), 
+        rightEncoder.getPosition()
+      );
+    } else {
+      odometry = new DifferentialDriveOdometry(
+        drivetrainSim.getHeading(), 
+        drivetrainSim.getLeftPositionMeters(), 
+        drivetrainSim.getRightPositionMeters()
+      );
     }
   }
 
@@ -279,20 +333,51 @@ public class DriveSystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // odometry and pose visualization update different in simulation and real
+    if (Robot.isReal()) {
+      // update from real encoder and gyro values
+      odometry.update(
+        Rotation2d.fromDegrees(-gyro.getAngle()), 
+        leftEncoder.getPosition(), 
+        rightEncoder.getPosition()
+      );
 
-    // update robot position
-    odometry.update(
-      Rotation2d.fromDegrees(gyro.getAngle()), 
-      leftEncoder.getPosition(), 
-      rightEncoder.getPosition()
+      // update field visualization from odometry in real robot
+      field.setRobotPose(odometry.getPoseMeters());
+    } else {
+      // update from drivetrain sim
+      odometry.update(
+        drivetrainSim.getHeading(), 
+        drivetrainSim.getLeftPositionMeters(), 
+        drivetrainSim.getRightPositionMeters()
+      );
+
+      // update field visualization from drivetrain sim in simulation
+      field.setRobotPose(drivetrainSim.getPose());
+    }    
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // run rev lib physics sim
+    REVPhysicsSim.getInstance().run();
+
+    // set sim navx to track data from drivetrain rotation
+    int device = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(device, "Yaw"));
+
+    // navx is counterclockwise positive
+    double currentAngle = drivetrainSim.getHeading().getDegrees();
+    angle.set(Math.IEEEremainder(-currentAngle, 360)); 
+
+    // set inputs to drivesystem simulation
+    drivetrainSim.setInputs(
+      frontLeft.getAppliedOutput() * RobotController.getInputVoltage(), 
+      frontRight.getAppliedOutput() * RobotController.getInputVoltage()
     );
 
-    // simulation periodic
-    if (Robot.isSimulation()) {
-      // run rev lib physics sim
-      REVPhysicsSim.getInstance().run();
-    }
+    // drivetrain simulation update with timestamp
+    drivetrainSim.update(0.02);
   }
 
   @Override
@@ -300,16 +385,26 @@ public class DriveSystem extends SubsystemBase {
     builder.setSmartDashboardType("Drive");
 
     // motor velocities
-    builder.addDoubleProperty("Left velocity (RPM)", frontLeft.getEncoder()::getVelocity, null);
-    builder.addDoubleProperty("Right Velocity (RPM)", frontRight.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Left velocity", frontLeft.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Right Velocity", frontRight.getEncoder()::getVelocity, null);
+
+    if (Robot.isSimulation()) {
+      builder.addDoubleProperty("Simulation left velocity", drivetrainSim::getLeftVelocityMetersPerSecond, null);
+      builder.addDoubleProperty("Simulation right velocity", drivetrainSim::getRightVelocityMetersPerSecond, null);
+    }
 
     // drivetrain velocity + direction
-    // TODO
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
 
     // odometry positions
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
     builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
     builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+
+    if (Robot.isSimulation()) {
+      builder.addDoubleProperty("Voltage", RobotController::getInputVoltage, null);
+      builder.addDoubleProperty("Left output", () -> frontLeft.getAppliedOutput(), null);
+      builder.addDoubleProperty("Right output", () -> frontRight.getAppliedOutput(), null);
+    }
   }
 }

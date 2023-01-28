@@ -38,8 +38,14 @@ public final class Constants {
     /** driving to driven */
     public static final double GEAR_RATIO = 5.45 / 1;
 
-    /* meters / second */
+    /** meters / second */
     public static final double MAX_SPEED = 5.0;
+
+    /** kg m^2 */
+    public static final double MOMENT_OF_INERTIA = 3.53325;
+
+    /** kg */
+    public static final double MASS = 35.27; // subject to change
   }
 
 }
