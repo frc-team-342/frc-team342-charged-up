@@ -7,9 +7,12 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -28,6 +31,8 @@ public class RobotContainer {
   public RobotContainer() {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+
+    SmartDashboard.putData(driveSystem);
     
     // Configure the trigger bindings
     configureBindings();
@@ -53,6 +58,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto();
+    return Commands.sequence(
+      //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
+      driveSystem.driveDistance(5, 2)
+    );
   }
 }
