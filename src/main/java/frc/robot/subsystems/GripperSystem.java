@@ -28,7 +28,7 @@ public class GripperSystem extends SubsystemBase {
 
   /** Creates a new GripperSystem. */
   public GripperSystem() {
-    colorSensor = new ColorSensorV3(i2cPort);
+    colorSensor = new ColorSensorV3(I2CPORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
   }
 
@@ -36,10 +36,10 @@ public class GripperSystem extends SubsystemBase {
     rollerMotor.set(speed);
   }
 
-  /*
+  /**
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
-   */
+   **/
   public CommandBase intake(){
     return runEnd(
       //run
@@ -54,10 +54,10 @@ public class GripperSystem extends SubsystemBase {
     );
   }
 
-  /*
+  /**
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
-   */
+   **/
   public CommandBase outtake(){
     return runEnd(
       //run
@@ -73,9 +73,6 @@ public class GripperSystem extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder){
-
-    double IR = colorSensor.getIR();
-    int proximity = colorSensor.getProximity();
   
     builder.setSmartDashboardType("GripperSystem");
 
