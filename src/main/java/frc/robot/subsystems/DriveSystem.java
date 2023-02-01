@@ -37,12 +37,17 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 import static frc.robot.Constants.DriveConstants.*;
 
-public class DriveSystem extends SubsystemBase {
+import java.util.List;
+
+public class DriveSystem extends SubsystemBase implements Testable {
   // speeds are statically imported constants
   private enum Mode {
 
@@ -432,5 +437,87 @@ public class DriveSystem extends SubsystemBase {
       builder.addDoubleProperty("Left output", () -> frontLeft.getAppliedOutput(), null);
       builder.addDoubleProperty("Right output", () -> frontRight.getAppliedOutput(), null);
     }
+  }
+
+  @Override
+  public List<Connection> hardwareConnected() {
+    return List.of(
+      // default constructor for spark connections
+      fromSparkMax(frontLeft),
+      fromSparkMax(frontRight),
+      fromSparkMax(backLeft),
+      fromSparkMax(backRight),
+      // default constructor for navx connection
+      fromNavx(gyro)
+    );
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    // if/when joystick drive uses pid this should be changed to also use pid
+    return Commands.sequence(
+      // drive forwards
+      new RunCommand(
+        () -> {
+          // both wheels forwards at speed set by mode
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this // this command depends on drivesystem
+      ).withTimeout(3), // run this for 3 seconds before continuing
+
+      // drive backwards
+      new RunCommand(
+        () -> {
+          // both wheels backwards at speed set by mode
+          drivePercent(-currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(3),
+
+      // drive clockwise
+      new RunCommand(
+        () -> {
+          // left wheel forwards right wheel backwards
+          drivePercent(currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this 
+      ).withTimeout(3), 
+
+      // drive counterclockwise
+      new RunCommand(
+        () -> {
+          // left wheel backwards right wheel forwards
+          drivePercent(-currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(3),
+
+      // enable slow mode
+      new InstantCommand(
+        () -> { toggleSlowMode(); },
+        this
+      ),
+
+      // drive forwards in slow mode
+      new RunCommand(
+        () -> {
+          // both wheels forwards
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).andThen(
+        () -> {
+          // stop driving
+          drivePercent(0, 0);
+        }, 
+        this
+      ).withTimeout(3),
+
+      // disable slow mode
+      new InstantCommand(
+        () -> { toggleSlowMode(); },
+        this
+      )
+    );
   }
 }

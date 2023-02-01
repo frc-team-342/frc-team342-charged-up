@@ -61,7 +61,7 @@ public interface Testable {
      * @param spark the sparkmax object
      * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the spark's CAN connection
      */
-    public static Connection fromSparkMax(CANSparkMax spark) {
+    public default Connection fromSparkMax(CANSparkMax spark) {
         int id = spark.getDeviceId(); // can id
         BooleanSupplier connectionCheck = () -> !spark.getFirmwareString().equals("v0.0.0"); 
         return new Connection("SparkMax " + Integer.toString(id), connectionCheck);       
@@ -72,7 +72,7 @@ public interface Testable {
      * @param navx the navx object
      * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the navx's connection to the rio
      */
-    public static Connection fromNavx(AHRS navx) {
+    public default Connection fromNavx(AHRS navx) {
         BooleanSupplier connectionCheck = () -> navx.isConnected();
         return new Connection("NavX", connectionCheck);
     }
@@ -82,7 +82,7 @@ public interface Testable {
      * @param limelight the network table containing limelight data
      * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the limelight's network connection
      */
-    public static Connection fromLimelight(NetworkTable limelight) {
+    public default Connection fromLimelight(NetworkTable limelight) {
         BooleanSupplier connectionCheck = () -> {
             // 4 is not a valid value of the led mode
             long ledMode = limelight.getEntry("ledMode").getInteger(4);
