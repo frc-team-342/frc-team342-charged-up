@@ -97,8 +97,8 @@ class Limelight {
    
 
      /**
-      * Gets the skew of the robot from network tables
-      * @return The skew of the robot from -90 to 90 degrees
+      * Outputs between -90 and 0 degrees
+      * @return The skew of the target that is currently within the limelight's viewframe
       */
     public Double getSkew() {
 
