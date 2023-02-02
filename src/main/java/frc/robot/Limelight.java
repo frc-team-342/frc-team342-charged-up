@@ -11,12 +11,12 @@ import static frc.robot.Constants.LimelightConstants.*;
 class Limelight {
 
     /**
-     * Creates a network table instance and an entry for each necessary value
+     * Provides an object through which to access the networkTables entries associated with the limelight
      */
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
     /**
-     * Creates a default array of values for use with the cam-tran table entry
+     * Creates a default array of values for use with the botPose table entry
      */
     private Number[] defaultValues =
     {
@@ -29,12 +29,12 @@ class Limelight {
     };
 
     /**
-     * Creates a number Array to store the robot position values from the cam-tran entry
+     * Creates a number Array to store the robot position values from the botPose entry
      * Fills it with the numbers from the defaultValues array
      */
     private Number[] getRobotPosition3D()
     {
-        Number[] robotPositionValues = table.getEntry("camtran").getNumberArray(defaultValues);
+        Number[] robotPositionValues = table.getEntry("botPose").getNumberArray(defaultValues);
         return robotPositionValues;
     }
 
@@ -65,7 +65,7 @@ class Limelight {
 
     /**
      * Gets the horizontal offset angle from networkTable
-     * @return The horizontal offset angle from the limelight to the target
+     * @return The horizontal offset angle from the limelight crosshair to the target
      */
     public Double getHorizontalOffset() {
         
@@ -81,7 +81,7 @@ class Limelight {
 
     /**
      * Gets the vertical offset angle from the limelight to the target
-     * @return The vertical angle from the limelight to the target
+     * @return The vertical angle from the limelight crosshair to the target
      */
     public Double getVerticalOffset() {
 
@@ -141,7 +141,7 @@ class Limelight {
 
     /**
      * Uses the pitch and yaw values from networkTables to construct and returns a rotation2D
-     * @return A rotation2D made from the robot pitch and yaw values
+     * @return A rotation2D made from the robot pitch and yaw values, represents rotation to the currently seen target
      */
     public Rotation2d createRotation2D() {
 
@@ -166,7 +166,7 @@ class Limelight {
 
     /**
      * Uses values from networkTables to construct and return a translation2D
-     * @return a translation2D made from the robot x and robot y values
+     * @return a translation2D made from the robot x and robot y values, represents movement to the currently seen target
      */
     public Translation2d createTranslation2D() {
         
@@ -224,10 +224,10 @@ class Limelight {
     }
 
     /**
-     * Checks what target we are looking at, calculates the distance, and returns it
-     * @return The Horizontal Distance from the current vision target
+     * Checks what target we are looking at, calculates the forward distance, and returns it
+     * @return Forward distance from the current vision target
      */
-    public Double getHorizontalDistance()
+    public Double forwardDistanceToTarget()
     {
         if(hasTargets()){
             double verticalOffset = getVerticalOffset();
@@ -258,6 +258,6 @@ class Limelight {
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Horizontal Offset From Target", this::getHorizontalDistance, null);
+        builder.addDoubleProperty("Horizontal Offset From Target", this::forwardDistanceToTarget, null);
     }
 }
