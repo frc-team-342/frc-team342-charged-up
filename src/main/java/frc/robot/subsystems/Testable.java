@@ -42,7 +42,7 @@ public interface Testable {
      * checks whether all the hardware in a subsystem is connected
      * @return list of connection objects representing each checkable hardware object in the subsystem
      */
-    default public List<Connection> hardwareConnected() {
+    default public List<Connection> hardwareConnections() {
         // returns empty list when not implemented
         return List.of();
     }
@@ -54,6 +54,30 @@ public interface Testable {
     default public CommandBase testRoutine() {
         // does nothing when not implemented
         return new InstantCommand();
+    }
+
+    /**
+     * check every connection in the device list
+     * @return if no failures, null, if failures present returns error string
+     */
+    default public String checkAllConnections() {
+        // get all hardware connections for this subsystem
+        List<Connection> connections = this.hardwareConnections();
+
+        // used to concatenate errors from every device
+        StringBuilder errors = new StringBuilder("");
+
+        // check each connection in list
+        for (Connection connection: connections) {
+            if (connection.connected()) continue;
+
+            // add error to stringbuilder
+            errors.append(connection.getName() + " not connected.\n");
+        }
+
+        // return final error string after checking every device
+        String errorMsg = errors.toString();
+        return (errorMsg == "") ? null : errorMsg;
     }
 
     /**

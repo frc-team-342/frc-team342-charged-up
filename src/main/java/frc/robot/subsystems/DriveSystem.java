@@ -440,7 +440,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
   }
 
   @Override
-  public List<Connection> hardwareConnected() {
+  public List<Connection> hardwareConnections() {
     return List.of(
       // default constructor for spark connections
       fromSparkMax(frontLeft),
