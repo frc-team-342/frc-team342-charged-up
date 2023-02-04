@@ -26,6 +26,41 @@ public interface Testable {
             this.name = name; // device name for dashboard
             this.connectionCheck = connectionCheck; // function to check whether device is connected
         }
+
+        /**
+         * instantiate a connection with default name and check func from a sparkmax
+         * @param spark the sparkmax object
+         * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the spark's CAN connection
+         */
+        public static Connection fromSparkMax(CANSparkMax spark) {
+            int id = spark.getDeviceId(); // can id
+            BooleanSupplier connectionCheck = () -> !spark.getFirmwareString().equals("v0.0.0"); 
+            return new Connection("SparkMax " + Integer.toString(id), connectionCheck);       
+        }
+
+        /**
+         * instantiate a connection with default name and check func from a navx
+         * @param navx the navx object
+         * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the navx's connection to the rio
+         */
+        public static Connection fromNavx(AHRS navx) {
+            BooleanSupplier connectionCheck = () -> navx.isConnected();
+            return new Connection("NavX", connectionCheck);
+        }
+
+        /**
+         * instantiate a connection with default name and check func from a limelight
+         * @param limelight the network table containing limelight data
+         * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the limelight's network connection
+         */
+        public static Connection fromLimelight(NetworkTable limelight) {
+            BooleanSupplier connectionCheck = () -> {
+                // 4 is not a valid value of the led mode
+                long ledMode = limelight.getEntry("ledMode").getInteger(4);
+                return ledMode != (long) 4;
+            };
+            return new Connection("Limelight", connectionCheck);
+        }
         
         /**
          * @return the name of this device as it will be displayed on the dashboard
@@ -77,41 +112,8 @@ public interface Testable {
 
         // return final error string after checking every device
         String errorMsg = errors.toString();
-        return (errorMsg == "") ? null : errorMsg;
+        return errorMsg;
     }
 
-    /**
-     * instantiate a connection with default name and check func from a sparkmax
-     * @param spark the sparkmax object
-     * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the spark's CAN connection
-     */
-    public default Connection fromSparkMax(CANSparkMax spark) {
-        int id = spark.getDeviceId(); // can id
-        BooleanSupplier connectionCheck = () -> !spark.getFirmwareString().equals("v0.0.0"); 
-        return new Connection("SparkMax " + Integer.toString(id), connectionCheck);       
-    }
-
-    /**
-     * instantiate a connection with default name and check func from a navx
-     * @param navx the navx object
-     * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the navx's connection to the rio
-     */
-    public default Connection fromNavx(AHRS navx) {
-        BooleanSupplier connectionCheck = () -> navx.isConnected();
-        return new Connection("NavX", connectionCheck);
-    }
-
-    /**
-     * instantiate a connection with default name and check func from a limelight
-     * @param limelight the network table containing limelight data
-     * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the limelight's network connection
-     */
-    public default Connection fromLimelight(NetworkTable limelight) {
-        BooleanSupplier connectionCheck = () -> {
-            // 4 is not a valid value of the led mode
-            long ledMode = limelight.getEntry("ledMode").getInteger(4);
-            return ledMode != (long) 4;
-        };
-        return new Connection("Limelight", connectionCheck);
-    }
+    
 }

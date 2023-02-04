@@ -239,7 +239,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
   public CommandBase driveDistance(double velocityIn, double distance) {
     double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
 
-    // TODO: refactor to use odometry
     Pose2d start = odometry.getPoseMeters();
     Transform2d transform = new Transform2d(
       // distance from current position facing current direction
@@ -385,7 +384,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
       // update field visualization from drivetrain sim in simulation
       field.setRobotPose(drivetrainSim.getPose());
-    }    
+    } 
   }
 
   @Override
@@ -443,12 +442,12 @@ public class DriveSystem extends SubsystemBase implements Testable {
   public List<Connection> hardwareConnections() {
     return List.of(
       // default constructor for spark connections
-      fromSparkMax(frontLeft),
-      fromSparkMax(frontRight),
-      fromSparkMax(backLeft),
-      fromSparkMax(backRight),
+      Connection.fromSparkMax(frontLeft),
+      Connection.fromSparkMax(frontRight),
+      Connection.fromSparkMax(backLeft),
+      Connection.fromSparkMax(backRight),
       // default constructor for navx connection
-      fromNavx(gyro)
+      Connection.fromNavx(gyro)
     );
   }
 

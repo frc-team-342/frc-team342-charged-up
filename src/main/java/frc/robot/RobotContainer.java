@@ -7,12 +7,17 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -24,18 +29,41 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSystem driveSystem;
+  private final Limelight limelight;
 
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
+
+  // hardware connection check stuff
+  private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
+  private final CommandBase checkCommand;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
 
+    limelight = new Limelight();
+
     SmartDashboard.putData(driveSystem);
     
     // Configure the trigger bindings
     configureBindings();
+
+    // hardware check
+    checkCommand = Commands.sequence(
+      // drive
+      new InstantCommand(
+        () -> { hardware.getEntry("Drive").setString(driveSystem.checkAllConnections()); },
+        driveSystem
+      ),
+
+      // limelight
+      new InstantCommand(
+        () -> { hardware.getEntry("Limelight").setString(limelight.checkAllConnections()); }
+      )
+    ).ignoringDisable(true);
+
+    Shuffleboard.getTab("Hardware").add(checkCommand);
   }
 
   /**
@@ -61,6 +89,23 @@ public class RobotContainer {
     return Commands.sequence(
       //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
       driveSystem.driveDistance(5, 2)
+    );
+  }
+
+  public Command getTestCommand() {
+    // return all test routines chained together
+    return Commands.sequence(
+      // check that all devices are connected
+      checkCommand,
+      /*
+       * drive system test routine:
+       * - drive forwards
+       * - drive backwards
+       * - turn clockwise
+       * - turn counterclockwise
+       * - drive forwards in slow mode
+       */
+      driveSystem.testRoutine()
     );
   }
 }
