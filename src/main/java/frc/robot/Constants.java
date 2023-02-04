@@ -16,9 +16,11 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
   
   public static class DriveConstants{
     public static final int FRONT_LEFT_MOTOR = 1;
@@ -35,17 +37,10 @@ public final class Constants {
     /** meters */
     public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
-<<<<<<< HEAD
      /** distance between left and right wheels - meters */
      public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
 
       /** driving to driven */
-=======
-    /** distance between left and right wheels - meters */
-    public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
-
-    /** driving to driven */
->>>>>>> 725eb559f733b11c4f107acd354616cfd5c85138
     public static final double GEAR_RATIO = 5.45 / 1;
 
     /** meters / second */
@@ -58,7 +53,6 @@ public final class Constants {
     public static final double MASS = 35.27; // subject to change
   }
 
-<<<<<<< HEAD
   /*
    * todo: add actual values for all of the constants, they are currently placeholders
    */
@@ -70,6 +64,4 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
-=======
->>>>>>> 725eb559f733b11c4f107acd354616cfd5c85138
 }
