@@ -56,11 +56,19 @@ class Limelight {
 
         int currPipe = getPipeline();
         if (currPipe == 0) {
-            table.getEntry("pipeline").setNumber(1);
+            setPipeline(1);
         } else {
-            table.getEntry("pipeline").setNumber(0);
+            setPipeline(0);
         }
 
+    }
+
+    /**
+     * Allows us to set the vision pipeline to a number of our choosing
+     */
+    public void setPipeline(int desiredPipeline)
+    {
+        table.getEntry("pipeline").setNumber(desiredPipeline);
     }
 
     /**
