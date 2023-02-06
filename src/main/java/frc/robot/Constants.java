@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.I2C;
+
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -23,6 +25,7 @@ public final class Constants {
 
   
   public static class DriveConstants{
+
     public static final int FRONT_LEFT_MOTOR = 1;
     public static final int FRONT_RIGHT_MOTOR = 2;
     public static final int BACK_LEFT_MOTOR = 3;
@@ -63,5 +66,10 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+  }
+
+  public static class GripperConstants{
+    public static final I2C.Port I2CPORT = I2C.Port.kOnboard;
+    public static final int ROLLER_MOTOR = 5;
   }
 }
