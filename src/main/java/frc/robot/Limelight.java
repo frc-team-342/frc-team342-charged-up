@@ -8,7 +8,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import static frc.robot.Constants.LimelightConstants.*;
 
 
-class Limelight {
+public class Limelight {
 
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
@@ -56,11 +56,16 @@ class Limelight {
 
         int currPipe = getPipeline();
         if (currPipe == 0) {
-            table.getEntry("pipeline").setNumber(1);
+            setPipeline(1);
         } else {
-            table.getEntry("pipeline").setNumber(0);
+            setPipeline(0);
         }
 
+    }
+
+    public void setPipeline(int desiredPipeline)
+    {
+        table.getEntry("pipeline").setNumber(desiredPipeline);
     }
 
     /**
@@ -258,6 +263,6 @@ class Limelight {
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Horizontal Offset From Target", this::forwardDistanceToTarget, null);
+        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
     }
 }

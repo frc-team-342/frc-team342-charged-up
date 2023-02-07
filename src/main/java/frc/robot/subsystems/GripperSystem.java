@@ -15,8 +15,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Constants.GripperConstants.*;
+import frc.robot.Constants.LimelightConstants;
 
+import static frc.robot.Constants.GripperConstants.*;
+import frc.robot.Limelight;
 
 
 public class GripperSystem extends SubsystemBase {
@@ -25,11 +27,13 @@ public class GripperSystem extends SubsystemBase {
   private final double rollerSpeed = 0.5;
   private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
-
+  private Limelight limelight;
+  
   /** Creates a new GripperSystem. */
-  public GripperSystem() {
+  public GripperSystem(Limelight limelight) {
     colorSensor = new ColorSensorV3(I2CPORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
+    this.limelight = limelight;
   }
 
   public void spin(double speed){
@@ -67,6 +71,15 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
+
+        if(colorSensor.getIR() > 90 && colorSensor.getColor().blue > 25)
+        {
+          limelight.setPipeline(1);
+        }
+        else if(colorSensor.getIR() > 90)
+        {
+          limelight.setPipeline(0);
+        }
       }
     );
   }
