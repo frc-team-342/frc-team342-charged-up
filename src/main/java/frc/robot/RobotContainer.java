@@ -42,7 +42,6 @@ public class RobotContainer {
     SmartDashboard.putData(driveSystem);
     gripperSystem = new GripperSystem(limelight);
 
-    InstantCommand activateGripper = gripperSystem.intake();
     
     // Configure the trigger bindings
     configureBindings();
@@ -59,7 +58,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    gripperTestBtn.whileTrue(activateGripper);
+    gripperTestBtn.whileTrue(gripperSystem.intake());
   }
 
   /**

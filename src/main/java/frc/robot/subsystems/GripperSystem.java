@@ -14,6 +14,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LimelightConstants;
 
@@ -28,7 +29,7 @@ public class GripperSystem extends SubsystemBase {
   private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
-  
+
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
     colorSensor = new ColorSensorV3(I2CPORT);
@@ -53,9 +54,27 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
+    
+
+        if(checkForCube())
+        {
+          limelight.setPipeline(1);
+        }
+        else if(checkForGamePiece())
+        {
+          limelight.setPipeline(0);
+        }
       }
 
     );
+  }
+
+  private boolean checkForGamePiece() {
+    return colorSensor.getIR() > 10;
+  }
+
+  private boolean checkForCube() {
+    return checkForGamePiece() && colorSensor.getColor().blue > 0.25;
   }
 
   /**
@@ -71,19 +90,9 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
-
-        if(colorSensor.getIR() > 90 && colorSensor.getColor().blue > 25)
-        {
-          limelight.setPipeline(1);
-        }
-        else if(colorSensor.getIR() > 90)
-        {
-          limelight.setPipeline(0);
-        }
       }
     );
   }
-
   @Override
   public void initSendable(SendableBuilder builder){
   

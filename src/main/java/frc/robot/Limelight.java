@@ -264,5 +264,6 @@ public class Limelight {
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
         builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
+        builder.addIntegerProperty("Current Pipeline", this::getPipeline, null);
     }
 }
