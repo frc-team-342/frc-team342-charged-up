@@ -34,7 +34,7 @@ public final class Constants {
   }
 
   public static class GripperConstants{
-    public static final I2C.Port i2cPort = I2C.Port.kOnboard;
+    public static final I2C.Port I2CPORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
   }
 }
