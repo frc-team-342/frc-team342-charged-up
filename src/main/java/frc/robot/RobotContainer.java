@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -24,13 +26,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSystem driveSystem;
-
+  private final Limelight limelight;
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    limelight = new Limelight();
 
     SmartDashboard.putData(driveSystem);
     
@@ -48,7 +51,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    
   }
 
   /**
@@ -62,5 +64,8 @@ public class RobotContainer {
       //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
       driveSystem.driveDistance(5, 2)
     );
+  }
+  public void getCheckToRaiseArm(){
+    limelight.autoArmLift();
   }
 }

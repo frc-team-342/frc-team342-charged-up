@@ -215,7 +215,7 @@ class Limelight {
         if(getPipeline() == 1)
         {
             if(hasTargets()){
-            return table.getEntry("tid").getDouble(0.0);
+                return table.getEntry("tid").getDouble(0.0);
             }
          }
 
@@ -232,19 +232,19 @@ class Limelight {
         if(hasTargets()){
             double verticalOffset = getVerticalOffset();
 
-            if(verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW){
-                double horizontalFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
-                return horizontalFromLow;
+            if(isLowLevelTarget(verticalOffset)){
+                double forwardDistanceFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
+                return forwardDistanceFromLow;
             }
 
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED){
-                double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-                return horizontalFromMed;
+            if(isMidLevelTarget(verticalOffset)){
+                double forwardDistanceFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
+                return forwardDistanceFromMed;
             }
 
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH){
-                double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                return horizontalFromHigh;
+            if(isHighLevelTarget(verticalOffset)){
+                double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
+                return forwardDistanceFromHigh;
             }
 
             return 0.0;
@@ -253,11 +253,35 @@ class Limelight {
             return Double.NaN;
         }
 
+
+    private boolean isHighLevelTarget(double verticalOffset) {
+        return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
+    }
+
+
+    private boolean isMidLevelTarget(double verticalOffset) {
+        return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED;
+    }
+
+
+    private boolean isLowLevelTarget (double verticalOffset) {
+        return verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW;
+    }
+
+    public void autoArmLift(){
+            System.out.println("Entering method");
+            if(isLowLevelTarget(getVerticalOffset())){
+                if(forwardDistanceToTarget() <= AUTO_ARM_RAISE_MAX_RANGE){
+                    System.out.println("Raising Arm");
+                }
+            }
+        }
+
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Horizontal Offset From Target", this::forwardDistanceToTarget, null);
+        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
     }
 }
