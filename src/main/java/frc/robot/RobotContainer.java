@@ -98,6 +98,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       // check that all devices are connected
       getCheckCommand(),
+      
       /*
        * drive system test routine:
        * - drive forwards
@@ -106,7 +107,6 @@ public class RobotContainer {
        * - turn counterclockwise
        * - drive forwards in slow mode
        */
-      
       driveSystem.testRoutine()
     );
   }

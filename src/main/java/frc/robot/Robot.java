@@ -10,6 +10,7 @@ import java.nio.file.Files;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -57,6 +58,10 @@ public class Robot extends TimedRobot {
     // send data from files to dashboard
     SmartDashboard.putString("Git Branch", branch);
     SmartDashboard.putString("Git Commit", commit);
+
+    // livewindow is bad and should never be on
+    LiveWindow.disableAllTelemetry();
+    LiveWindow.setEnabled(false);
   }
 
   /**
@@ -114,6 +119,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    // it turns itself back on if you dont do it here too
+    LiveWindow.setEnabled(false);
+
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
@@ -124,7 +132,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    CommandScheduler.getInstance().run();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override

@@ -493,7 +493,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
       // enable slow mode
       new InstantCommand(
-        () -> { toggleSlowMode(); },
+        () -> { 
+          toggleSlowMode();
+        },
         this
       ),
 
@@ -514,7 +516,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
       // disable slow mode
       new InstantCommand(
-        () -> { toggleSlowMode(); },
+        () -> { 
+          toggleSlowMode(); 
+        },
         this
       )
     );
