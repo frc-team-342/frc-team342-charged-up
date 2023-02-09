@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.wpilibj.I2C;
 
 /**
@@ -34,7 +37,9 @@ public final class Constants {
   }
 
   public static class GripperConstants{
-    public static final I2C.Port I2CPORT = I2C.Port.kOnboard;
+    public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
+    public static final double ROLLER_SPEED = 0.5;
+    
   }
 }

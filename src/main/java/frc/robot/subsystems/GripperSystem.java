@@ -22,17 +22,16 @@ import static frc.robot.Constants.GripperConstants.*;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-  private final double rollerSpeed = 0.5;
-  private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
+  private final ColorSensorV3 colorSensor;
 
   /** Creates a new GripperSystem. */
   public GripperSystem() {
-    colorSensor = new ColorSensorV3(I2CPORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
+    colorSensor = new ColorSensorV3(I2C_PORT);
   }
 
-  public void spin(double speed){
+  private void spin(double speed){
     rollerMotor.set(speed);
   }
 
@@ -44,7 +43,7 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-        spin(rollerSpeed);
+        spin(ROLLER_SPEED);
       },
       //end
       () -> {
@@ -62,7 +61,7 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-        spin(-(rollerSpeed));
+        spin(-(ROLLER_SPEED));
       },
       //end
       () -> {
