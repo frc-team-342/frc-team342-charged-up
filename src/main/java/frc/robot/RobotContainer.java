@@ -4,15 +4,19 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -23,17 +27,25 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSystem driveSystem;
+  //private final DriveSystem driveSystem;
+  private final LiftSystem lSystem;
+
+  private JoystickButton liftToButton;
 
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    /* 
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    */
+    lSystem = new LiftSystem();
+    liftToButton = new JoystickButton(driver, 6);
 
-    SmartDashboard.putData(driveSystem);
-    
+    //SmartDashboard.putData(driveSystem);
+    SmartDashboard.putData(lSystem);
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -48,7 +60,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    
+    liftToButton.whileTrue(lSystem.liftArmsToPosition(15));
   }
 
   /**
@@ -60,7 +72,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return Commands.sequence(
       //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
-      driveSystem.driveDistance(5, 2)
+      //driveSystem.driveDistance(5, 2)
     );
   }
 }

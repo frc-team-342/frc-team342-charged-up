@@ -21,8 +21,8 @@ public final class Constants {
   }
   
   public static class DriveConstants{
-    public static final int FRONT_LEFT_MOTOR = 1;
-    public static final int FRONT_RIGHT_MOTOR = 2;
+    public static final int FRONT_LEFT_MOTOR = 5;
+    public static final int FRONT_RIGHT_MOTOR = 6;
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
@@ -57,5 +57,8 @@ public final class Constants {
     // Subject to change when lift is built
     public static final double MAX_POSITION = 85;
     public static final double MIN_POSITION = 0;
+
+    public static final int MOTOR_LEFT = 3;
+    public static final int MOTOR_RIGHT = 7;
   }
 }

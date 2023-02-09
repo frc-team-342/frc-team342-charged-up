@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -19,6 +21,8 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.LiftConstants;
+
 import static frc.robot.Constants.LiftConstants.*;
 
 public class LiftSystem extends SubsystemBase {
@@ -26,7 +30,7 @@ public class LiftSystem extends SubsystemBase {
   private final CANSparkMax motorOne;
   private final CANSparkMax motorTwo;
 
-  private final SparkMaxAbsoluteEncoder encoder;
+  private final RelativeEncoder encoder;
 
   private final MotorControllerGroup liftGroup;
   private SparkMaxPIDController pControllerOne;
@@ -35,12 +39,12 @@ public class LiftSystem extends SubsystemBase {
     /** Creates a new LiftSystem. */
   public LiftSystem() {
 
-    motorOne = new CANSparkMax(1, MotorType.kBrushless);
+    motorOne = new CANSparkMax(LiftConstants.MOTOR_LEFT, MotorType.kBrushless);
 
-    motorTwo = new CANSparkMax(2, MotorType.kBrushless);
+    motorTwo = new CANSparkMax(LiftConstants.MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
-    encoder = motorOne.getAbsoluteEncoder(Type.kDutyCycle);
+    encoder = motorTwo.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
 
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
 
@@ -63,8 +67,8 @@ public class LiftSystem extends SubsystemBase {
   }
 
   /**
-   * @param position
-   * @return
+   * @param position to go to
+   * @return Command that uses PID to lift the gripper to the specified position
    */
   public CommandBase liftArmsToPosition(double position){
     
@@ -75,6 +79,7 @@ public class LiftSystem extends SubsystemBase {
     () -> {
       pControllerOne.setReference(clampedPos, ControlType.kPosition);
       pControllerTwo.setReference(clampedPos, ControlType.kPosition);
+      System.out.println("Inside lift command reached");
     }, 
     //Runs when command ends
     () -> {
