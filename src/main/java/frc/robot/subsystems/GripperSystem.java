@@ -83,6 +83,7 @@ public class GripperSystem extends SubsystemBase {
     builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
     builder.addDoubleProperty("IR", () -> colorSensor.getIR(), null);
     builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
+    builder.addDoubleProperty("CurrentDrawReadings", () -> rollerMotor.getOutputCurrent(), null);
 
   }
   @Override
