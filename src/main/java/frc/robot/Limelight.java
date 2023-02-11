@@ -243,17 +243,23 @@ class Limelight {
                     return forwardDistanceFromHigh;
                 }
             }
-            
+
             if(getPipeline() == 1)
             {
                 if(isLowLevelTarget(verticalOffset)){
                     double forwardDistanceFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
                     return forwardDistanceFromLow;
                 }
+
+                if(isHumanPlayerStation(verticalOffset)){
+                        double forwardDistanceFromHPStation = HEIGHT_TO_HP_STATION / Math.tan(verticalOffset);
+                        return forwardDistanceFromHPStation;
+                }
             }
-         }
-            return Double.NaN;
         }
+
+            return Double.NaN;
+     }
 
 
     private boolean isHighLevelTarget(double verticalOffset) {
@@ -268,6 +274,10 @@ class Limelight {
 
     private boolean isLowLevelTarget (double verticalOffset) {
         return verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW;
+    }
+
+    private boolean isHumanPlayerStation (double verticalOffset){
+        return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
     }
 
     public void autoArmLift(){
