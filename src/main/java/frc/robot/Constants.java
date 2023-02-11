@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -16,13 +17,21 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
   
+  public static class GripperConstants{
+    public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
+    public static final int ROLLER_MOTOR = 5;
+    public static final double ROLLER_SPEED = 0.5;
+  }
+
   public static class DriveConstants{
-    public static final int FRONT_LEFT_MOTOR = 5;
-    public static final int FRONT_RIGHT_MOTOR = 6;
+
+    public static final int FRONT_LEFT_MOTOR = 1;
+    public static final int FRONT_RIGHT_MOTOR = 2;
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
@@ -51,7 +60,7 @@ public final class Constants {
     public static final double MASS = 35.27; // subject to change
   }
 
-  public static class LiftConstants{
+  public static class LiftConstants {
     public static final double MAX_SPEED = 0.25;
 
     // Subject to change when lift is built
@@ -60,5 +69,17 @@ public final class Constants {
 
     public static final int MOTOR_LEFT = 3;
     public static final int MOTOR_RIGHT = 7;
+  }
+
+  /*
+   * todo: add actual values for all of the constants, they are currently placeholders
+   */
+  public static class LimelightConstants {
+    public static final double HEIGHT_TO_LOW = 0.0;
+    public static final double HEIGHT_TO_MED = 0.0;
+    public static final double HEIGHT_TO_HIGH = 0.0;
+    public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
+    public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
+    public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
 }
