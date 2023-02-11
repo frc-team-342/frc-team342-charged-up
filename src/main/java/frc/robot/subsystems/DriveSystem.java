@@ -332,30 +332,68 @@ public class DriveSystem extends SubsystemBase {
         ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
 
-        // clamp wheel speeds to max velocity
-        double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-        double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-
-        // apply drivetrain speeds to drive pid controllers
-        leftController.setReference(left, ControlType.kVelocity);
-        rightController.setReference(right, ControlType.kVelocity);
+        setDrivePIDControllers(wheelSpeeds);
       },
       // runs once at end of command 
       () -> {
-        rotateController.reset();
-
-        // stop motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
+        finishRotation();
       }
     ).until(
       // returns true if robot is at end angle
       rotateController::atSetpoint
     );
   }
+
+  public CommandBase autoBalance() {
+    
+    return runEnd(
+      // runs repeatedly until end of command
+      () -> {
+        // radians
+        double currAngle = Math.toRadians(gyro.getRoll());
+
+        double endAngle = 0;
+
+        // rad/s ????
+        double nextVel = rotateController.calculate(currAngle, endAngle);
+
+        // convert radial velocity to drivetrain speeds
+        ChassisSpeeds balanceVal = new ChassisSpeeds(nextVel, 0, 0);
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVal);
+
+        setDrivePIDControllers(wheelSpeeds);
+      },
+      // runs once at end of command 
+      () -> {
+        finishRotation();
+      }
+    ).until(
+      // returns true if robot is at end angle
+      rotateController::atSetpoint
+    );
+  }
+
+  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+    // clamp wheel speeds to max velocity
+    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+
+    // apply drivetrain speeds to drive pid controllers
+    leftController.setReference(left, ControlType.kVelocity);
+    rightController.setReference(right, ControlType.kVelocity);
+  }
+
+  private void finishRotation() {
+    rotateController.reset();
+
+    // stop motors
+    leftController.setReference(0, ControlType.kVelocity);
+    rightController.setReference(0, ControlType.kVelocity);
+
+    frontLeft.stopMotor();
+    frontRight.stopMotor();
+  }
+
 
   @Override
   public void periodic() {
