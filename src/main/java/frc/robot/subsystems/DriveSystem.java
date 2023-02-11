@@ -462,7 +462,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
         }, 
         this // this command depends on drivesystem
-      ).withTimeout(3), // run this for 3 seconds before continuing
+      ).withTimeout(1.5), // run this for 3 seconds before continuing
 
       // drive backwards
       new RunCommand(
@@ -471,7 +471,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(-currentMode.speedMultiplier, -currentMode.speedMultiplier);
         }, 
         this
-      ).withTimeout(3),
+      ).withTimeout(1.5),
 
       // drive clockwise
       new RunCommand(
@@ -480,7 +480,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(currentMode.speedMultiplier, -currentMode.speedMultiplier);
         }, 
         this 
-      ).withTimeout(3), 
+      ).withTimeout(1.5), 
 
       // drive counterclockwise
       new RunCommand(
@@ -489,7 +489,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(-currentMode.speedMultiplier, currentMode.speedMultiplier);
         }, 
         this
-      ).withTimeout(3),
+      ).withTimeout(1.5),
 
       // enable slow mode
       new InstantCommand(
@@ -512,7 +512,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(0, 0);
         }, 
         this
-      ).withTimeout(3),
+      ).withTimeout(1.5),
 
       // disable slow mode
       new InstantCommand(

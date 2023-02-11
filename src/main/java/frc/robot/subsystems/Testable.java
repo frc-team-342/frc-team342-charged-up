@@ -30,6 +30,8 @@ public interface Testable {
 
         /**
          * instantiate a connection with default name and check func from a sparkmax
+         * known issue: will not update connection without restarting robot code
+         * 
          * @param spark the sparkmax object
          * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the spark's CAN connection
          */
@@ -50,6 +52,8 @@ public interface Testable {
 
         /**
          * instantiate a connection with default name and check func from a limelight
+         * known issue: will not update connection without restarting robot code
+         * 
          * @param limelight the network table containing limelight data
          * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the limelight's network connection
          */
