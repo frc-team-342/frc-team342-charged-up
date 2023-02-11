@@ -261,25 +261,47 @@ class Limelight {
             return Double.NaN;
      }
 
-
+    
+     /**
+     * Determines if the limelight is looking at a high-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight is seeing a high target
+     */
     private boolean isHighLevelTarget(double verticalOffset) {
         return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
     }
 
-
+    /**
+     * Determines if the limelight is looking at a mid-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight is seeing a middle target
+     */
     private boolean isMidLevelTarget(double verticalOffset) {
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED;
     }
 
-
+    /**
+     * Determines if the limelight is looking at a low-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight sees a human player station target
+     */
     private boolean isLowLevelTarget (double verticalOffset) {
         return verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW;
     }
 
+    /**
+     * Determines if the limelight is looking at a Human Player station target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight sees a human player station target
+     */
     private boolean isHumanPlayerStation (double verticalOffset){
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
     }
 
+    
+    /**
+     * Lifts the arm if the robot is within a certain forward distance
+     */
     public void autoArmLift(){
             System.out.println("Entering method");
             if(isLowLevelTarget(getVerticalOffset())){
