@@ -30,9 +30,10 @@ public class LiftSystem extends SubsystemBase {
   private final CANSparkMax motorOne;
   private final CANSparkMax motorTwo;
 
-  private final RelativeEncoder encoder;
+  //private final RelativeEncoder encoder;
 
   private final MotorControllerGroup liftGroup;
+
   private SparkMaxPIDController pControllerOne;
   private SparkMaxPIDController pControllerTwo;
   
@@ -44,7 +45,7 @@ public class LiftSystem extends SubsystemBase {
     motorTwo = new CANSparkMax(LiftConstants.MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
-    encoder = motorTwo.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
+    //encoder = motorTwo.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
 
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
 
@@ -58,18 +59,29 @@ public class LiftSystem extends SubsystemBase {
     pControllerTwo.setP(0);
     pControllerTwo.setD(0);
     pControllerTwo.setFF(0);
-
+    //pControllerTwo.setFeedbackDevice(encoder);
 
   }
 
-  public void liftArms(double speed){
-    liftGroup.set(speed);
+  public CommandBase liftArms(double speed){
+
+    return runEnd(
+      () -> {
+        liftGroup.set(speed);
+        System.out.println(motorOne.getEncoder().getPosition());
+      },
+
+      () -> {
+        liftGroup.set(0);
+      }
+    );
   }
 
   /**
    * @param position to go to
    * @return Command that uses PID to lift the gripper to the specified position
    */
+  /* 
   public CommandBase liftArmsToPosition(double position){
     
     double clampedPos = MathUtil.clamp(position, MIN_POSITION, MAX_POSITION);
@@ -92,13 +104,15 @@ public class LiftSystem extends SubsystemBase {
     );
   }
 
+  
   public double getEncoderVal(){
     return encoder.getPosition();
   }
+*/
 
   @Override
   public void initSendable(SendableBuilder builder) {
-      builder.addDoubleProperty("Lift Encoder Value", this::getEncoderVal, null);
+      //builder.addDoubleProperty("Lift Encoder Value", this::getEncoderVal, null);
   }
 
   @Override

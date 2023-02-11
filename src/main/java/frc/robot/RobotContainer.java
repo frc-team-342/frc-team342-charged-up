@@ -31,6 +31,7 @@ public class RobotContainer {
   private final LiftSystem lSystem;
 
   private JoystickButton liftToButton;
+  private JoystickButton liftSpeedButton;
 
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
 
@@ -41,7 +42,8 @@ public class RobotContainer {
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
     */
     lSystem = new LiftSystem();
-    liftToButton = new JoystickButton(driver, 6);
+    liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
+    liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
 
     //SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(lSystem);
@@ -60,7 +62,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    liftToButton.whileTrue(lSystem.liftArmsToPosition(15));
+    //liftToButton.whileTrue(lSystem.liftArmsToPosition(15));
+    liftSpeedButton.whileTrue(lSystem.liftArms(0.5));
   }
 
   /**
