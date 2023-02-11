@@ -55,7 +55,7 @@ public final class Constants {
     public static final double MAX_SPEED = 0.25;
 
     // Subject to change when lift is built
-    public static final double MAX_POSITION = 85;
+    public static final double MAX_POSITION = 1;
     public static final double MIN_POSITION = 0;
 
     public static final int MOTOR_LEFT = 3;

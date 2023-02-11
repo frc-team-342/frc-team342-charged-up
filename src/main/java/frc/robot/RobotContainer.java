@@ -62,7 +62,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    //liftToButton.whileTrue(lSystem.liftArmsToPosition(15));
+    liftToButton.whileTrue(lSystem.liftArmsToPosition(1));
     liftSpeedButton.whileTrue(lSystem.liftArms(0.5));
   }
 
