@@ -231,25 +231,27 @@ class Limelight {
     {
         if(hasTargets()){
             double verticalOffset = getVerticalOffset();
+            if(getPipeline() == 0)
+            {
+                if(isMidLevelTarget(verticalOffset)){
+                    double forwardDistanceFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
+                    return forwardDistanceFromMed;
+                }
 
-            if(isLowLevelTarget(verticalOffset)){
-                double forwardDistanceFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
-                return forwardDistanceFromLow;
+                if(isHighLevelTarget(verticalOffset)){
+                    double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
+                    return forwardDistanceFromHigh;
+                }
             }
-
-            if(isMidLevelTarget(verticalOffset)){
-                double forwardDistanceFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-                return forwardDistanceFromMed;
+            
+            if(getPipeline() == 1)
+            {
+                if(isLowLevelTarget(verticalOffset)){
+                    double forwardDistanceFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
+                    return forwardDistanceFromLow;
+                }
             }
-
-            if(isHighLevelTarget(verticalOffset)){
-                double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                return forwardDistanceFromHigh;
-            }
-
-            return 0.0;
          }
-
             return Double.NaN;
         }
 
