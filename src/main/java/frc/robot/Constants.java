@@ -60,9 +60,11 @@ public final class Constants {
     public static final double HEIGHT_TO_LOW = 0.0;
     public static final double HEIGHT_TO_MED = 0.0;
     public static final double HEIGHT_TO_HIGH = 0.0;
+    public static final double HEIGHT_TO_HP_STATION = 0.0;
     public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+    public static final double MAX_VERT_OFFSET_FOR_HP_STATION = 120.0;
     public static final double AUTO_ARM_RAISE_MAX_RANGE = 2;
   }
 }
