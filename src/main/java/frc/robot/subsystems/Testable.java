@@ -5,6 +5,7 @@ import java.util.function.BooleanSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -44,8 +45,7 @@ public interface Testable {
          * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the navx's connection to the rio
          */
         public static Connection fromNavx(AHRS navx) {
-            BooleanSupplier connectionCheck = () -> navx.isConnected();
-            return new Connection("NavX", connectionCheck);
+            return new Connection("NavX", navx::isConnected);
         }
 
         /**
@@ -60,6 +60,15 @@ public interface Testable {
                 return ledMode != (long) 4;
             };
             return new Connection("Limelight", connectionCheck);
+        }
+
+        /**
+         * instantiate a connection with default name and check from a color sensor
+         * @param colorSensor the rev color sensor v3 
+         * @return a {@link frc.robot.subsystems.Testable.Connection Connection} representing the state of the color sensor's i2c connection
+         */
+        public static Connection fromColorSensor(ColorSensorV3 colorSensor) {
+            return new Connection("Color Sensor", colorSensor::isConnected);
         }
         
         /**
