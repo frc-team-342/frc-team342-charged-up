@@ -28,15 +28,15 @@ public class RobotContainer {
   private final DriveSystem driveSystem;
   private final GripperSystem gripperSystem;
   private final Limelight limelight;
-  private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final XboxController operator = new XboxController(2);
-  private final JoystickButton gripperTestBtn = new JoystickButton(operator, 1);
+  private final XboxController driverController = new XboxController(OperatorConstants.kDriverControllerPort);
+  private final XboxController operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
+  private final JoystickButton gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.kGripperIntakeBtnID);
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverController));
     limelight = new Limelight();
 
     SmartDashboard.putData(driveSystem);
@@ -58,7 +58,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    gripperTestBtn.whileTrue(gripperSystem.intake());
+    gripperIntakeBtn.whileTrue(gripperSystem.intake());
   }
 
   /**
