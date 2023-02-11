@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -24,15 +25,19 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSystem driveSystem;
-
+  private final GripperSystem gripperSystem;
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
+  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    
+    gripperSystem = new GripperSystem();
 
     SmartDashboard.putData(driveSystem);
+    SmartDashboard.putData(gripperSystem);
     
     // Configure the trigger bindings
     configureBindings();
@@ -48,7 +53,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    
+    xButton.whileTrue(gripperSystem.intake());
   }
 
   /**
