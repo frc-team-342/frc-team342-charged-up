@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -31,7 +32,9 @@ public class RobotContainer {
   private final DriveSystem driveSystem;
   private final Limelight limelight;
 
+  private final GripperSystem gripperSystem;
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
+  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -40,10 +43,14 @@ public class RobotContainer {
   public RobotContainer() {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    
+    gripperSystem = new GripperSystem();
 
     limelight = new Limelight();
 
     SmartDashboard.putData(driveSystem);
+    SmartDashboard.putData(gripperSystem);
+    SmartDashboard.putData(limelight);
     
     // Configure the trigger bindings
     configureBindings();
@@ -63,7 +70,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    
+    xButton.whileTrue(gripperSystem.intake());
   }
 
   private CommandBase getCheckCommand() {
