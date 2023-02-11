@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -20,6 +21,12 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  
+  public static class GripperConstants{
+    public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
+    public static final int ROLLER_MOTOR = 5;
+    public static final double ROLLER_SPEED = 0.5;
+  }
 
   
   public static class DriveConstants{
@@ -31,12 +38,38 @@ public final class Constants {
 
     public static final double NORMAL_SPEED = 0.8;
     public static final double SLOW_SPEED = 0.4; 
+
+    /** meters */
+    public static final double WHEEL_RADIUS = Units.inchesToMeters(3.0);
+
+    /** meters */
+    public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
+
+    /** distance between left and right wheels - meters */
+    public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
+
+    /** driving to driven */
+    public static final double GEAR_RATIO = 5.45 / 1;
+
+    /** meters / second */
+    public static final double MAX_SPEED = 5.0;
+
+    /** kg m^2 */
+    public static final double MOMENT_OF_INERTIA = 3.53325;
+
+    /** kg */
+    public static final double MASS = 35.27; // subject to change
   }
 
-  public static class GripperConstants{
-    public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
-    public static final int ROLLER_MOTOR = 5;
-    public static final double ROLLER_SPEED = 0.5;
-    
+  /*
+   * todo: add actual values for all of the constants, they are currently placeholders
+   */
+  public static class LimelightConstants{
+    public static final double HEIGHT_TO_LOW = 0.0;
+    public static final double HEIGHT_TO_MED = 0.0;
+    public static final double HEIGHT_TO_HIGH = 0.0;
+    public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
+    public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
+    public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
 }
