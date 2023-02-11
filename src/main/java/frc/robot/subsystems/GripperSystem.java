@@ -22,7 +22,7 @@ import static frc.robot.Constants.GripperConstants.*;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-  private CANSparkMax rollerMotor;
+  private final CANSparkMax rollerMotor;
   private final ColorSensorV3 colorSensor;
 
   /** Creates a new GripperSystem. */

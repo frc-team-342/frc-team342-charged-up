@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
-
 import edu.wpi.first.wpilibj.I2C;
 
 /**
