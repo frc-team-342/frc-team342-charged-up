@@ -71,6 +71,8 @@ public class DriveSystem extends SubsystemBase {
 
   private final PIDController rotateController;
 
+  private final PIDController balanceController;
+
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
 
@@ -127,6 +129,9 @@ public class DriveSystem extends SubsystemBase {
     // pid
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
+
+    balanceController = new PIDController(0, 0, 0);
+    balanceController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -336,7 +341,14 @@ public class DriveSystem extends SubsystemBase {
       },
       // runs once at end of command 
       () -> {
-        finishRotation();
+        rotateController.reset();
+        
+        // stop motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+        
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
       }
     ).until(
       // returns true if robot is at end angle
@@ -355,21 +367,28 @@ public class DriveSystem extends SubsystemBase {
         double endAngle = 0;
 
         // rad/s ????
-        double nextVel = rotateController.calculate(currAngle, endAngle);
+        double nextVel = balanceController.calculate(currAngle, endAngle);
 
         // convert radial velocity to drivetrain speeds
-        ChassisSpeeds balanceVal = new ChassisSpeeds(nextVel, 0, 0);
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVal);
+        ChassisSpeeds balanceVel = new ChassisSpeeds(nextVel, 0, 0);
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVel);
 
         setDrivePIDControllers(wheelSpeeds);
       },
       // runs once at end of command 
       () -> {
-        finishRotation();
+        balanceController.reset();
+        
+        // stop motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+        
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
       }
     ).until(
       // returns true if robot is at end angle
-      rotateController::atSetpoint
+      balanceController::atSetpoint
     );
   }
 
@@ -382,18 +401,6 @@ public class DriveSystem extends SubsystemBase {
     leftController.setReference(left, ControlType.kVelocity);
     rightController.setReference(right, ControlType.kVelocity);
   }
-
-  private void finishRotation() {
-    rotateController.reset();
-
-    // stop motors
-    leftController.setReference(0, ControlType.kVelocity);
-    rightController.setReference(0, ControlType.kVelocity);
-
-    frontLeft.stopMotor();
-    frontRight.stopMotor();
-  }
-
 
   @Override
   public void periodic() {
