@@ -70,11 +70,11 @@ public class GripperSystem extends SubsystemBase {
   }
 
   private boolean checkForGamePiece() {
-    return colorSensor.getIR() > 10;
+    return colorSensor.getIR() > GAME_PIECE_IR_MINIMUM;
   }
 
   private boolean checkForCube() {
-    return checkForGamePiece() && colorSensor.getColor().blue > 0.25;
+    return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
   }
 
   /**

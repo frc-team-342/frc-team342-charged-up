@@ -71,5 +71,7 @@ public final class Constants {
   public static class GripperConstants{
     public static final I2C.Port I2CPORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
+    public static final int GAME_PIECE_IR_MINIMUM = 10;
+    public static final double MINIMUM_BLUE_VALUE_FOR_CUBE = 0.25;
   }
 }
