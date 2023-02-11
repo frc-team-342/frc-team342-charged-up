@@ -20,7 +20,9 @@ import frc.robot.Constants.LiftConstants;
 
 import static frc.robot.Constants.LiftConstants.*;
 
-public class LiftSystem extends SubsystemBase {
+import java.util.List;
+
+public class LiftSystem extends SubsystemBase implements Testable {
 
   private final CANSparkMax motorOne;
   private final CANSparkMax motorTwo;
@@ -107,4 +109,13 @@ public class LiftSystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  @Override
+  public List<Connection> hardwareConnections(){
+    return List.of(
+      Connection.fromSparkMax(motorOne),
+      Connection.fromSparkMax(motorTwo)
+    );
+  }
+
 }

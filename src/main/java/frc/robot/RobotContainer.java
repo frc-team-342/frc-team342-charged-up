@@ -8,14 +8,11 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-<<<<<<< HEAD
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
-=======
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
->>>>>>> team/main
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,11 +22,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-<<<<<<< HEAD
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-=======
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
->>>>>>> team/main
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -57,10 +51,10 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    /* 
+    
     driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
-    */
+    //driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+  
     lSystem = new LiftSystem();
     liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
     liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
