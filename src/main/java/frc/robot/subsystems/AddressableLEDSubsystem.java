@@ -18,7 +18,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
 
   public AddressableLEDSubsystem()
   {
-    LED = new AddressableLED(0);
+    LED = new AddressableLED(PWM_PORT);
     LEDBuffer = new AddressableLEDBuffer(LENGTH);
     LED.setLength(LEDBuffer.getLength());
     LED.setData(LEDBuffer);
@@ -27,10 +27,46 @@ public class AddressableLEDSubsystem extends SubsystemBase {
 
   public void LEDOff()
   {
-    for(int i = 0; i < LEDBuffer.getLength(); i++)
-      {
-        LEDBuffer.setHSV(i, 0, 0, 0);
-      }
+  for(int i = 0; i < LEDBuffer.getLength(); i++)
+    {
+      LEDBuffer.setHSV(i, 0, 0, 0);
+    }
+  LED.setData(LEDBuffer);
+  }
+
+  public void HYC()
+  {
+    for(int i = 256; i < LEDBuffer.getLength(); i++)
+    {
+      LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+    }
+    LED.setData(LEDBuffer);
+  }
+
+  public void DYC()
+  {
+    for(int i = 0; i < 256; i++)
+    {
+      LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+    }
+    LED.setData(LEDBuffer);
+  }
+
+  public void HPC()
+  {
+    for(int i = 256; i < LEDBuffer.getLength(); i++)
+    {
+      LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+    }
+    LED.setData(LEDBuffer);
+  }
+
+  public void DPC()
+  {
+    for(int i = 0; i < 256; i++)
+    {
+      LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+    }
     LED.setData(LEDBuffer);
   }
 
@@ -39,11 +75,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     return runEnd(
     () ->
     {
-      for(int i = 256; i < LEDBuffer.getLength(); i++)
-      {
-        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
-      }
-      LED.setData(LEDBuffer);
+      HYC();
     },
 
     () ->
@@ -58,11 +90,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     return runEnd(
     () ->
     {
-      for(int i = 0; i < 256; i++)
-      {
-        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
-      }
-      LED.setData(LEDBuffer);
+      DYC();
     },
 
     () ->
@@ -77,11 +105,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     return runEnd(
     () ->
     {
-      for(int i = 256; i < LEDBuffer.getLength(); i++)
-      {
-        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
-      }
-      LED.setData(LEDBuffer);
+      HPC();
     },
 
     () ->
@@ -96,11 +120,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     return runEnd(
     () ->
     {
-      for(int i = 0; i < 256; i++)
-      {
-        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
-      }
-      LED.setData(LEDBuffer);
+      DPC();
     },
 
     () ->

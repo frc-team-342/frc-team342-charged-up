@@ -17,6 +17,14 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static class ControlConstants
+  {
+    public static final int JOYSTICK_RIGHT_NUMBER = 0;
+    public static final int BUTTON_9 = 9;
+    public static final int BUTTON_10 = 10;
+    public static final int BUTTON_11 = 11;
+    public static final int BUTTON_12 = 12;
+  }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -24,6 +32,7 @@ public final class Constants {
 
   public static class LEDConstants
   {
+    public static final int PWM_PORT = 0;
     public static final int LENGTH = 512;
 
     //HSV Values
