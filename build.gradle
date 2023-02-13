@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2023.1.1"
+    id "com.diffplug.spotless" version "6.15.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -48,6 +49,20 @@ tasks.register("writeCommitHash") {
         projectDir.toString() + "/src/main/deploy",
         "commit.txt"
     ).text = commit
+}
+
+spotless {
+    java {  
+        // files to apply java linting to
+        target fileTree('.') {
+            include '**/*.java' // java files
+            exclude '**/build/**', "**/build-*/**"
+        }
+
+        googleJavaFormat()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
