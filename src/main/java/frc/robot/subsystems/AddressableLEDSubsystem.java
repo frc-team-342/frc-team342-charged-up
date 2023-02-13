@@ -6,8 +6,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import static frc.robot.Constants.LEDConstants.*;
 
 public class AddressableLEDSubsystem extends SubsystemBase {
   /** Creates a new AddressableLEDSubsystem. */
@@ -18,7 +19,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   public AddressableLEDSubsystem()
   {
     LED = new AddressableLED(0);
-    LEDBuffer = new AddressableLEDBuffer(Constants.length);
+    LEDBuffer = new AddressableLEDBuffer(LENGTH);
     LED.setLength(LEDBuffer.getLength());
     LED.setData(LEDBuffer);
     LED.start();
@@ -27,46 +28,86 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   public void LEDOff()
   {
     for(int i = 0; i < LEDBuffer.getLength(); i++)
-    {
-      LEDBuffer.setHSV(i, 0, 0, 0);
-    }
+      {
+        LEDBuffer.setHSV(i, 0, 0, 0);
+      }
     LED.setData(LEDBuffer);
   }
 
-  public void HumanYellowColor()
+  public CommandBase HumanYellowColor()
   {
-    for(int i = 256; i < LEDBuffer.getLength(); i++)
+    return runEnd(
+    () ->
     {
-      LEDBuffer.setHSV(i, Constants.YellowH, Constants.YellowS, Constants.YellowV);
+      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      }
+      LED.setData(LEDBuffer);
+    },
+
+    () ->
+    {
+      LEDOff();
     }
-    LED.setData(LEDBuffer);
+    );
   }
 
-  public void HumanPurplecolor()
+  public CommandBase DriverYellowColor()
   {
-    for(int i = 256; i < LEDBuffer.getLength(); i++)
+    return runEnd(
+    () ->
     {
-      LEDBuffer.setHSV(i, Constants.PurpleH, Constants.PurpleS, Constants.PurpleV);
+      for(int i = 0; i < 256; i++)
+      {
+        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      }
+      LED.setData(LEDBuffer);
+    },
+
+    () ->
+    {
+      LEDOff();
     }
-    LED.setData(LEDBuffer);
+    );
   }
 
-  public void DriverYellowColor()
+  public CommandBase HumanPurplecolor()
   {
-    for(int i = 0; i < 256; i++)
+    return runEnd(
+    () ->
     {
-      LEDBuffer.setHSV(i, Constants.YellowH, Constants.YellowS, Constants.YellowV);
+      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      }
+      LED.setData(LEDBuffer);
+    },
+
+    () ->
+    {
+      LEDOff();
     }
-    LED.setData(LEDBuffer);
+    );
   }
 
-  public void DriverPurplecolor()
+  public CommandBase DriverPurplecolor()
   {
-    for(int i = 0; i < 256; i++)
+    return runEnd(
+    () ->
     {
-      LEDBuffer.setHSV(i, Constants.PurpleH, Constants.PurpleS, Constants.PurpleV);
+      for(int i = 0; i < 256; i++)
+      {
+        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      }
+      LED.setData(LEDBuffer);
+    },
+
+    () ->
+    {
+      LEDOff();
     }
-    LED.setData(LEDBuffer);
+    );
   }
 
   @Override

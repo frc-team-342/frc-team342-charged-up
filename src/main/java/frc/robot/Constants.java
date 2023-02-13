@@ -21,6 +21,19 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class LEDConstants
+  {
+    public static final int LENGTH = 512;
+
+    //HSV Values
+    public static final int YELLOW_H = 40;
+    public static final int YELLOW_S = 255;
+    public static final int YELLOW_V = 70;
+    public static final int PURPLE_H = 150;
+    public static final int PURPLE_S = 255;
+    public static final int PURPLE_V = 70;
+  }
   
   public static class GripperConstants{
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
