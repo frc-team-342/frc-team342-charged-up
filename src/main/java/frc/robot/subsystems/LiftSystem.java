@@ -4,10 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -32,18 +36,20 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final PIDController pControllerOne;
   private final PIDController pControllerTwo;
   
-  private final DutyCycleEncoder dInput;
+  //private final DutyCycleEncoder dInput;
+  private final SparkMaxAbsoluteEncoder absEncoder;
   
     /** Creates a new LiftSystem. */
   public LiftSystem() {
 
-    motorOne = new CANSparkMax(3, MotorType.kBrushless);
+    motorOne = new CANSparkMax(MOTOR_LEFT, MotorType.kBrushless);
 
-    motorTwo = new CANSparkMax(LiftConstants.MOTOR_RIGHT, MotorType.kBrushless);
+    motorTwo = new CANSparkMax(MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
-    dInput = new DutyCycleEncoder(0);
-
+    //dInput = new DutyCycleEncoder(0);
+    absEncoder = motorTwo.getAbsoluteEncoder(Type.kDutyCycle);
+  
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
 
     //Setting default values for PID
@@ -56,7 +62,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
     return runEnd(
       () -> {
         liftGroup.set(speed);
-        System.out.println(getDigitalInput());
       },
 
       () -> {
@@ -78,8 +83,8 @@ public class LiftSystem extends SubsystemBase implements Testable {
     //Runs repeatedly until the end
     () -> {
       
-      motorOne.set(pControllerOne.calculate(getDigitalInput(), clampedPos));
-      motorTwo.set(pControllerTwo.calculate(getDigitalInput(), clampedPos));
+      motorOne.set(pControllerOne.calculate(getPosition(), clampedPos));
+      motorTwo.set(pControllerTwo.calculate(getPosition(), clampedPos));
 
       System.out.println("Inside lift command reached");
     }, 
@@ -89,20 +94,20 @@ public class LiftSystem extends SubsystemBase implements Testable {
     }
     ).until(
       () -> {
-        return (getDigitalInput() > clampedPos && getDigitalInput() < clampedPos);
+        return (getPosition() > clampedPos && getPosition() < clampedPos);
       }
     );
   }
 
 
-  public double getDigitalInput(){
-    return dInput.getAbsolutePosition();
+  public double getPosition(){
+    return absEncoder.getPosition();
   }
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("Digital input", this::getDigitalInput, null);
-    builder.addDoubleProperty("motor velociby", motorOne.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Encoder", this::getPosition, null);
+    builder.addDoubleProperty("motor velocity", motorOne.getEncoder()::getVelocity, null);
   }
 
   @Override
