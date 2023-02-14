@@ -212,7 +212,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   /**
    * 
-   * @param joystick the joystick being used to drive the robot
+   * @param joyLeft the left joystick being used to drive the robot
+   * @param joyRight the right joystick being used to drive the robot
    * @return command that drives with joystick
    */
   public CommandBase driveWithJoystick(Joystick joyLeft, Joystick joyRight) {
