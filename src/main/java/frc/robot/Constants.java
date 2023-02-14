@@ -20,10 +20,12 @@ public final class Constants {
 
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    /* Driver controller  constants*/
+    public static final int DRIVER_CONTROLLER_PORT = 0;
 
-    public static final int kOperatorControllerPort = 1;
-    public static final int kGripperIntakeBtnID = 5;
+    /* Operator Controller constants */
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
+    public static final int GRIPPER_INTAKE_BTN_ID = 5;
   }
 
   

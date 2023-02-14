@@ -28,24 +28,35 @@ public class RobotContainer {
   private final DriveSystem driveSystem;
   private final GripperSystem gripperSystem;
   private final Limelight limelight;
-  private final XboxController driverController = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final XboxController operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
-  private final JoystickButton gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.kGripperIntakeBtnID);
-  
+  private final XboxController driverController;
+  private final XboxController operatorController;
+  private final JoystickButton gripperIntakeBtn;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    /*Controller and button instantiations */
+    driverController = new XboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+
+    operatorController = new XboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+    gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.GRIPPER_INTAKE_BTN_ID);
+
+    /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverController));
+
+    /** Limelight instantiations */
     limelight = new Limelight();
 
-    SmartDashboard.putData(driveSystem);
+    /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
 
+    /** Dashboard sendables for the subsystems go here */
+    SmartDashboard.putData(driveSystem);
+    SmartDashboard.putData(gripperSystem);
     
     // Configure the trigger bindings
     configureBindings();
-    SmartDashboard.putData(gripperSystem);
   }
 
   /**
