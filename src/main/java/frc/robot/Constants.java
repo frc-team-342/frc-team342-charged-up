@@ -17,17 +17,14 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-  public static class ControlConstants
-  {
-    public static final int JOYSTICK_RIGHT_NUMBER = 0;
-    public static final int BUTTON_9 = 9;
-    public static final int BUTTON_10 = 10;
-    public static final int BUTTON_11 = 11;
-    public static final int BUTTON_12 = 12;
-  }
-
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+    public static final int DRIVER_RIGHT = 0;
+    public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
+    public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
+    public static final int OP_BUTTON_DRIVER_PLAYER_YELLOW = 11;
+    public static final int OP_BUTTON_DRIVER_PLAYER_PURPLE = 12;
   }
 
   public static class LEDConstants

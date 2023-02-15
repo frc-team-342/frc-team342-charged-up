@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import static frc.robot.Constants.ControlConstants.*;
+import static frc.robot.Constants.OperatorConstants.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -38,10 +38,10 @@ public class RobotContainer {
   private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
   
   private final Joystick joystickRight;
-  private final JoystickButton HumanYellowColorBtn9;
-  private final JoystickButton HumanPurpleColorBtn10;
-  private final JoystickButton DriverYellowColorBtn11;
-  private final JoystickButton DriverPurpleColorBtn12;
+  private final JoystickButton humanYellowColorBtn9;
+  private final JoystickButton humanPurpleColorBtn10;
+  private final JoystickButton driverYellowColorBtn11;
+  private final JoystickButton driverPurpleColorBtn12;
 
   private final AddressableLEDSubsystem aLedSubsystem;
 
@@ -63,11 +63,11 @@ public class RobotContainer {
     
     aLedSubsystem = new AddressableLEDSubsystem();
 
-    joystickRight = new Joystick(JOYSTICK_RIGHT_NUMBER);
-    HumanYellowColorBtn9 = new JoystickButton(joystickRight, BUTTON_9);
-    HumanPurpleColorBtn10 = new JoystickButton(joystickRight, BUTTON_10);
-    DriverYellowColorBtn11 = new JoystickButton(joystickRight, BUTTON_11);
-    DriverPurpleColorBtn12 = new JoystickButton(joystickRight, BUTTON_12);
+    joystickRight = new Joystick(DRIVER_RIGHT);
+    humanYellowColorBtn9 = new JoystickButton(joystickRight, OP_BUTTON_HUMAN_PLAYER_YELLOW);
+    humanPurpleColorBtn10 = new JoystickButton(joystickRight, OP_BUTTON_HUMAN_PLAYER_PURPLE);
+    driverYellowColorBtn11 = new JoystickButton(joystickRight, OP_BUTTON_DRIVER_PLAYER_YELLOW);
+    driverPurpleColorBtn12 = new JoystickButton(joystickRight, OP_BUTTON_DRIVER_PLAYER_PURPLE);
 
     // Configure the trigger bindings
     configureBindings();

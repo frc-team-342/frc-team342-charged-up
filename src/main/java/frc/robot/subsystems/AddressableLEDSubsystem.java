@@ -13,11 +13,15 @@ import static frc.robot.Constants.LEDConstants.*;
 public class AddressableLEDSubsystem extends SubsystemBase {
   /** Creates a new AddressableLEDSubsystem. */
 
-  AddressableLED LED;
-  AddressableLEDBuffer LEDBuffer;
+  public enum ColorType {
+    YELLOW,
+    PURPLE;
+  }
 
-  public AddressableLEDSubsystem()
-  {
+  private final AddressableLED LED;
+  private final AddressableLEDBuffer LEDBuffer;
+
+  public AddressableLEDSubsystem() {
     LED = new AddressableLED(PWM_PORT);
     LEDBuffer = new AddressableLEDBuffer(LENGTH);
     LED.setLength(LEDBuffer.getLength());
@@ -25,109 +29,96 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     LED.start();
   }
 
-  public void LEDOff()
-  {
-  for(int i = 0; i < LEDBuffer.getLength(); i++)
+  /**
+   * This method sets all the LED groups (Human Player & Driver) to off
+   */
+  public void LEDOff() {
+    for(int i = 0; i < LEDBuffer.getLength(); i++)
     {
       LEDBuffer.setHSV(i, 0, 0, 0);
     }
-  LED.setData(LEDBuffer);
-  }
-
-  public void HYC()
-  {
-    for(int i = 256; i < LEDBuffer.getLength(); i++)
-    {
-      LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
-    }
     LED.setData(LEDBuffer);
   }
 
-  public void DYC()
-  {
-    for(int i = 0; i < 256; i++)
+  /**
+   * This method sets the Human Player LED group to the Yellow Color or Purple Color
+   */
+  public void HumanColorMethod(ColorType colortype) {
+    if(ColorType.YELLOW == colortype)
     {
-      LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      for(int i = 0; i < 256; i++)
+      {
+        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      }
+      LED.setData(LEDBuffer);
     }
-    LED.setData(LEDBuffer);
+    else if(ColorType.PURPLE == colortype)
+    {
+      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      }
+      LED.setData(LEDBuffer);
+    }
   }
 
-  public void HPC()
+  /**
+   * This method sets the Driver LED group to the Yellow Color
+   */
+  public void DriverColorMethod(ColorType colorType)
   {
-    for(int i = 256; i < LEDBuffer.getLength(); i++)
+    if(ColorType.YELLOW == colorType)
     {
-      LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      for(int i = 0; i < 256; i++)
+      {
+        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      }
+      LED.setData(LEDBuffer);
     }
-    LED.setData(LEDBuffer);
+    else if(ColorType.PURPLE == colorType)
+    {
+      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+      }
+      LED.setData(LEDBuffer);
+    }
   }
 
-  public void DPC()
-  {
-    for(int i = 0; i < 256; i++)
-    {
-      LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
-    }
-    LED.setData(LEDBuffer);
-  }
-
+  /**
+   * 
+   * @return Run: HumanYellowColorMethod() & End: LEDOff()
+   */
   public CommandBase HumanYellowColor()
   {
-    return runEnd(
-    () ->
-    {
-      HYC();
-    },
-
-    () ->
-    {
-      LEDOff();
-    }
-    );
+    return runEnd(() -> HumanColorMethod(ColorType.YELLOW), this::LEDOff);
   }
 
+  /**
+   * 
+   * @return Run: DriverYellowColorMethod() & End: LEDOff()
+   */
   public CommandBase DriverYellowColor()
   {
-    return runEnd(
-    () ->
-    {
-      DYC();
-    },
-
-    () ->
-    {
-      LEDOff();
-    }
-    );
+    return runEnd(() -> DriverColorMethod(ColorType.YELLOW), this::LEDOff);
   }
 
+  /**
+   * 
+   * @return Run: HumanYellowPurpleMethod() & End: LEDOff()
+   */
   public CommandBase HumanPurplecolor()
   {
-    return runEnd(
-    () ->
-    {
-      HPC();
-    },
-
-    () ->
-    {
-      LEDOff();
-    }
-    );
+    return runEnd(() -> HumanColorMethod(ColorType.PURPLE), this::LEDOff);
   }
 
+  /**
+   * 
+   * @return Run: DriverYellowPurpleMethod() & End: LEDOff()
+   */
   public CommandBase DriverPurplecolor()
   {
-    return runEnd(
-    () ->
-    {
-      DPC();
-    },
-
-    () ->
-    {
-      LEDOff();
-    }
-    );
+    return runEnd(() -> DriverColorMethod(ColorType.PURPLE), this::LEDOff);
   }
 
   @Override
