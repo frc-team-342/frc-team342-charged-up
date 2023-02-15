@@ -357,6 +357,10 @@ public class DriveSystem extends SubsystemBase {
     );
   }
 
+  public CommandBase autoBalance() {
+    
+  }
+
   @Override
   public void periodic() {
     // odometry and pose visualization update different in simulation and real
