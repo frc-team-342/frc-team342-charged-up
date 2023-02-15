@@ -79,7 +79,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     {
       for(int i = 256; i < LEDBuffer.getLength(); i++)
       {
-        LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
+        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
       LED.setData(LEDBuffer);
     }
@@ -88,6 +88,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * 
    * @return Run: HumanYellowColorMethod() & End: LEDOff()
+   * 
+   * @param colorType = Yellow
    */
   public CommandBase HumanYellowColor()
   {
@@ -97,6 +99,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * 
    * @return Run: DriverYellowColorMethod() & End: LEDOff()
+   * 
+   * @param colorType = Purple
    */
   public CommandBase DriverYellowColor()
   {
@@ -106,6 +110,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * 
    * @return Run: HumanYellowPurpleMethod() & End: LEDOff()
+   * 
+   * @param colorType = Yellow
    */
   public CommandBase HumanPurplecolor()
   {
@@ -115,6 +121,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * 
    * @return Run: DriverYellowPurpleMethod() & End: LEDOff()
+   * 
+   * @param colorType = Purple
    */
   public CommandBase DriverPurplecolor()
   {
