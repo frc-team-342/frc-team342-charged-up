@@ -89,44 +89,37 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * 
    * @return Run: HumanYellowColorMethod() & End: LEDOff()
    * 
-   * @param colorType = Yellow
+   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
-  public CommandBase HumanYellowColor()
+  public CommandBase HumanColor(ColorType colorType)
   {
-    return runEnd(() -> HumanColorMethod(ColorType.YELLOW), this::LEDOff);
+    if (colorType == ColorType.YELLOW)
+    {
+      return runEnd(() -> HumanColorMethod(ColorType.YELLOW), this::LEDOff);
+    }
+    else
+    {
+      return runEnd(() -> HumanColor(ColorType.PURPLE), this::LEDOff);
+    }
+    
   }
 
   /**
    * 
    * @return Run: DriverYellowColorMethod() & End: LEDOff()
    * 
-   * @param colorType = Purple
+   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
-  public CommandBase DriverYellowColor()
+  public CommandBase DriverColor(ColorType colorType)
   {
-    return runEnd(() -> DriverColorMethod(ColorType.YELLOW), this::LEDOff);
-  }
-
-  /**
-   * 
-   * @return Run: HumanYellowPurpleMethod() & End: LEDOff()
-   * 
-   * @param colorType = Yellow
-   */
-  public CommandBase HumanPurplecolor()
-  {
-    return runEnd(() -> HumanColorMethod(ColorType.PURPLE), this::LEDOff);
-  }
-
-  /**
-   * 
-   * @return Run: DriverYellowPurpleMethod() & End: LEDOff()
-   * 
-   * @param colorType = Purple
-   */
-  public CommandBase DriverPurplecolor()
-  {
-    return runEnd(() -> DriverColorMethod(ColorType.PURPLE), this::LEDOff);
+    if(colorType == ColorType.PURPLE)
+    {
+      return runEnd(() -> DriverColorMethod(ColorType.YELLOW), this::LEDOff);
+    }
+    else
+    {
+      return runEnd(() -> DriverColorMethod(ColorType.PURPLE), this::LEDOff);
+    }
   }
 
   @Override

@@ -37,11 +37,8 @@ public class RobotContainer {
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
   private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
   
-  private final Joystick joystickRight;
   private final JoystickButton humanYellowColorBtn9;
   private final JoystickButton humanPurpleColorBtn10;
-  private final JoystickButton driverYellowColorBtn11;
-  private final JoystickButton driverPurpleColorBtn12;
 
   private final AddressableLEDSubsystem aLedSubsystem;
 
@@ -63,11 +60,8 @@ public class RobotContainer {
     
     aLedSubsystem = new AddressableLEDSubsystem();
 
-    joystickRight = new Joystick(DRIVER_RIGHT);
-    humanYellowColorBtn9 = new JoystickButton(joystickRight, OP_BUTTON_HUMAN_PLAYER_YELLOW);
-    humanPurpleColorBtn10 = new JoystickButton(joystickRight, OP_BUTTON_HUMAN_PLAYER_PURPLE);
-    driverYellowColorBtn11 = new JoystickButton(joystickRight, OP_BUTTON_DRIVER_PLAYER_YELLOW);
-    driverPurpleColorBtn12 = new JoystickButton(joystickRight, OP_BUTTON_DRIVER_PLAYER_PURPLE);
+    humanYellowColorBtn9 = new JoystickButton(driver, OP_BUTTON_HUMAN_PLAYER_YELLOW);
+    humanPurpleColorBtn10 = new JoystickButton(driver, OP_BUTTON_HUMAN_PLAYER_PURPLE);
 
     // Configure the trigger bindings
     configureBindings();
