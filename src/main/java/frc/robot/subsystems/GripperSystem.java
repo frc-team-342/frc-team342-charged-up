@@ -54,14 +54,11 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
-    
 
-        if(checkForCube())
-        {
+        /** This logic changes the vision mode depending on whatever game piece has been grabbed */
+        if(checkForCube()) {
           limelight.setPipeline(1);
-        }
-        else if(checkForGamePiece())
-        {
+        } else if(checkForGamePiece()) {
           limelight.setPipeline(0);
         }
       }
@@ -99,12 +96,13 @@ public class GripperSystem extends SubsystemBase {
     builder.setSmartDashboardType("GripperSystem");
 
     builder.addDoubleProperty("Red", () -> colorSensor.getColor().red, null);
-
     builder.addDoubleProperty("Green", () -> colorSensor.getColor().green, null);
     builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
     builder.addDoubleProperty("IR", () -> colorSensor.getIR(), null);
     builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
-
+    
+    builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
+    builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
   }
   @Override
   public void periodic() {
