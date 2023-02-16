@@ -34,16 +34,21 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  private final XboxController operator = new XboxController(OperatorConstants.K_OPERATOR_CONTROLLER_PORT);
-  private final JoystickButton xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  private final Joystick driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  private final Joystick driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+  private final XboxController operator;
+  private final JoystickButton xButton;
+  private final Joystick driverLeft;
+  private final Joystick driverRight;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
     

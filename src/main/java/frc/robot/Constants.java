@@ -19,7 +19,7 @@ public final class Constants {
 
 
   public static class OperatorConstants {
-    public static final int K_OPERATOR_CONTROLLER_PORT = 0;
+    public static final int OP_CONTROLLER = 0;
     public static final int DRIVER_LEFT_PORT = 1;
     public static final int DRIVER_RIGHT_PORT = 2;
   }
