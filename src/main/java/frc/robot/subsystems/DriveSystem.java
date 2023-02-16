@@ -43,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
-import edu.wpi.first.wpilibj.Timer;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -361,12 +360,13 @@ public class DriveSystem extends SubsystemBase implements Testable {
       rotateController::atSetpoint
     );
   }
-
+/**
+ * it returns a command that autobalances
+ * @return
+ */
   public CommandBase autoBalance() {
     
-    Timer timer = new Timer();
     
-    public boolean isFinished = false; 
 
     return runEnd(
       // runs repeatedly until end of command
@@ -385,8 +385,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
         setDrivePIDControllers(wheelSpeeds);
 
-        timer.reset();
-        timer.start();
+        
       },
       // runs once at end of command 
       () -> {
@@ -400,11 +399,15 @@ public class DriveSystem extends SubsystemBase implements Testable {
         frontRight.stopMotor();
       }
     ).until(
-      () -> timer.hasElapsed(15)
+      balanceController::atSetpoint
     );
     
   }
 
+  /**
+   * sets the reference velocity of the PID controllers
+   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
+   */
   private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
     // clamp wheel speeds to max velocity
     double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
