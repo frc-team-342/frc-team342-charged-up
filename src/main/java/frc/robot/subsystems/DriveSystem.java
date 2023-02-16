@@ -43,6 +43,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
+import edu.wpi.first.wpilibj.Timer;
+
 import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.List;
@@ -362,6 +364,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   public CommandBase autoBalance() {
     
+    Timer timer = new Timer();
+    
+    public boolean isFinished = false; 
+
     return runEnd(
       // runs repeatedly until end of command
       () -> {
@@ -378,6 +384,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVel);
 
         setDrivePIDControllers(wheelSpeeds);
+
+        timer.reset();
+        timer.start();
       },
       // runs once at end of command 
       () -> {
@@ -391,9 +400,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
         frontRight.stopMotor();
       }
     ).until(
-      // returns true if robot is at end angle
-      balanceController::atSetpoint
+      () -> timer.hasElapsed(15)
     );
+    
   }
 
   private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
