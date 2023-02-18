@@ -5,11 +5,10 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import static frc.robot.Constants.OperatorConstants.*;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,11 +35,6 @@ public class RobotContainer {
   private final GripperSystem gripperSystem;
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
   private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
-  
-  private final JoystickButton humanYellowColorBtn9;
-  private final JoystickButton humanPurpleColorBtn10;
-
-  private final AddressableLEDSubsystem aLedSubsystem;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -58,11 +52,6 @@ public class RobotContainer {
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
     
-    aLedSubsystem = new AddressableLEDSubsystem();
-
-    humanYellowColorBtn9 = new JoystickButton(driver, OP_BUTTON_HUMAN_PLAYER_YELLOW);
-    humanPurpleColorBtn10 = new JoystickButton(driver, OP_BUTTON_HUMAN_PLAYER_PURPLE);
-
     // Configure the trigger bindings
     configureBindings();
 
@@ -82,7 +71,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(gripperSystem.intake());
-   
   }
 
   private CommandBase getCheckCommand() {
