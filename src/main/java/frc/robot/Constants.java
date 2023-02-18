@@ -29,6 +29,7 @@ public final class Constants {
   {
     public static final int PWM_PORT = 0;
     public static final int LENGTH = 512;
+    public static final int DRIVER_START_RANGE = 256;
 
     //HSV Values
     public static final int YELLOW_H = 40;

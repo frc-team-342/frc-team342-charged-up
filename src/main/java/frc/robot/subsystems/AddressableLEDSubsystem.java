@@ -52,7 +52,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     if(ColorType.YELLOW == colortype)
     {
       //Sets each LED to Yellow
-      for(int i = 0; i < 256; i++)
+      for(int i = 0; i < DRIVER_START_RANGE; i++)
       {
         LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
       }
@@ -61,7 +61,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colortype)
     {
       //Sets each LED to Purple
-      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      for(int i = 0; i < DRIVER_START_RANGE; i++)
       {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
@@ -76,7 +76,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     if(ColorType.YELLOW == colorType)
     {
       //Sets each LED to Yellow
-      for(int i = 0; i < 256; i++)
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
       {
         LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
       }
@@ -85,7 +85,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colorType)
     {
       //Sets each LED to Purple
-      for(int i = 256; i < LEDBuffer.getLength(); i++)
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
       {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
