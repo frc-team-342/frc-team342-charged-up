@@ -90,4 +90,10 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
+
+  public static class AutoConstants
+  {
+    public static final double FAST_SPEED = 0.5;
+    public static final double SLOW_SPEED = 0.25;
+  }
 }
