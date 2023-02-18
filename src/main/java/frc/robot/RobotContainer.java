@@ -95,9 +95,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Commands.sequence(
-      driveSystem.driveDistance(5, 2)
-    );
+    return Autos.DriveSlow(driveSystem);
   }
 
   public Command getTestCommand() {
