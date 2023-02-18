@@ -18,9 +18,10 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    public static final int OP_CONTROLLER = 0;
+    public static final int DRIVER_LEFT_PORT = 1;
+    public static final int DRIVER_RIGHT_PORT = 2;
 
-    public static final int DRIVER_RIGHT = 0;
     public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
     public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
   }

@@ -9,6 +9,7 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,16 +34,23 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
+  private final XboxController operator;
+  private final JoystickButton xButton;
+  private final Joystick driverLeft;
+  private final Joystick driverRight;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+
     driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
     
     gripperSystem = new GripperSystem();
 
