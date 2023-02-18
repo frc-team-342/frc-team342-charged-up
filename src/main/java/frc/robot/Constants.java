@@ -17,11 +17,28 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-
   public static class OperatorConstants {
     public static final int OP_CONTROLLER = 0;
     public static final int DRIVER_LEFT_PORT = 1;
     public static final int DRIVER_RIGHT_PORT = 2;
+
+    public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
+    public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
+  }
+
+  public static class LEDConstants
+  {
+    public static final int PWM_PORT = 0;
+    public static final int LENGTH = 512;
+    public static final int DRIVER_START_RANGE = 256;
+
+    //HSV Values
+    public static final int YELLOW_H = 40;
+    public static final int YELLOW_S = 255;
+    public static final int YELLOW_V = 70;
+    public static final int PURPLE_H = 150;
+    public static final int PURPLE_S = 255;
+    public static final int PURPLE_V = 70;
   }
   
   public static class GripperConstants{
