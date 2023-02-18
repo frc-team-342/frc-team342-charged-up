@@ -44,6 +44,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * This method sets the Human Player LED group to the Yellow Color or Purple Color
    */
   public void HumanColorMethod(ColorType colortype) {
+    //If the colortype requested is yellow, then it will set the Human Player group color to yellow
+    //If the colortype requested is purple, then it will set the Human Player group color to purple
     if(ColorType.YELLOW == colortype)
     {
       for(int i = 0; i < 256; i++)
@@ -65,8 +67,10 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * This method sets the Driver LED group to the Yellow Color
    */
-  public void DriverColorMethod(ColorType colorType)
-  {
+  public void DriverColorMethod(ColorType colorType) {
+
+    //If the colortype requested is yellow, then it will set the Human Player group color to yellow
+    //If the colortype requested is purple, then it will set the Human Player group color to purple
     if(ColorType.YELLOW == colorType)
     {
       for(int i = 0; i < 256; i++)
@@ -91,17 +95,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * 
    * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
-  public CommandBase HumanColor(ColorType colorType)
-  {
-    if (colorType == ColorType.YELLOW)
-    {
-      return runEnd(() -> HumanColorMethod(ColorType.YELLOW), this::LEDOff);
-    }
-    else
-    {
-      return runEnd(() -> HumanColor(ColorType.PURPLE), this::LEDOff);
-    }
-    
+  public CommandBase HumanColor(ColorType colorType) {
+    return runEnd(() -> HumanColorMethod(colorType), this::LEDOff);   
   }
 
   /**
@@ -110,16 +105,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * 
    * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
-  public CommandBase DriverColor(ColorType colorType)
-  {
-    if(colorType == ColorType.PURPLE)
-    {
-      return runEnd(() -> DriverColorMethod(ColorType.YELLOW), this::LEDOff);
-    }
-    else
-    {
-      return runEnd(() -> DriverColorMethod(ColorType.PURPLE), this::LEDOff);
-    }
+  public CommandBase DriverColor(ColorType colorType) {
+    return runEnd(() -> DriverColorMethod(colorType), this::LEDOff);
   }
 
   @Override
