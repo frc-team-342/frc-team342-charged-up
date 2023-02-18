@@ -39,7 +39,7 @@ public class RobotContainer {
     driverController = new XboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
     operatorController = new XboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
-    gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.GRIPPER_INTAKE_BTN_ID);
+    gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.OP_INTAKE_BTN);
 
     /** Drivesystem instantiations */
     driveSystem = new DriveSystem();

@@ -25,7 +25,7 @@ public final class Constants {
 
     /* Operator Controller constants */
     public static final int OPERATOR_CONTROLLER_PORT = 1;
-    public static final int GRIPPER_INTAKE_BTN_ID = 5;
+    public static final int OP_INTAKE_BTN = 5;
   }
 
   
