@@ -29,10 +29,13 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     LED.start();
   }
 
+
+  
   /**
    * This method sets all the LED groups (Human Player & Driver) to off
    */
   public void LEDOff() {
+    //Sets each LED to off
     for(int i = 0; i < LEDBuffer.getLength(); i++)
     {
       LEDBuffer.setHSV(i, 0, 0, 0);
@@ -48,6 +51,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     //If the colortype requested is purple, then it will set the Human Player group color to purple
     if(ColorType.YELLOW == colortype)
     {
+      //Sets each LED to Yellow
       for(int i = 0; i < 256; i++)
       {
         LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
@@ -56,6 +60,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     }
     else if(ColorType.PURPLE == colortype)
     {
+      //Sets each LED to Purple
       for(int i = 256; i < LEDBuffer.getLength(); i++)
       {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
@@ -65,14 +70,12 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   }
 
   /**
-   * This method sets the Driver LED group to the Yellow Color
+   * This method sets the Driver LED group to a specifed color
    */
   public void DriverColorMethod(ColorType colorType) {
-
-    //If the colortype requested is yellow, then it will set the Human Player group color to yellow
-    //If the colortype requested is purple, then it will set the Human Player group color to purple
     if(ColorType.YELLOW == colorType)
     {
+      //Sets each LED to Yellow
       for(int i = 0; i < 256; i++)
       {
         LEDBuffer.setHSV(i, YELLOW_H, YELLOW_S, YELLOW_V);
@@ -81,6 +84,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     }
     else if(ColorType.PURPLE == colorType)
     {
+      //Sets each LED to Purple
       for(int i = 256; i < LEDBuffer.getLength(); i++)
       {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
