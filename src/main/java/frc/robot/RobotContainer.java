@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,22 +44,29 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
-  private final XboxController operator = new XboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+
+  private final XboxController operator;
+  private final JoystickButton xButton;
+  private final Joystick driverLeft;
+  private final Joystick driverRight;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+
     driveSystem = new DriveSystem();
-    //driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
   
     lSystem = new LiftSystem();
-    liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
-    liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
+    //liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
+    //liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
 
     gripperSystem = new GripperSystem();
 
@@ -114,10 +122,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Commands.sequence(
-      //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
-      //driveSystem.driveDistance(5, 2)
-    );
+    return Autos.DriveSlow(driveSystem);
   }
 
   public Command getTestCommand() {
