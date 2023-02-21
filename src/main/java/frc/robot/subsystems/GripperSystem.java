@@ -25,7 +25,6 @@ import frc.robot.Limelight;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-  private final double rollerSpeed = 0.5;
   private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
@@ -107,7 +106,7 @@ public class GripperSystem extends SubsystemBase {
     builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
     builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
     builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
-    builder.addDoubleProperty("CurrentDrawReadings", () -> rollerMotor.getOutputCurrent(), null);
+    builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
 
   }
   @Override
