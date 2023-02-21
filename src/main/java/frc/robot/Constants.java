@@ -49,6 +49,16 @@ public final class Constants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.5;
+
+        /*
+    * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
+    */
+    public static final int GAME_PIECE_IR_MINIMUM = 10;
+
+    /*
+    * The minimum blue value the color sensor must read for the game piece we grabbed to be considered a cube
+    */
+    public static final double MINIMUM_BLUE_VALUE_FOR_CUBE = 0.25;
   }
 
   
@@ -94,22 +104,6 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
-  }
-
-
-  public static class GripperConstants {
-    public static final I2C.Port I2CPORT = I2C.Port.kOnboard;
-    public static final int ROLLER_MOTOR = 5;
-
-    /*
-    * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
-    */
-    public static final int GAME_PIECE_IR_MINIMUM = 10;
-
-    /*
-    * The minimum blue value the color sensor must read for the game piece we grabbed to be considered a cube
-    */
-    public static final double MINIMUM_BLUE_VALUE_FOR_CUBE = 0.25;
   }
   
   public static class AutoConstants

@@ -18,7 +18,7 @@ import frc.robot.subsystems.Testable;
 import static frc.robot.Constants.LimelightConstants.*;
 
 
-class Limelight implements Testable, Sendable {
+public class Limelight implements Testable, Sendable {
 
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
@@ -81,11 +81,6 @@ class Limelight implements Testable, Sendable {
      * Allows us to set the vision pipeline to a number of our choosing
      */
     public void setPipeline(int desiredPipeline) {
-        table.getEntry("pipeline").setNumber(desiredPipeline);
-    }
-
-    public void setPipeline(int desiredPipeline)
-    {
         table.getEntry("pipeline").setNumber(desiredPipeline);
     }
 

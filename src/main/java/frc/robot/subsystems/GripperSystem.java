@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.LimelightConstants;
 import static frc.robot.Constants.GripperConstants.*;
 import frc.robot.Limelight;
@@ -31,7 +32,7 @@ public class GripperSystem extends SubsystemBase {
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
-    colorSensor = new ColorSensorV3(I2CPORT);
+    colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
   }
@@ -48,7 +49,7 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-        spin(rollerSpeed);
+        spin(ROLLER_SPEED);
       },
       //end
       () -> {
@@ -68,7 +69,7 @@ public class GripperSystem extends SubsystemBase {
 
 
   private boolean checkForGamePiece() {
-    return colorSensor.getIR() > GAME_PIECE_IR_MINIMUM;
+    return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
   }
 
   private boolean checkForCube() {
@@ -84,7 +85,7 @@ public class GripperSystem extends SubsystemBase {
       //run
       () -> {
       
-        spin(-(rollerSpeed));
+        spin(-(ROLLER_SPEED));
 
       },
       //end
