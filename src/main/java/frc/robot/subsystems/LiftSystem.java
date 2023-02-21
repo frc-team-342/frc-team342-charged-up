@@ -15,7 +15,9 @@ import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -35,10 +37,11 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
   private final PIDController pControllerOne;
   private final PIDController pControllerTwo;
+
+  private final DigitalInput limitUp;
+  private final DigitalInput limitDown;
   
   private final DutyCycleEncoder armEncoder;
-
-  private final double speedMultiplier;
   
     /** Creates a new LiftSystem. */
   public LiftSystem() {
@@ -55,18 +58,29 @@ public class LiftSystem extends SubsystemBase implements Testable {
     //Setting default values for PID
     pControllerOne = new PIDController(0.25, 0.0, 0.0);
     pControllerTwo = new PIDController(0.25, 0.0, 0.0);
-  
-    speedMultiplier = 0.1;
+
+    //Limit Switches
+    limitUp = new DigitalInput(LIMIT_SWITCH_UP);
+    limitDown = new DigitalInput(LIMIT_SWITCH_DOWN);
 
   }
 
-  public CommandBase liftArms(double speed){
-
-    double adjustedSpeed = speed * speedMultiplier;
+  public CommandBase liftArms(XboxController xboxController){
 
     return runEnd(
       () -> {
-        liftGroup.set(adjustedSpeed);
+        if(limitUp.get() && (xboxController.getLeftY() < 0))
+        {
+          liftGroup.set(0);
+        }
+        else if(limitDown.get() && (xboxController.getLeftY() > 0))
+        {
+          liftGroup.set(0);
+        }
+        else
+        {
+          liftGroup.set(MAX_SPEED);
+        }
       },
 
       () -> {
@@ -95,7 +109,7 @@ public class LiftSystem extends SubsystemBase implements Testable {
     }, 
     //Runs when command ends
     () -> {
-      liftArms(0);
+      //liftArms(0);
     }
     ).until(
       () -> {

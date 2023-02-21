@@ -20,6 +20,7 @@ public final class Constants {
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
   }
   
   public static class GripperConstants{
@@ -69,6 +70,9 @@ public final class Constants {
 
     public static final int MOTOR_LEFT = 3;
     public static final int MOTOR_RIGHT = 7;
+
+    public static final int LIMIT_SWITCH_UP = 0;
+    public static final int LIMIT_SWITCH_DOWN = 1;
   }
 
   /*
