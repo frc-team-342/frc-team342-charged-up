@@ -8,7 +8,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import static frc.robot.Constants.LimelightConstants.*;
 
 
-class Limelight {
+public class Limelight {
 
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight

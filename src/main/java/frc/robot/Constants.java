@@ -53,23 +53,21 @@ public final class Constants {
     public static final double MASS = 35.27; // subject to change
   }
 
-  /*
-   * todo: add actual values for all of the constants, they are currently placeholders
-   */
   public static class LimelightConstants{
     
-    /** Feet */
-    public static final double HEIGHT_TO_LOW = 0.0;
+    /** Meters */
+    public static final double HEIGHT_TO_LOW = Units.inchesToMeters(6.25);
 
-    /** Feet */
-    public static final double HEIGHT_TO_MED = 0.0;
+    /** Meters */
+    public static final double HEIGHT_TO_MED = Units.inchesToMeters(19.125);
 
-    /** Feet */
-    public static final double HEIGHT_TO_HIGH = 0.0;
+    /** Meters */
+    public static final double HEIGHT_TO_HIGH = Units.inchesToMeters(30.875);
 
-    /** Feet */
-    public static final double HEIGHT_TO_HP_STATION = 0.0;
+    /** Meters */
+    public static final double HEIGHT_TO_HP_STATION = Units.inchesToMeters(15.375);
 
+    /** todo: add actual values for constants below this line */
     /** Degrees */
     public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
 
