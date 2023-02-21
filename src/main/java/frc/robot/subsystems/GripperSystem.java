@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorMatch;
-
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -17,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LimelightConstants;
-
 import static frc.robot.Constants.GripperConstants.*;
 import frc.robot.Limelight;
+
 
 
 public class GripperSystem extends SubsystemBase {
@@ -54,17 +53,19 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
-
+        
         /** This logic changes the vision mode depending on whatever game piece has been grabbed */
         if(checkForCube()) {
           limelight.setPipeline(1);
         } else if(checkForGamePiece()) {
           limelight.setPipeline(0);
         }
+
       }
 
     );
   }
+
 
   private boolean checkForGamePiece() {
     return colorSensor.getIR() > GAME_PIECE_IR_MINIMUM;
@@ -82,7 +83,9 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
+      
         spin(-(rollerSpeed));
+
       },
       //end
       () -> {
@@ -90,6 +93,7 @@ public class GripperSystem extends SubsystemBase {
       }
     );
   }
+
   @Override
   public void initSendable(SendableBuilder builder){
   
@@ -100,9 +104,10 @@ public class GripperSystem extends SubsystemBase {
     builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
     builder.addDoubleProperty("IR", () -> colorSensor.getIR(), null);
     builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
-    
     builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
     builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
+    builder.addDoubleProperty("CurrentDrawReadings", () -> rollerMotor.getOutputCurrent(), null);
+
   }
   @Override
   public void periodic() {

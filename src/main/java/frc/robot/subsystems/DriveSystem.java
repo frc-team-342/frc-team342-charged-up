@@ -31,18 +31,23 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 import static frc.robot.Constants.DriveConstants.*;
 
-public class DriveSystem extends SubsystemBase {
+import java.util.List;
+
+public class DriveSystem extends SubsystemBase implements Testable {
   // speeds are statically imported constants
   private enum Mode {
 
@@ -207,15 +212,16 @@ public class DriveSystem extends SubsystemBase {
 
   /**
    * 
-   * @param xbox the xbox controller being used to drive the robot
+   * @param joyLeft the left joystick being used to drive the robot
+   * @param joyRight the right joystick being used to drive the robot
    * @return command that drives with joystick
    */
-  public CommandBase driveWithJoystick(XboxController xbox) {
+  public CommandBase driveWithJoystick(Joystick joyLeft, Joystick joyRight) {
     return runEnd(
       // Runs drive repeatedly until command is stopped
       () -> {
-        double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
-        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        double left = MathUtil.applyDeadband(joyLeft.getY(), 0.15);
+        double right = MathUtil.applyDeadband(joyRight.getY(), 0.15);
         
         drivePercent(left, right);
       },
@@ -234,7 +240,6 @@ public class DriveSystem extends SubsystemBase {
   public CommandBase driveDistance(double velocityIn, double distance) {
     double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
 
-    // TODO: refactor to use odometry
     Pose2d start = odometry.getPoseMeters();
     Transform2d transform = new Transform2d(
       // distance from current position facing current direction
@@ -380,7 +385,7 @@ public class DriveSystem extends SubsystemBase {
 
       // update field visualization from drivetrain sim in simulation
       field.setRobotPose(drivetrainSim.getPose());
-    }    
+    } 
   }
 
   @Override
@@ -432,5 +437,91 @@ public class DriveSystem extends SubsystemBase {
       builder.addDoubleProperty("Left output", () -> frontLeft.getAppliedOutput(), null);
       builder.addDoubleProperty("Right output", () -> frontRight.getAppliedOutput(), null);
     }
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    return List.of(
+      // default constructor for spark connections
+      Connection.fromSparkMax(frontLeft),
+      Connection.fromSparkMax(frontRight),
+      Connection.fromSparkMax(backLeft),
+      Connection.fromSparkMax(backRight),
+      // default constructor for navx connection
+      Connection.fromNavx(gyro)
+    );
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    // if/when joystick drive uses pid this should be changed to also use pid
+    return Commands.sequence(
+      // drive forwards
+      new RunCommand(
+        () -> {
+          // both wheels forwards at speed set by mode
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this // this command depends on drivesystem
+      ).withTimeout(1.5), // run this for 3 seconds before continuing
+
+      // drive backwards
+      new RunCommand(
+        () -> {
+          // both wheels backwards at speed set by mode
+          drivePercent(-currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // drive clockwise
+      new RunCommand(
+        () -> {
+          // left wheel forwards right wheel backwards
+          drivePercent(currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this 
+      ).withTimeout(1.5), 
+
+      // drive counterclockwise
+      new RunCommand(
+        () -> {
+          // left wheel backwards right wheel forwards
+          drivePercent(-currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // enable slow mode
+      new InstantCommand(
+        () -> { 
+          toggleSlowMode();
+        },
+        this
+      ),
+
+      // drive forwards in slow mode
+      new RunCommand(
+        () -> {
+          // both wheels forwards
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).andThen(
+        () -> {
+          // stop driving
+          drivePercent(0, 0);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // disable slow mode
+      new InstantCommand(
+        () -> { 
+          toggleSlowMode(); 
+        },
+        this
+      )
+    );
   }
 }

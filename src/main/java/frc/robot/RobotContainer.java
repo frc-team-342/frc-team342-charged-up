@@ -7,14 +7,20 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -26,24 +32,30 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSystem driveSystem;
-  private final GripperSystem gripperSystem;
+
   private final Limelight limelight;
-  private final XboxController driverController;
-  private final XboxController operatorController;
-  private final JoystickButton gripperIntakeBtn;
+
+  private final GripperSystem gripperSystem;
+  
+  /* Controller and button instantiations */
+  private final XboxController operator;
+  private final JoystickButton xButton;
+  private final Joystick driverLeft;
+  private final Joystick driverRight;
+
+  // hardware connection check stuff
+  private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
-    /*Controller and button instantiations */
-    driverController = new XboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-
-    operatorController = new XboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
-    gripperIntakeBtn = new JoystickButton(operatorController, OperatorConstants.OP_INTAKE_BTN);
-
-    /** Drivesystem instantiations */
+     /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverController));
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
 
     /** Limelight instantiations */
     limelight = new Limelight();
@@ -54,9 +66,14 @@ public class RobotContainer {
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
+    SmartDashboard.putData(limelight);
     
     // Configure the trigger bindings
     configureBindings();
+
+    // hardware check
+    Shuffleboard.getTab("Hardware").add(getCheckCommand());
+    Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
   }
 
   /**
@@ -69,7 +86,22 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    gripperIntakeBtn.whileTrue(gripperSystem.intake());
+    xButton.whileTrue(gripperSystem.intake());
+  }
+
+  private CommandBase getCheckCommand() {
+    return Commands.sequence(
+      // drive
+      new InstantCommand(
+        () -> { hardware.getEntry("Drive").setString(driveSystem.checkAllConnections()); },
+        driveSystem
+      ),
+
+      // limelight
+      new InstantCommand(
+        () -> { hardware.getEntry("Limelight").setString(limelight.checkAllConnections()); }
+      )
+    ).ignoringDisable(true);
   }
 
   /**
@@ -79,9 +111,24 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Commands.sequence(
-      //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
-      driveSystem.driveDistance(5, 2)
+    return Autos.DriveSlow(driveSystem);
+  }
+
+  public Command getTestCommand() {
+    // return all test routines chained together
+    return new SequentialCommandGroup(
+      // check that all devices are connected
+      getCheckCommand(),
+      
+      /*
+       * drive system test routine:
+       * - drive forwards
+       * - drive backwards
+       * - turn clockwise
+       * - turn counterclockwise
+       * - drive forwards in slow mode
+       */
+      driveSystem.testRoutine()
     );
   }
 }
