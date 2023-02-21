@@ -36,8 +36,9 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final PIDController pControllerOne;
   private final PIDController pControllerTwo;
   
-  //private final DutyCycleEncoder dInput;
-  private final SparkMaxAbsoluteEncoder absEncoder;
+  private final DutyCycleEncoder armEncoder;
+
+  private final double speedMultiplier;
   
     /** Creates a new LiftSystem. */
   public LiftSystem() {
@@ -47,21 +48,25 @@ public class LiftSystem extends SubsystemBase implements Testable {
     motorTwo = new CANSparkMax(MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
-    //dInput = new DutyCycleEncoder(0);
-    absEncoder = motorTwo.getAbsoluteEncoder(Type.kDutyCycle);
+    armEncoder = new DutyCycleEncoder(0);
   
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
 
     //Setting default values for PID
     pControllerOne = new PIDController(0.25, 0.0, 0.0);
     pControllerTwo = new PIDController(0.25, 0.0, 0.0);
+  
+    speedMultiplier = 0.1;
+
   }
 
   public CommandBase liftArms(double speed){
 
+    double adjustedSpeed = speed * speedMultiplier;
+
     return runEnd(
       () -> {
-        liftGroup.set(speed);
+        liftGroup.set(adjustedSpeed);
       },
 
       () -> {
@@ -101,7 +106,7 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
 
   public double getPosition(){
-    return absEncoder.getPosition();
+    return armEncoder.getAbsolutePosition();
   }
 
   @Override
