@@ -44,8 +44,8 @@ public class RobotContainer {
 
   private final GripperSystem gripperSystem;
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
   private final XboxController operator = new XboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -54,11 +54,12 @@ public class RobotContainer {
   public RobotContainer() {
     
     driveSystem = new DriveSystem();
-    //driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
   
     lSystem = new LiftSystem();
     liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
     liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
+    lSystem.setDefaultCommand(lSystem.liftArms(operator));
 
     gripperSystem = new GripperSystem();
 

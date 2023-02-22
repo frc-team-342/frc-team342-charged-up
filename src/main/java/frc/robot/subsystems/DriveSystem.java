@@ -220,7 +220,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // Runs drive repeatedly until command is stopped
       () -> {
         double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
-        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        double right = MathUtil.applyDeadband(-xbox.getRightY(), 0.15);
         
         drivePercent(left, right);
       },
