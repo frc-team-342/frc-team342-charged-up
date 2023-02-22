@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
+
 import static frc.robot.Constants.GripperConstants.*;
 import frc.robot.Limelight;
 
@@ -28,12 +30,14 @@ public class GripperSystem extends SubsystemBase {
   private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
+  private final AddressableLEDSubsystem aLedSubsystem;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
     colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
+    aLedSubsystem = new AddressableLEDSubsystem();
   }
 
   public void spin(double speed){
@@ -57,8 +61,10 @@ public class GripperSystem extends SubsystemBase {
         /** This logic changes the vision mode depending on whatever game piece has been grabbed */
         if(checkForCube()) {
           limelight.setPipeline(1);
+          aLedSubsystem.DriverColor(ColorType.PURPLE);
         } else if(checkForGamePiece()) {
           limelight.setPipeline(0);
+          aLedSubsystem.DriverColor(ColorType.YELLOW);
         }
 
       }
