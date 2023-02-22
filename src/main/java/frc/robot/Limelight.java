@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Testable;
 import static frc.robot.Constants.LimelightConstants.*;
 
-class Limelight implements Testable, Sendable {
+
+public class Limelight implements Testable, Sendable {
 
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
@@ -295,6 +296,7 @@ class Limelight implements Testable, Sendable {
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Horizontal Offset From Target", this::forwardDistanceToTarget, null);
+        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
+        builder.addIntegerProperty("Current Pipeline", this::getPipeline, null);
     }
 }

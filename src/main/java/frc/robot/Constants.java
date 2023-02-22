@@ -18,10 +18,14 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static class OperatorConstants {
-    public static final int OP_CONTROLLER = 0;
+  
+    /* Driver controller constants */
     public static final int DRIVER_LEFT_PORT = 1;
     public static final int DRIVER_RIGHT_PORT = 2;
-
+    
+    /* Operator Controller constants */
+    public static final int OP_CONTROLLER = 0;
+    public static final int OP_INTAKE_BTN = 5;
     public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
     public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
   }
@@ -45,6 +49,16 @@ public final class Constants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.5;
+
+        /*
+    * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
+    */
+    public static final int GAME_PIECE_IR_MINIMUM = 10;
+
+    /*
+    * The minimum blue value the color sensor must read for the game piece we grabbed to be considered a cube
+    */
+    public static final double MINIMUM_BLUE_VALUE_FOR_CUBE = 0.25;
   }
 
   
@@ -91,10 +105,11 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
-
+  
   public static class AutoConstants
   {
     public static final double FAST_SPEED = 0.5;
     public static final double SLOW_SPEED = 0.25;
+
   }
 }
