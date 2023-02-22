@@ -65,8 +65,7 @@ public class RobotContainer {
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
   
     lSystem = new LiftSystem();
-    //liftToButton = new JoystickButton(driver, XboxController.Button.kB.value);
-    //liftSpeedButton = new JoystickButton(driver, XboxController.Button.kA.value);
+    lSystem.setDefaultCommand(lSystem.liftArms(operator));
 
     gripperSystem = new GripperSystem();
 
@@ -95,8 +94,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    liftToButton.whileTrue(lSystem.liftArmsToPosition(1));
-    liftSpeedButton.whileTrue(lSystem.liftArms(operator));
     xButton.whileTrue(gripperSystem.intake());
   }
 

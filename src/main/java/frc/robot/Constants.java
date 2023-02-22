@@ -42,7 +42,7 @@ public final class Constants {
   
   public static class GripperConstants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
-    public static final int ROLLER_MOTOR = 6;
+    public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.5;
   }
 
@@ -85,10 +85,10 @@ public final class Constants {
     public static final double MAX_POSITION = 1;
     public static final double MIN_POSITION = 0;
 
-    public static final int MOTOR_LEFT = 3;
+    public static final int MOTOR_LEFT = 6;
     public static final int MOTOR_RIGHT = 7;
 
-    public static final int LIMIT_SWITCH_UP = 0;
+    public static final int LIMIT_SWITCH_UP = 2;
     public static final int LIMIT_SWITCH_DOWN = 1;
   }
 
