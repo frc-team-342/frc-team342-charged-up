@@ -253,7 +253,7 @@ public class Limelight implements Testable, Sendable {
                 double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
                 return horizontalFromMed;
             }
-
+            
             if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH){
                 double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
                 return horizontalFromHigh;

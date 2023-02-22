@@ -122,6 +122,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     
+    // Inverts the leader motors
+    frontRight.setInverted(true);
+    frontLeft.setInverted(false);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
