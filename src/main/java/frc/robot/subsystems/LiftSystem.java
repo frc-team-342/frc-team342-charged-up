@@ -69,17 +69,12 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
     return runEnd(
       () -> {
-        if(limitUp.get() && (xboxController.getLeftY() < 0))
-        {
+        if(limitUp.get() && (xboxController.getLeftY() > 0)) {
           liftGroup.set(0);
-        }
-        else if(limitDown.get() && (xboxController.getLeftY() > 0))
-        {
+        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) {
           liftGroup.set(0);
-        }
-        else
-        {
-          liftGroup.set(MAX_SPEED * xboxController.getLeftY());
+        } else {
+          liftGroup.set(-0.2 * xboxController.getLeftY());
         }
       },
 
@@ -127,8 +122,9 @@ public class LiftSystem extends SubsystemBase implements Testable {
   public void initSendable(SendableBuilder builder) {
     builder.addDoubleProperty("Encoder", this::getPosition, null);
     builder.addDoubleProperty("motor velocity", motorOne.getEncoder()::getVelocity, null);
-    builder.addBooleanProperty("Limit up",() -> {return limitUp.get();}, null);
-    builder.addBooleanProperty("Limit Down",() -> {return limitDown.get();}, null);
+
+    builder.addBooleanProperty("Up Limit Switch", () -> !limitDown.get(), null);
+    builder.addBooleanProperty("Down Limit Switch", () -> !limitUp.get(), null);
   }
 
   @Override

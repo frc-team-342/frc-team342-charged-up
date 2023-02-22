@@ -16,20 +16,36 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-
-
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-    public static final int OPERATOR_CONTROLLER_PORT = 2;
+    public static final int OP_CONTROLLER = 0;
+    public static final int DRIVER_LEFT_PORT = 1;
+    public static final int DRIVER_RIGHT_PORT = 2;
+
+    public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
+    public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
+  }
+
+  public static class LEDConstants {
+    public static final int PWM_PORT = 0;
+    public static final int LENGTH = 512;
+    public static final int DRIVER_START_RANGE = 256;
+
+    //HSV Values
+    public static final int YELLOW_H = 40;
+    public static final int YELLOW_S = 255;
+    public static final int YELLOW_V = 70;
+    public static final int PURPLE_H = 150;
+    public static final int PURPLE_S = 255;
+    public static final int PURPLE_V = 70;
   }
   
-  public static class GripperConstants{
+  public static class GripperConstants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.5;
   }
 
-  public static class DriveConstants{
+  public static class DriveConstants {
 
     public static final int FRONT_LEFT_MOTOR = 1;
     public static final int FRONT_RIGHT_MOTOR = 2;
@@ -85,5 +101,10 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+  }
+
+  public static class AutoConstants {
+    public static final double FAST_SPEED = 0.5;
+    public static final double SLOW_SPEED = 0.25;
   }
 }
