@@ -6,11 +6,42 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.subsystems.DriveSystem;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
   public static CommandBase exampleAuto() {
     return new InstantCommand();
+  }
+// needs testing 
+
+// robot drives onto charge station and balances 
+  public static CommandBase driveUpAndBalance(DriveSystem drivesystem) {
+    return new SequentialCommandGroup(
+
+      drivesystem.driveDistance(.5, 3),
+      drivesystem.autoBalance());
+      
+  }
+
+  //robot stays still
+
+  public static CommandBase doNothing(DriveSystem drivesystem) {
+    return new SequentialCommandGroup(drivesystem.driveDistance(0, 0));
+  }
+
+  //robot drives onto charge station, balances, drives out of community, then back onto charge station and balances
+
+  public static CommandBase leftSide(DriveSystem drivesystem) {
+    return new SequentialCommandGroup(
+
+    drivesystem.driveDistance(.5, 3), 
+    drivesystem.autoBalance(), 
+    drivesystem.driveDistance(.5, 5),
+    drivesystem.driveDistance(-.5,-5),
+    drivesystem.autoBalance());
+
   }
 
   private Autos() {

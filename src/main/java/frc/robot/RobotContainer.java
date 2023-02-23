@@ -9,8 +9,10 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -36,6 +38,8 @@ public class RobotContainer {
   private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
   private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
 
+  private SendableChooser<Command> autoChooser;
+
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
@@ -58,6 +62,12 @@ public class RobotContainer {
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+
+    autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("b", Autos.driveUpAndBalance(driveSystem));
+    autoChooser.addOption("a", Autos.doNothing(driveSystem));
+    autoChooser.addOption("e", Autos.leftSide(driveSystem));
+
   }
 
   /**
@@ -94,12 +104,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Commands.sequence(
-      //driveSystem.rotateToAngle(new Rotation2d(Units.degreesToRadians(27))),
-      driveSystem.driveDistance(5, 2), 
-      driveSystem.autoBalance()
-    );
+    return autoChooser.getSelected();
   }
 
   public Command getTestCommand() {
