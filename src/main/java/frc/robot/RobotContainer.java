@@ -36,6 +36,7 @@ public class RobotContainer {
     limelight = new Limelight();
 
     SmartDashboard.putData(driveSystem);
+    SmartDashboard.putData(limelight);
     
     // Configure the trigger bindings
     configureBindings();

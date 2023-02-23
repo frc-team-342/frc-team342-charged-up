@@ -4,12 +4,19 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import static frc.robot.Constants.LimelightConstants.*;
 
 
-public class Limelight {
+public class Limelight implements Sendable{
 
+    public Limelight(){
+        SendableRegistry.addLW(this, "Limelight", "Limelight");
+    }
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
      */
@@ -87,7 +94,7 @@ public class Limelight {
 
         if(hasTargets()){
 
-            return table.getEntry("tx").getNumber(0).doubleValue();
+            return 30 + (table.getEntry("ty").getNumber(0).doubleValue());
 
         }
             return Double.NaN;
@@ -203,7 +210,7 @@ public class Limelight {
       * @return If the limelight has any targets
       */
     public boolean hasTargets() {
-        return table.getEntry("tv").getBoolean(false);
+        return (table.getEntry("tv").getDouble(0) > 0);
     }
 
 
@@ -311,7 +318,9 @@ public class Limelight {
             }
         }
 
+    @Override
     public void initSendable(SendableBuilder builder) {
+        SmartDashboard.putString("dfhgjk", "FGHJK");
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
