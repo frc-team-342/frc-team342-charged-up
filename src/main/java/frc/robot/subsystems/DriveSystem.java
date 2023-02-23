@@ -31,8 +31,8 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -125,6 +125,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     
+    // Inverts the leader motors
+    frontRight.setInverted(true);
+    frontLeft.setInverted(false);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
@@ -218,15 +222,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   /**
    * 
-   * @param xbox the xbox controller being used to drive the robot
+   * @param joyLeft the left joystick being used to drive the robot
+   * @param joyRight the right joystick being used to drive the robot
    * @return command that drives with joystick
    */
-  public CommandBase driveWithJoystick(XboxController xbox) {
+  public CommandBase driveWithJoystick(Joystick joyLeft, Joystick joyRight) {
     return runEnd(
       // Runs drive repeatedly until command is stopped
       () -> {
-        double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
-        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        double left = MathUtil.applyDeadband(joyLeft.getY(), 0.15);
+        double right = MathUtil.applyDeadband(joyRight.getY(), 0.15);
         
         drivePercent(left, right);
       },

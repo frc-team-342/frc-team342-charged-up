@@ -10,6 +10,7 @@ import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -32,11 +34,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSystem driveSystem;
+
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  private final XboxController driver = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final JoystickButton xButton = new JoystickButton(driver, XboxController.Button.kX.value);
+  
+  /* Controller and button instantiations */
+  private final XboxController operator;
+  private final JoystickButton xButton;
+  private final Joystick driverLeft;
+  private final Joystick driverRight;
 
   private SendableChooser<Command> autoChooser;
 
@@ -45,13 +52,22 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driver));
-    
-    gripperSystem = new GripperSystem();
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
+     /** Drivesystem instantiations */
+    driveSystem = new DriveSystem();
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+
+    /** Limelight instantiations */
     limelight = new Limelight();
 
+    /** Gripper instantiations */
+    gripperSystem = new GripperSystem(limelight);
+
+    /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
