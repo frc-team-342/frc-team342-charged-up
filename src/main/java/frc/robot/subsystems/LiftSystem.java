@@ -65,13 +65,17 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
   }
 
+  /**
+   * @param xboxController Operator
+   * @return Command that uses obtained values from the limit switch to lift the arm within a specified range.
+   */
   public CommandBase liftArms(XboxController xboxController){
 
     return runEnd(
       () -> {
-        if(limitUp.get() && (xboxController.getLeftY() > 0)) {
+        if(limitUp.get() && (xboxController.getLeftY() > 0)) { // When the upward limit switch is triggered and the operator attempts to move upward, it will not move upward.
           liftGroup.set(0);
-        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) {
+        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) { // When the downward limit switch is triggered and the operator attempts to move downward, it will not move downward.
           liftGroup.set(0);
         } else {
           liftGroup.set(-0.2 * xboxController.getLeftY());
