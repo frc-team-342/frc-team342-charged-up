@@ -245,9 +245,13 @@ public class Limelight implements Sendable{
                     return forwardDistanceFromMed;
                 }
 
-                if(isHighLevelTarget(verticalOffset)){
-                    double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                    return forwardDistanceFromHigh;
+                //if(isHighLevelTarget(verticalOffset)){
+                    //double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
+                    //return forwardDistanceFromHigh;
+                //}
+
+                else{
+                    
                 }
             }
 
@@ -262,6 +266,7 @@ public class Limelight implements Sendable{
                         double forwardDistanceFromHPStation = HEIGHT_TO_HP_STATION / Math.tan(verticalOffset);
                         return forwardDistanceFromHPStation;
                 }
+
             }
         }
 

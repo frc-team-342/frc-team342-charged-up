@@ -69,16 +69,16 @@ public final class Constants {
 
     /** todo: add actual values for constants below this line */
     /** Degrees */
-    public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
+    public static final double MAX_VERT_OFFSET_FOR_LOW = 16.0;
 
     /** Degrees */
-    public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
+    public static final double MAX_VERT_OFFSET_FOR_MED = 27.0;
 
     /** Degrees */
-    public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+    // public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
 
     /** Degrees */
-    public static final double MAX_VERT_OFFSET_FOR_HP_STATION = 120.0;
+    public static final double MAX_VERT_OFFSET_FOR_HP_STATION = 29.0;
 
     /* Feet */
     public static final double AUTO_ARM_RAISE_MAX_RANGE = 2;
