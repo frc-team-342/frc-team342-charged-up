@@ -5,8 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.DriveSystem;
 
 public final class Autos {
@@ -18,7 +18,7 @@ public final class Autos {
 
 // robot drives onto charge station and balances 
   public static CommandBase driveUpAndBalance(DriveSystem drivesystem) {
-    return new SequentialCommandGroup(
+    return Commands.sequence(
 
       drivesystem.driveDistance(.5, 3),
       drivesystem.autoBalance());
@@ -28,13 +28,13 @@ public final class Autos {
   //robot stays still
 
   public static CommandBase doNothing(DriveSystem drivesystem) {
-    return new SequentialCommandGroup(drivesystem.driveDistance(0, 0));
+    return Commands.sequence(drivesystem.driveDistance(0, 0));
   }
 
   //robot drives onto charge station, balances, drives out of community, then back onto charge station and balances
 
   public static CommandBase leftSide(DriveSystem drivesystem) {
-    return new SequentialCommandGroup(
+    return Commands.sequence(
 
     drivesystem.driveDistance(.5, 3), 
     drivesystem.autoBalance(), 
