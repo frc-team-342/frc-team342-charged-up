@@ -139,4 +139,8 @@ public class RobotContainer {
       driveSystem.testRoutine()
     );
   }
+
+  public void setBrakeMode(boolean mode){
+    lSystem.setBrakeMode(mode);
+  }
 }

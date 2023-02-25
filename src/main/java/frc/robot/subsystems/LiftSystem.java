@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
@@ -62,6 +63,9 @@ public class LiftSystem extends SubsystemBase implements Testable {
     //Limit Switches
     limitUp = new DigitalInput(LIMIT_SWITCH_UP);
     limitDown = new DigitalInput(LIMIT_SWITCH_DOWN);
+
+    motorOne.setSmartCurrentLimit(CURRENT_LIMIT);
+    motorTwo.setSmartCurrentLimit(CURRENT_LIMIT);
 
   }
 
@@ -120,6 +124,14 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
   public double getPosition(){
     return armEncoder.getAbsolutePosition();
+  }
+
+  /**
+   * @param mode If false, set the motor's idle mode to coast. If true, set the idle mode to brake.
+   */
+  public void setBrakeMode(boolean mode){
+    motorOne.setIdleMode(mode ? IdleMode.kBrake : IdleMode.kCoast);
+    motorTwo.setIdleMode(mode ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
   @Override

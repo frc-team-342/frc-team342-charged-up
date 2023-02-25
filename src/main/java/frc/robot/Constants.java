@@ -90,6 +90,8 @@ public final class Constants {
 
     public static final int LIMIT_SWITCH_UP = 2;
     public static final int LIMIT_SWITCH_DOWN = 1;
+
+    public static final int CURRENT_LIMIT = 35;
   }
 
   /*
