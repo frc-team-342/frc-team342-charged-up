@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -36,29 +37,37 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
   private final MotorControllerGroup liftGroup;
 
-  private final PIDController pControllerOne;
-  private final PIDController pControllerTwo;
+  private final SparkMaxPIDController pControllerOne;
+  private final SparkMaxPIDController pControllerTwo;
 
   private final DigitalInput limitUp;
   private final DigitalInput limitDown;
   
   private final DutyCycleEncoder armEncoder;
+  private final RelativeEncoder motorEncoder;
   
-    /** Creates a new LiftSystem. */
+  /** Creates a new LiftSystem. */
   public LiftSystem() {
-
     motorOne = new CANSparkMax(MOTOR_LEFT, MotorType.kBrushless);
 
     motorTwo = new CANSparkMax(MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
     armEncoder = new DutyCycleEncoder(0);
+    motorEncoder = motorOne.getEncoder();
   
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
 
     //Setting default values for PID
-    pControllerOne = new PIDController(0.25, 0.0, 0.0);
-    pControllerTwo = new PIDController(0.25, 0.0, 0.0);
+    pControllerOne = motorOne.getPIDController();
+    pControllerOne.setP(0.001);
+    pControllerOne.setD(0.0001);
+    pControllerOne.setFF(1);
+
+    pControllerTwo = motorTwo.getPIDController();
+    pControllerTwo.setP(0.001);
+    pControllerTwo.setD(0.0001);
+    pControllerTwo.setFF(1);
 
     //Limit Switches
     limitUp = new DigitalInput(LIMIT_SWITCH_UP);
@@ -66,7 +75,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
     motorOne.setSmartCurrentLimit(CURRENT_LIMIT);
     motorTwo.setSmartCurrentLimit(CURRENT_LIMIT);
-
   }
 
   /**
@@ -74,15 +82,20 @@ public class LiftSystem extends SubsystemBase implements Testable {
    * @return Command that uses obtained values from the limit switch to lift the arm within a specified range.
    */
   public CommandBase liftArms(XboxController xboxController){
-
+    
     return runEnd(
       () -> {
-        if(limitUp.get() && (xboxController.getLeftY() > 0)) { // When the upward limit switch is triggered and the operator attempts to move upward, it will not move upward.
+        double setPoint = -xboxController.getLeftY() * MAX_SPEED;
+
+        if(limitUp.get() && (xboxController.getLeftY() > 0)) { 
+          // When the upward limit switch is triggered and the operator attempts to move upward, it will not move upward.
           liftGroup.set(0);
-        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) { // When the downward limit switch is triggered and the operator attempts to move downward, it will not move downward.
+        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) { 
+          // When the downward limit switch is triggered and the operator attempts to move downward, it will not move downward.
           liftGroup.set(0);
         } else {
-          liftGroup.set(-0.2 * xboxController.getLeftY());
+          pControllerOne.setReference(setPoint, ControlType.kVelocity);
+          pControllerTwo.setReference(setPoint, ControlType.kVelocity);
         }
       },
 
@@ -96,17 +109,16 @@ public class LiftSystem extends SubsystemBase implements Testable {
    * @param position to go to
    * @return Command that uses PID to lift the gripper to the specified position
    */
-  public CommandBase liftArmsToPosition(double position){
-
-    double clampedPos = MathUtil.clamp(position, MIN_POSITION, MAX_POSITION);
-    SmartDashboard.putNumber("setpoint", clampedPos);
-
+  public CommandBase liftArmsToPosition(double desiredPosition){
+    double clampedPos = MathUtil.clamp(desiredPosition, MIN_POSITION, MAX_POSITION);
     return runEnd(
     //Runs repeatedly until the end
     () -> {
       
-      motorOne.set(pControllerOne.calculate(getPosition(), clampedPos));
-      motorTwo.set(pControllerTwo.calculate(getPosition(), clampedPos));
+      SmartDashboard.putNumber("setpoint", clampedPos);
+
+      pControllerOne.setReference(clampedPos, CANSparkMax.ControlType.kPosition);
+      pControllerTwo.setReference(clampedPos, CANSparkMax.ControlType.kPosition);
 
       System.out.println("Inside lift command reached");
     }, 
@@ -136,8 +148,10 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("Encoder", this::getPosition, null);
-    builder.addDoubleProperty("motor velocity", motorOne.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Through-bore encoder position", this::getPosition, null);
+  
+    builder.addDoubleProperty("Motor encoder position", motorEncoder::getPosition, null);
+    builder.addDoubleProperty("Motor encoder velocity", motorEncoder::getVelocity, null);
 
     builder.addBooleanProperty("Up Limit Switch", () -> !limitDown.get(), null);
     builder.addBooleanProperty("Down Limit Switch", () -> !limitUp.get(), null);

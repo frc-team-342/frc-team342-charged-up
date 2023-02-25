@@ -45,12 +45,8 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-<<<<<<< HEAD
-
-=======
   
   /* Controller and button instantiations */
->>>>>>> b204bd74feb50a8151ed35dde3119be190b9dfc0
   private final XboxController operator;
   private final JoystickButton xButton;
   private final Joystick driverLeft;
@@ -70,29 +66,21 @@ public class RobotContainer {
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
-<<<<<<< HEAD
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
 
-    gripperSystem = new GripperSystem();
-=======
->>>>>>> b204bd74feb50a8151ed35dde3119be190b9dfc0
-
     /** Limelight instantiations */
     limelight = new Limelight();
 
-<<<<<<< HEAD
-    SmartDashboard.putData(lSystem);
-=======
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
 
     /** Dashboard sendables for the subsystems go here */
->>>>>>> b204bd74feb50a8151ed35dde3119be190b9dfc0
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
+    SmartDashboard.putData(lSystem);
     
     // Configure the trigger bindings
     configureBindings();

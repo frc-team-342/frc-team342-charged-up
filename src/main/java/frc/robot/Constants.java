@@ -93,7 +93,7 @@ public final class Constants {
   }
 
   public static class LiftConstants {
-    public static final double MAX_SPEED = 0.15;
+    public static final double MAX_SPEED = 0.30;
 
     // Subject to change when lift is built
     public static final double MAX_POSITION = 1;
@@ -119,14 +119,9 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
   }
-<<<<<<< HEAD
-
-  public static class AutoConstants {
-=======
   
   public static class AutoConstants
   {
->>>>>>> b204bd74feb50a8151ed35dde3119be190b9dfc0
     public static final double FAST_SPEED = 0.5;
     public static final double SLOW_SPEED = 0.25;
 
