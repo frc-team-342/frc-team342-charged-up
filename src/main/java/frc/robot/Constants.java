@@ -82,5 +82,8 @@ public final class Constants {
 
     /* Feet */
     public static final double AUTO_ARM_RAISE_MAX_RANGE = 2;
+
+    /* Feet */
+    public static final double DISTANCE_BETWEEN_MID_AND_HIGH = 0.0;
   }
 }

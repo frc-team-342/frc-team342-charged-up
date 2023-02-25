@@ -245,14 +245,16 @@ public class Limelight implements Sendable{
                     return forwardDistanceFromMed;
                 }
 
+                if(verticalOffset > HEIGHT_TO_MED)
+                {
+                    double forwardDistanceFromHigh = (HEIGHT_TO_MED / Math.tan(verticalOffset)) + DISTANCE_BETWEEN_MID_AND_HIGH;
+                    return forwardDistanceFromHigh;
+                }
                 //if(isHighLevelTarget(verticalOffset)){
                     //double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
                     //return forwardDistanceFromHigh;
                 //}
 
-                else{
-                    
-                }
             }
 
             if(getPipeline() == 1)
@@ -279,9 +281,9 @@ public class Limelight implements Sendable{
      * @param verticalOffset
      * @return A boolean value of whether the limelight is seeing a high target
      */
-    private boolean isHighLevelTarget(double verticalOffset) {
-        return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
-    }
+        // private boolean isHighLevelTarget(double verticalOffset) {
+        // return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
+        // }
 
     /**
      * Determines if the limelight is looking at a mid-level scoring target
