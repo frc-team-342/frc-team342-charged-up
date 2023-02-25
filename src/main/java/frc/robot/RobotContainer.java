@@ -80,9 +80,9 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("b", Autos.driveUpAndBalance(driveSystem));
-    autoChooser.addOption("a", Autos.doNothing(driveSystem));
-    autoChooser.addOption("e", Autos.leftSide(driveSystem));
+    autoChooser.setDefaultOption("DriveUpAndBalance", Autos.driveUpAndBalance(driveSystem));
+    autoChooser.addOption("DoNothing", new InstantCommand());
+    autoChooser.addOption("LeftSide", Autos.leftSide(driveSystem));
 
   }
 

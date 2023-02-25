@@ -44,11 +44,7 @@ public final class Autos {
       
   }
 
-  /** robot stays still */
-
-  public static CommandBase doNothing(DriveSystem drivesystem) {
-    return Commands.sequence(drivesystem.driveDistance(0, 0));
-  }
+  
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
 
