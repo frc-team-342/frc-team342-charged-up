@@ -199,6 +199,19 @@ public class DriveSystem extends SubsystemBase implements Testable {
   }
 
   /**
+   * sets the idle mode of the drivetrain motors
+   * @param brake brake mode if true, coast mode if false
+   */
+  public void setBrakeMode(boolean brake) {
+    IdleMode mode = brake ? IdleMode.kBrake : IdleMode.kCoast;
+
+    frontLeft.setIdleMode(mode);
+    frontRight.setIdleMode(mode);
+    backLeft.setIdleMode(mode);
+    backRight.setIdleMode(mode);
+  }
+
+  /**
    * drives the robot with tank drive
    * 
    * @param leftSpeed values -1.0 through 1.0, scaled by max speed
