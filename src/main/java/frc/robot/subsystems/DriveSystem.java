@@ -298,13 +298,21 @@ public class DriveSystem extends SubsystemBase implements Testable {
    */
   public CommandBase driveVelocity(double velocityIn) {
     double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+    Rotation2d startAngle = odometry.getPoseMeters().getRotation();
 
     return runEnd(
       // runs repeatedly until end of command
-      () -> {      
+      () -> {
+        // get current heading
+        Rotation2d currentAngle = Rotation2d.fromDegrees(-gyro.getAngle());
+        Rotation2d error = currentAngle.minus(startAngle); // radians
+
+        // use rotation controller to drive error to zero to drive straight
+        double rotation = rotateController.calculate(error.getRadians(), 0);
+
         // units don't need to be adjusted because of encoder conversion factor
-        leftController.setReference(velocity, ControlType.kVelocity);
-        rightController.setReference(velocity, ControlType.kVelocity);
+        leftController.setReference(velocity + (-1 * rotation), ControlType.kVelocity);
+        rightController.setReference(velocity + rotation, ControlType.kVelocity);
       }, 
       // runs once at command end
       () -> {
