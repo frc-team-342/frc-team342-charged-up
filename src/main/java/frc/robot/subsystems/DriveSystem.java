@@ -134,7 +134,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     gyro = new AHRS();
 
     // pid
-    rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
+    rotateController = new PIDController(0.001, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
@@ -260,7 +260,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs repeatedly during command
       () -> {
         // get current heading
-        Rotation2d currentAngle = Rotation2d.fromDegrees(gyro.getAngle());
+        Rotation2d currentAngle = Rotation2d.fromDegrees(-gyro.getAngle());
         Rotation2d error = currentAngle.minus(startAngle); // radians
 
         // use rotation controller to drive error to zero to drive straight
@@ -287,7 +287,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
         
         // check that current distance is close to intended distance
         double dist = Math.hypot(distTraveled.getX(), distTraveled.getY());
-        return (distance - 0.3) < dist && (distance + 0.3) > dist; // TODO: replace tolerance with constant 
+        return (distance - DISTANCE_TOLERANCE) < dist && (distance + DISTANCE_TOLERANCE) > dist;
       }
     );
   }
@@ -332,7 +332,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs repeatedly until end of command
       () -> {
         // radians
-        double currAngle = Math.toRadians(gyro.getAngle());
+        double currAngle = Math.toRadians(-gyro.getAngle());
 
         // rad/s ????
         double nextVel = rotateController.calculate(currAngle, endAngle);

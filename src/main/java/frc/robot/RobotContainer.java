@@ -48,10 +48,10 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();

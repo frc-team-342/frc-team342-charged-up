@@ -92,6 +92,9 @@ public final class Constants {
 
     /** kg */
     public static final double MASS = 35.27; // subject to change
+
+    /** meters */
+    public static final double DISTANCE_TOLERANCE = 0.25;
   }
 
   /*
