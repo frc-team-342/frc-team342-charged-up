@@ -61,12 +61,12 @@ public class LiftSystem extends SubsystemBase implements Testable {
     //Setting default values for PID
     pControllerOne = motorOne.getPIDController();
     pControllerOne.setP(0.001);
-    pControllerOne.setD(0.0001);
+    pControllerOne.setD(0.001);
     pControllerOne.setFF(1);
 
     pControllerTwo = motorTwo.getPIDController();
     pControllerTwo.setP(0.001);
-    pControllerTwo.setD(0.0001);
+    pControllerTwo.setD(0.001);
     pControllerTwo.setFF(1);
 
     //Limit Switches
@@ -87,12 +87,14 @@ public class LiftSystem extends SubsystemBase implements Testable {
       () -> {
         double setPoint = -xboxController.getLeftY() * MAX_SPEED;
 
-        if(limitUp.get() && (xboxController.getLeftY() > 0)) { 
+        if(!limitUp.get() && (xboxController.getLeftY() > 0)) { 
           // When the upward limit switch is triggered and the operator attempts to move upward, it will not move upward.
-          liftGroup.set(0);
-        } else if(limitDown.get() && (xboxController.getLeftY() < 0)) { 
+          pControllerOne.setReference(0, ControlType.kVelocity);
+          pControllerTwo.setReference(0, ControlType.kVelocity);
+        } else if(!limitDown.get() && (xboxController.getLeftY() < 0)) { 
           // When the downward limit switch is triggered and the operator attempts to move downward, it will not move downward.
-          liftGroup.set(0);
+          pControllerOne.setReference(0, ControlType.kVelocity);
+          pControllerTwo.setReference(0, ControlType.kVelocity);
         } else {
           pControllerOne.setReference(setPoint, ControlType.kVelocity);
           pControllerTwo.setReference(setPoint, ControlType.kVelocity);
@@ -109,18 +111,16 @@ public class LiftSystem extends SubsystemBase implements Testable {
    * @param position to go to
    * @return Command that uses PID to lift the gripper to the specified position
    */
-  public CommandBase liftArmsToPosition(double desiredPosition){
+  public CommandBase liftArmsToPosition(double desiredPosition, XboxController operator){
     double clampedPos = MathUtil.clamp(desiredPosition, MIN_POSITION, MAX_POSITION);
     return runEnd(
     //Runs repeatedly until the end
     () -> {
       
-      SmartDashboard.putNumber("setpoint", clampedPos);
+      if (desiredPosition - getPosition() > 0){
+        liftGroup.set(1);
+      }
 
-      pControllerOne.setReference(clampedPos, CANSparkMax.ControlType.kPosition);
-      pControllerTwo.setReference(clampedPos, CANSparkMax.ControlType.kPosition);
-
-      System.out.println("Inside lift command reached");
     }, 
     //Runs when command ends
     () -> {

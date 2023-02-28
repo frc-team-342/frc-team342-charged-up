@@ -49,6 +49,7 @@ public class RobotContainer {
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton xButton;
+  private final JoystickButton yOuttakeButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
 
@@ -59,6 +60,7 @@ public class RobotContainer {
   public RobotContainer() {
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    yOuttakeButton = new JoystickButton(operator, XboxController.Button.kY.value);
 
     driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
@@ -101,6 +103,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(gripperSystem.intake());
+    yOuttakeButton.whileTrue(gripperSystem.outtake());
   }
 
   private CommandBase getCheckCommand() {
