@@ -38,12 +38,16 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  
+
+  private Command autoBalance;
+
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton xButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
+  private final JoystickButton autoBalanceButtonRight;
+  private final JoystickButton autoBalanceButtonLeft;
 
   private SendableChooser<Command> autoChooser;
 
@@ -56,6 +60,8 @@ public class RobotContainer {
   xButton = new JoystickButton(operator, XboxController.Button.kX.value);
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+  autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
+  autoBalanceButtonRight = new JoystickButton(driverRight, 1);
 
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
@@ -97,6 +103,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(gripperSystem.intake());
+    autoBalanceButtonLeft.whileTrue(autoBalance);
+    autoBalanceButtonRight.whileTrue(autoBalance);
   }
 
   private CommandBase getCheckCommand() {

@@ -140,7 +140,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
 
-    balanceController = new PIDController(0.85, 0, 0); // TODO: tune/test number
+    balanceController = new PIDController(0.85, 0, 0); // TODO: tune/test number 
     balanceController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
