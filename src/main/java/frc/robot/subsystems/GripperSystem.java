@@ -27,14 +27,14 @@ import frc.robot.Limelight;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-  private final ColorSensorV3 colorSensor;
+  //private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
   private final AddressableLEDSubsystem aLedSubsystem;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
-    colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
+    //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
     aLedSubsystem = new AddressableLEDSubsystem();
@@ -52,6 +52,7 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
+        System.out.println("Trying to spin");
         spin(ROLLER_SPEED);
       },
       //end
@@ -74,11 +75,13 @@ public class GripperSystem extends SubsystemBase {
 
 
   private boolean checkForGamePiece() {
-    return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
+    return false;
+    //return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
   }
 
   private boolean checkForCube() {
-    return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
+    return false;
+    //return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
   }
 
   /**
@@ -104,7 +107,7 @@ public class GripperSystem extends SubsystemBase {
   public void initSendable(SendableBuilder builder){
   
     builder.setSmartDashboardType("GripperSystem");
-
+/*
     builder.addDoubleProperty("Red", () -> colorSensor.getColor().red, null);
     builder.addDoubleProperty("Green", () -> colorSensor.getColor().green, null);
     builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
@@ -113,7 +116,7 @@ public class GripperSystem extends SubsystemBase {
     builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
     builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
     builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
-
+*/
   }
   @Override
   public void periodic() {

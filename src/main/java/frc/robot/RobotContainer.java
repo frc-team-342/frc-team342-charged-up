@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -31,6 +35,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  //private final DriveSystem driveSystem;
+  private final LiftSystem lSystem;
+
+  private JoystickButton liftToButton;
+  private JoystickButton liftSpeedButton;
   private final DriveSystem driveSystem;
 
   private final Limelight limelight;
@@ -40,6 +49,7 @@ public class RobotContainer {
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton xButton;
+  private final JoystickButton yOuttakeButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
 
@@ -48,14 +58,19 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    yOuttakeButton = new JoystickButton(operator, XboxController.Button.kY.value);
+
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+  
+    lSystem = new LiftSystem();
+    lSystem.setDefaultCommand(lSystem.liftArms(operator));
 
     /** Limelight instantiations */
     limelight = new Limelight();
@@ -67,6 +82,7 @@ public class RobotContainer {
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
+    SmartDashboard.putData(lSystem);
     
     // Configure the trigger bindings
     configureBindings();
@@ -87,6 +103,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(gripperSystem.intake());
+    yOuttakeButton.whileTrue(gripperSystem.outtake());
   }
 
   private CommandBase getCheckCommand() {
@@ -130,5 +147,9 @@ public class RobotContainer {
        */
       driveSystem.testRoutine()
     );
+  }
+
+  public void setBrakeMode(boolean mode){
+    lSystem.setBrakeMode(mode);
   }
 }

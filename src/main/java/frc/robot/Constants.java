@@ -30,8 +30,7 @@ public final class Constants {
     public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
   }
 
-  public static class LEDConstants
-  {
+  public static class LEDConstants {
     public static final int PWM_PORT = 0;
     public static final int LENGTH = 512;
     public static final int DRIVER_START_RANGE = 256;
@@ -45,10 +44,10 @@ public final class Constants {
     public static final int PURPLE_V = 70;
   }
   
-  public static class GripperConstants{
+  public static class GripperConstants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
-    public static final double ROLLER_SPEED = 0.5;
+    public static final double ROLLER_SPEED = 1;
 
         /*
     * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
@@ -61,8 +60,7 @@ public final class Constants {
     public static final double MINIMUM_BLUE_VALUE_FOR_CUBE = 0.25;
   }
 
-  
-  public static class DriveConstants{
+  public static class DriveConstants {
 
     public static final int FRONT_LEFT_MOTOR = 1;
     public static final int FRONT_RIGHT_MOTOR = 2;
@@ -94,10 +92,26 @@ public final class Constants {
     public static final double MASS = 35.27; // subject to change
   }
 
+  public static class LiftConstants {
+    public static final double MAX_SPEED = 0.30;
+
+    // Subject to change when lift is built
+    public static final double MAX_POSITION = 1;
+    public static final double MIN_POSITION = 0;
+
+    public static final int MOTOR_LEFT = 6;
+    public static final int MOTOR_RIGHT = 7;
+
+    public static final int LIMIT_SWITCH_UP = 2;
+    public static final int LIMIT_SWITCH_DOWN = 1;
+
+    public static final int CURRENT_LIMIT = 35;
+  }
+
   /*
    * todo: add actual values for all of the constants, they are currently placeholders
    */
-  public static class LimelightConstants{
+  public static class LimelightConstants {
     public static final double HEIGHT_TO_LOW = 0.0;
     public static final double HEIGHT_TO_MED = 0.0;
     public static final double HEIGHT_TO_HIGH = 0.0;
