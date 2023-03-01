@@ -36,6 +36,10 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
+
+  private final Intake IntakeCommand;
+
+  private final AddressableLEDSubsystem aLEDSub;
   
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -63,6 +67,10 @@ public class RobotContainer {
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
 
+    aLEDSub = new AddressableLEDSubsystem();
+
+    IntakeCommand = new Intake(aLEDSub, gripperSystem);
+
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
@@ -86,7 +94,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    xButton.whileTrue(gripperSystem.intake());
+    xButton.whileTrue(IntakeCommand);
   }
 
   private CommandBase getCheckCommand() {

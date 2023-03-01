@@ -30,54 +30,23 @@ public class GripperSystem extends SubsystemBase {
   private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
-  private final AddressableLEDSubsystem aLedSubsystem;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
     colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
-    aLedSubsystem = new AddressableLEDSubsystem();
   }
 
   public void spin(double speed){
     rollerMotor.set(speed);
   }
 
-  /**
-   * Spins the gripper roller to intake
-   * sets speed to 0 to stop
-   **/
-  public CommandBase intake(){
-    return runEnd(
-      //run
-      () -> {
-        spin(ROLLER_SPEED);
-      },
-      //end
-      () -> {
-        spin(0);
-        
-        /** This logic changes the vision mode depending on whatever game piece has been grabbed */
-        if(checkForCube()) {
-          limelight.setPipeline(1);
-          aLedSubsystem.DriverColor(ColorType.PURPLE);
-        } else if(checkForGamePiece()) {
-          limelight.setPipeline(0);
-          aLedSubsystem.DriverColor(ColorType.YELLOW);
-        }
-
-      }
-
-    );
-  }
-
-
-  private boolean checkForGamePiece() {
+  public boolean checkForGamePiece() {
     return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
   }
 
-  private boolean checkForCube() {
+  public boolean checkForCube() {
     return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
   }
 
