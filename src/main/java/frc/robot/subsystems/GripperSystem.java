@@ -38,6 +38,8 @@ public class GripperSystem extends SubsystemBase {
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
     aLedSubsystem = new AddressableLEDSubsystem();
+
+    rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
   }
 
   public void spin(double speed){
