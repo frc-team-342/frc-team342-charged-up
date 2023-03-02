@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.LimelightConstants;
 import static frc.robot.Constants.GripperConstants.*;
+
+import frc.robot.Constants;
 import frc.robot.Limelight;
 
 
@@ -49,11 +51,22 @@ public class GripperSystem extends SubsystemBase {
       //run
       () -> {
         spin(ROLLER_SPEED);
+        /**
+         * if it is a cube, the roller will stop when it exceeds MAX_CUBE_DRAW
+         * so that it doesn't overdraw and pop the cube
+         */
+        if(checkForCube()){
+          if(rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW){
+            spin(ROLLER_SPEED);
+          }else{
+            spin(0);
+          }
+        }
+        
       },
       //end
       () -> {
-        spin(0);
-        
+          spin(0);
         /** This logic changes the vision mode depending on whatever game piece has been grabbed */
         if(checkForCube()) {
           limelight.setPipeline(1);
@@ -61,6 +74,7 @@ public class GripperSystem extends SubsystemBase {
           limelight.setPipeline(0);
         }
 
+        
       }
 
     );
