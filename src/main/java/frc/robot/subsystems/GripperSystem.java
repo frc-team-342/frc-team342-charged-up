@@ -6,20 +6,13 @@ package frc.robot.subsystems;
 
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorMatchResult;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorMatch;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
-import frc.robot.Constants.LimelightConstants;
 import static frc.robot.Constants.GripperConstants.*;
 
-import frc.robot.Constants;
 import frc.robot.Limelight;
 
 
@@ -36,6 +29,7 @@ public class GripperSystem extends SubsystemBase {
     colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
+    rollerMotor.setSmartCurrentLimit(20);
   }
 
   public void spin(double speed){
@@ -50,13 +44,18 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-        spin(ROLLER_SPEED);
         /**
          * if it is a cube, the roller will stop when it exceeds MAX_CUBE_DRAW
          * so that it doesn't overdraw and pop the cube
          */
         if(checkForCube()){
           if(rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW){
+            spin(ROLLER_SPEED);
+          }else{
+            spin(0);
+          }
+        }else{
+          if(rollerMotor.getOutputCurrent() < DEFAULT_DRAW){
             spin(ROLLER_SPEED);
           }else{
             spin(0);
@@ -77,6 +76,23 @@ public class GripperSystem extends SubsystemBase {
         
       }
 
+    );
+  }
+
+  public CommandBase hold(){
+    return runEnd(
+      //run
+      () -> {
+        if(checkForCube()){
+          spin(0.05);
+        }else{
+          spin(0);
+        }
+      },
+      //end
+      () -> {
+        spin(0);
+      }
     );
   }
 
