@@ -33,6 +33,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -105,11 +106,11 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     leftController.setP(0.001);
     leftController.setD(0.001);
-    leftController.setFF(1.0);
+    leftController.setFF(0.15);
 
     rightController.setP(0.001);
     rightController.setD(0.001);
-    rightController.setFF(1.0);
+    rightController.setFF(0.15);
 
     // encoders
     leftEncoder = frontLeft.getEncoder();
@@ -134,8 +135,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
     gyro = new AHRS();
 
     // pid
-    rotateController = new PIDController(0.001, 0, 0); // TODO: tune pid controller
-    rotateController.setTolerance(Math.PI / 4, 0);
+    rotateController = new PIDController(0.001, 0, 0.001); // TODO: tune pid controller
+    rotateController.setTolerance(0.5, 0);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -203,6 +204,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @param brake brake mode if true, coast mode if false
    */
   public void setBrakeMode(boolean brake) {
+    // ternary operator: `(condition) ? (value if true) : (value if false)`
     IdleMode mode = brake ? IdleMode.kBrake : IdleMode.kCoast;
 
     frontLeft.setIdleMode(mode);
@@ -255,7 +257,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @return command that drives 
    */
   public CommandBase driveDistance(double velocityIn, double distance) {
-    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+    double velocity = 
+      (distance >= 0)
+        ? MathUtil.clamp(Math.abs(velocityIn), 0.0, MAX_SPEED)
+        : -Math.abs(MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED));
 
     Pose2d start = odometry.getPoseMeters();
     Transform2d transform = new Transform2d(
@@ -309,23 +314,25 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @param velocityIn meters/second
    * @return command that drives at given velocity without an end condition
    */
-  public CommandBase driveVelocity(double velocityIn) {
-    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+  public CommandBase driveVelocity(double velocity) {
     Rotation2d startAngle = odometry.getPoseMeters().getRotation();
+
+    DifferentialDriveWheelSpeeds speeds = new DifferentialDriveWheelSpeeds(velocity, velocity);
+    speeds.desaturate(MAX_SPEED);
 
     return runEnd(
       // runs repeatedly until end of command
       () -> {
         // get current heading
         Rotation2d currentAngle = Rotation2d.fromDegrees(-gyro.getAngle());
-        Rotation2d error = currentAngle.minus(startAngle); // radians
+        Rotation2d error = currentAngle.minus(startAngle); // radians 
 
         // use rotation controller to drive error to zero to drive straight
         double rotation = rotateController.calculate(error.getRadians(), 0);
 
         // units don't need to be adjusted because of encoder conversion factor
-        leftController.setReference(velocity + (-1 * rotation), ControlType.kVelocity);
-        rightController.setReference(velocity + rotation, ControlType.kVelocity);
+        leftController.setReference(speeds.leftMetersPerSecond + (-1 * rotation), ControlType.kVelocity);
+        rightController.setReference(speeds.rightMetersPerSecond + rotation, ControlType.kVelocity);
       }, 
       // runs once at command end
       () -> {
@@ -363,12 +370,11 @@ public class DriveSystem extends SubsystemBase implements Testable {
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
 
         // clamp wheel speeds to max velocity
-        double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-        double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+        wheelSpeeds.desaturate(MAX_SPEED);
 
         // apply drivetrain speeds to drive pid controllers
-        leftController.setReference(left, ControlType.kVelocity);
-        rightController.setReference(right, ControlType.kVelocity);
+        leftController.setReference(wheelSpeeds.leftMetersPerSecond, ControlType.kVelocity);
+        rightController.setReference(wheelSpeeds.rightMetersPerSecond, ControlType.kVelocity);
       },
       // runs once at end of command 
       () -> {
@@ -441,13 +447,13 @@ public class DriveSystem extends SubsystemBase implements Testable {
     builder.setSmartDashboardType("Drive");
 
     // motor velocities
-    builder.addDoubleProperty("Left velocity", frontLeft.getEncoder()::getVelocity, null);
-    builder.addDoubleProperty("Right Velocity", frontRight.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Left velocity", leftEncoder::getVelocity, null);
+    builder.addDoubleProperty("Right velocity", rightEncoder::getVelocity, null);
 
-    if (Robot.isSimulation()) {
+    /*if (Robot.isSimulation()) {
       builder.addDoubleProperty("Simulation left velocity", drivetrainSim::getLeftVelocityMetersPerSecond, null);
       builder.addDoubleProperty("Simulation right velocity", drivetrainSim::getRightVelocityMetersPerSecond, null);
-    }
+    }*/
 
     // drivetrain velocity + direction
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
@@ -457,11 +463,11 @@ public class DriveSystem extends SubsystemBase implements Testable {
     builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
     builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
 
-    if (Robot.isSimulation()) {
+    /*if (Robot.isSimulation()) {
       builder.addDoubleProperty("Voltage", RobotController::getInputVoltage, null);
       builder.addDoubleProperty("Left output", () -> frontLeft.getAppliedOutput(), null);
       builder.addDoubleProperty("Right output", () -> frontRight.getAppliedOutput(), null);
-    }
+    }*/
   }
 
   @Override
