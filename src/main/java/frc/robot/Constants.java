@@ -53,6 +53,8 @@ public final class Constants {
     public static final int MAX_CUBE_DRAW = 15;
     public static final int DEFAULT_DRAW = 20;
 
+    public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 20;
+
         /*
     * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
     */

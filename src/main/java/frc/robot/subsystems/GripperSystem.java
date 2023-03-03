@@ -29,8 +29,9 @@ public class GripperSystem extends SubsystemBase {
     this.limelight = limelight;
     rollerMotor.setSmartCurrentLimit(20);
     rollerMotor.setInverted(true);
+    rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     isHolding = true;
-
+    
   }
 
   public void spin(double speed){
