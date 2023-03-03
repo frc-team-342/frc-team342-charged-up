@@ -28,6 +28,7 @@ public final class Constants {
     public static final int OP_INTAKE_BTN = 5;
     public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
     public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
+    public static final int OP_BUTTON_CONE_INTAKE = 6;
   }
 
   public static class LEDConstants
@@ -49,6 +50,9 @@ public final class Constants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.5;
+    public static final int MAX_CUBE_DRAW = 15;
+    public static final int DEFAULT_DRAW = 20;
+
     public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 20;
 
         /*
