@@ -21,12 +21,16 @@ public class GripperSystem extends SubsystemBase {
   //controls the speed of the spinning wheels
   private CANSparkMax rollerMotor;
   private Limelight limelight;
+  private boolean isHolding;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
     rollerMotor.setSmartCurrentLimit(20);
+    rollerMotor.setInverted(true);
+    isHolding = true;
+
   }
 
   public void spin(double speed){
@@ -52,6 +56,7 @@ public class GripperSystem extends SubsystemBase {
     //end
     () -> {
       spin(0);
+      isHolding = true;
     }
     ); 
   }
@@ -69,6 +74,7 @@ public class GripperSystem extends SubsystemBase {
     //end
     () -> {
       spin(0);
+      isHolding = true;
     }
     );
   }
@@ -77,7 +83,11 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-          spin(0.05);
+          if(isHolding){
+            spin(0.05);
+          }else{
+            spin(0);
+          }
       },
       //end
       () -> {
@@ -101,6 +111,7 @@ public class GripperSystem extends SubsystemBase {
       //end
       () -> {
         spin(0);
+        isHolding = false;
       }
     );
   }
