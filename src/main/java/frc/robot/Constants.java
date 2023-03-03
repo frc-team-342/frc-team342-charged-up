@@ -94,11 +94,15 @@ public final class Constants {
 
   public static class LiftConstants {
     public static final double MAX_SPEED = 0.30;
+    public static final double TOLERANCE = 0.01;
 
-    // Subject to change when lift is built
-    public static final double MAX_POSITION = 1;
-    public static final double MIN_POSITION = 0;
+    public static final double MAX_POSITION = 0.2;
+    public static final double MIN_POSITION = 0.51;
 
+    public static final double TOP_POSITION = 0.30;
+    public static final double MID_POSITION = 0.389;
+    public static final double LOW_POSITION = 0.51;
+    
     public static final int MOTOR_LEFT = 6;
     public static final int MOTOR_RIGHT = 7;
 

@@ -46,6 +46,8 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final DutyCycleEncoder armEncoder;
   private final RelativeEncoder motorEncoder;
   
+  private String liftToStatus;
+
   /** Creates a new LiftSystem. */
   public LiftSystem() {
     motorOne = new CANSparkMax(MOTOR_LEFT, MotorType.kBrushless);
@@ -57,6 +59,7 @@ public class LiftSystem extends SubsystemBase implements Testable {
     motorEncoder = motorOne.getEncoder();
   
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
+    liftToStatus = "No velocity";
 
     //Setting default values for PID
     pControllerOne = motorOne.getPIDController();
@@ -111,24 +114,30 @@ public class LiftSystem extends SubsystemBase implements Testable {
    * @param position to go to
    * @return Command that uses PID to lift the gripper to the specified position
    */
-  public CommandBase liftArmsToPosition(double desiredPosition, XboxController operator){
+  public CommandBase liftArmsToPosition(double desiredPosition){
     double clampedPos = MathUtil.clamp(desiredPosition, MIN_POSITION, MAX_POSITION);
     return runEnd(
     //Runs repeatedly until the end
     () -> {
-      
-      if (desiredPosition - getPosition() > 0){
-        liftGroup.set(1);
+      if ((getPosition() < clampedPos /*+ LiftConstants.TOLERANCE*/) && (getPosition() > clampedPos /*- LiftConstants.TOLERANCE*/)){
+        pControllerOne.setReference(0, ControlType.kVelocity);
+        pControllerTwo.setReference(0,ControlType.kVelocity);
+        liftToStatus = "Velocity: 0";
       }
-
+      else if(clampedPos - getPosition() < 0){
+        pControllerOne.setReference(0.25, ControlType.kVelocity);
+        pControllerTwo.setReference(0.25,ControlType.kVelocity);
+        liftToStatus = "Velocity: 1";
+      }
+      else {
+        pControllerOne.setReference(-0.25, ControlType.kVelocity);
+        pControllerTwo.setReference(-0.25,ControlType.kVelocity);
+        liftToStatus = "Velocity: -1";
+      }
     }, 
     //Runs when command ends
     () -> {
-      //liftArms(0);
-    }
-    ).until(
-      () -> {
-        return (getPosition() > clampedPos && getPosition() < clampedPos);
+        liftGroup.set(0);
       }
     );
   }
@@ -155,6 +164,9 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
     builder.addBooleanProperty("Up Limit Switch", () -> !limitDown.get(), null);
     builder.addBooleanProperty("Down Limit Switch", () -> !limitUp.get(), null);
+
+    builder.addStringProperty("Lift to status", () -> liftToStatus, null);
+  
   }
 
   @Override

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -39,6 +41,12 @@ public class RobotContainer {
   private final LiftSystem lSystem;
 
   private JoystickButton liftToButton;
+
+  private POVButton liftUp;
+  private POVButton liftMidL;
+  private POVButton liftMidR;
+  private POVButton liftDown;
+
   private JoystickButton liftSpeedButton;
   private final DriveSystem driveSystem;
 
@@ -71,6 +79,12 @@ public class RobotContainer {
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
+    liftToButton = new JoystickButton(operator, XboxController.Button.kA.value);
+
+    liftUp = new POVButton(operator, 0);
+    liftMidL = new POVButton(operator, 90);
+    liftMidR = new POVButton(operator, 270);
+    liftDown = new POVButton(operator, 180);
 
     /** Limelight instantiations */
     limelight = new Limelight();
@@ -104,6 +118,11 @@ public class RobotContainer {
   private void configureBindings() {
     xButton.whileTrue(gripperSystem.intake());
     yOuttakeButton.whileTrue(gripperSystem.outtake());
+
+    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
   }
 
   private CommandBase getCheckCommand() {
