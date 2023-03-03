@@ -38,7 +38,8 @@ public class RobotContainer {
   
   /* Controller and button instantiations */
   private final XboxController operator;
-  private final JoystickButton xButton;
+  private final JoystickButton rightBumper;
+  private final Trigger rightTrigger;
   private final Joystick driverLeft;
   private final Joystick driverRight;
 
@@ -48,7 +49,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
   operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
@@ -86,7 +88,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    xButton.whileTrue(gripperSystem.intake());
+    rightBumper.whileTrue(gripperSystem.coneIntake());
+    rightTrigger.whileTrue(gripperSystem.cubeIntake());
   }
 
   private CommandBase getCheckCommand() {

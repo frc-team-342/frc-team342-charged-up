@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -20,13 +19,11 @@ import frc.robot.Limelight;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-  private final ColorSensorV3 colorSensor;
   private CANSparkMax rollerMotor;
   private Limelight limelight;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
-    colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
     rollerMotor.setSmartCurrentLimit(20);
@@ -40,42 +37,39 @@ public class GripperSystem extends SubsystemBase {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-  public CommandBase intake(){
+  
+
+  public CommandBase cubeIntake(){
     return runEnd(
-      //run
-      () -> {
-        /**
-         * if it is a cube, the roller will stop when it exceeds MAX_CUBE_DRAW
-         * so that it doesn't overdraw and pop the cube
-         */
-        if(checkForCube()){
-          if(rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW){
-            spin(ROLLER_SPEED);
-          }else{
-            spin(0);
-          }
-        }else{
-          if(rollerMotor.getOutputCurrent() < DEFAULT_DRAW){
-            spin(ROLLER_SPEED);
-          }else{
-            spin(0);
-          }
-        }
-        
-      },
-      //end
-      () -> {
-          spin(0);
-        /** This logic changes the vision mode depending on whatever game piece has been grabbed */
-        if(checkForCube()) {
-          limelight.setPipeline(1);
-        } else if(checkForGamePiece()) {
-          limelight.setPipeline(0);
-        }
-
-        
+      //run 
+    () -> {
+      if(rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW){
+        spin(ROLLER_SPEED);
+      }else{
+        spin(0);
       }
+    },
+    //end
+    () -> {
+      spin(0);
+    }
+    ); 
+  }
 
+  public CommandBase coneIntake(){
+    return runEnd(
+      //run 
+    () -> {
+      if(rollerMotor.getOutputCurrent() < DEFAULT_DRAW){
+        spin(ROLLER_SPEED);
+      }else{
+        spin(0);
+      }
+    },
+    //end
+    () -> {
+      spin(0);
+    }
     );
   }
 
@@ -83,26 +77,13 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-        if(checkForCube()){
           spin(0.05);
-        }else{
-          spin(0);
-        }
       },
       //end
       () -> {
         spin(0);
       }
     );
-  }
-
-
-  private boolean checkForGamePiece() {
-    return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
-  }
-
-  private boolean checkForCube() {
-    return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
   }
 
   /**
@@ -128,14 +109,6 @@ public class GripperSystem extends SubsystemBase {
   public void initSendable(SendableBuilder builder){
   
     builder.setSmartDashboardType("GripperSystem");
-
-    builder.addDoubleProperty("Red", () -> colorSensor.getColor().red, null);
-    builder.addDoubleProperty("Green", () -> colorSensor.getColor().green, null);
-    builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
-    builder.addDoubleProperty("IR", () -> colorSensor.getIR(), null);
-    builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
-    builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
-    builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
     builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
 
   }

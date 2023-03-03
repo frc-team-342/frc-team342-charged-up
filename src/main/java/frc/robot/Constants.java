@@ -28,6 +28,7 @@ public final class Constants {
     public static final int OP_INTAKE_BTN = 5;
     public static final int OP_BUTTON_HUMAN_PLAYER_YELLOW = 9;
     public static final int OP_BUTTON_HUMAN_PLAYER_PURPLE = 10;
+    public static final int OP_BUTTON_CONE_INTAKE = 6;
   }
 
   public static class LEDConstants
