@@ -111,7 +111,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return driveSystem.driveVelocity(0.5);
+    return new InstantCommand();
   }
 
   public Command getTestCommand() {
