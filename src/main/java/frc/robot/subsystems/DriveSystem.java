@@ -19,6 +19,7 @@ import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -260,6 +261,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return odometry.getPoseMeters();
   }
 
+  public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
+    return kinematics.toWheelSpeeds(speeds);
+  }
+
   @Override
   public void periodic() {
     // odometry and pose visualization update different in simulation and real
@@ -329,6 +334,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
     builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
     builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+    builder.addDoubleProperty("Odometry angle (rad)", () -> odometry.getPoseMeters().getRotation().getRadians(), null);
 
     if (Robot.isSimulation()) {
       builder.addDoubleProperty("Voltage", RobotController::getInputVoltage, null);
