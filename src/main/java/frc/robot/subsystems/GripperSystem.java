@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.LimelightConstants;
@@ -15,9 +17,11 @@ import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 import static frc.robot.Constants.GripperConstants.*;
 
+import java.util.List;
+
 import frc.robot.Limelight;
 
-public class GripperSystem extends SubsystemBase {
+public class GripperSystem extends SubsystemBase implements Testable {
 
   //controls the speed of the spinning wheels
   //private final ColorSensorV3 colorSensor;
@@ -31,11 +35,12 @@ public class GripperSystem extends SubsystemBase {
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
+
     rollerMotor.setSmartCurrentLimit(20);
     rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
-    isHolding = true;
 
+    isHolding = true;
   }
 
   public void spin(double speed) {
@@ -129,14 +134,30 @@ public class GripperSystem extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-
     builder.setSmartDashboardType("GripperSystem");
     builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
-
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    return List.of(
+      Connection.fromSparkMax(rollerMotor)
+    );
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    return Commands.sequence(
+      // TODO
+      // run cube intake
+      // outtake
+      // run cone intake
+      // outtake
+    );
   }
 }
