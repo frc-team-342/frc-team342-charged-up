@@ -115,11 +115,11 @@ public class LiftSystem extends SubsystemBase implements Testable {
    * @return Command that uses PID to lift the gripper to the specified position
    */
   public CommandBase liftArmsToPosition(double desiredPosition){
-    double clampedPos = MathUtil.clamp(desiredPosition, MIN_POSITION, MAX_POSITION);
+    double clampedPos = MathUtil.clamp(desiredPosition, MAX_POSITION, MIN_POSITION);
     return runEnd(
     //Runs repeatedly until the end
     () -> {
-      if ((getPosition() < clampedPos /*+ LiftConstants.TOLERANCE*/) && (getPosition() > clampedPos /*- LiftConstants.TOLERANCE*/)){
+      if ((getPosition() < clampedPos + LiftConstants.TOLERANCE) && (getPosition() > clampedPos - LiftConstants.TOLERANCE)){
         pControllerOne.setReference(0, ControlType.kVelocity);
         pControllerTwo.setReference(0,ControlType.kVelocity);
         liftToStatus = "Velocity: 0";

@@ -48,15 +48,11 @@ public final class Constants {
   public static class GripperConstants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
-<<<<<<< HEAD
-    public static final double ROLLER_SPEED = 1;
-=======
     public static final double ROLLER_SPEED = 0.5;
     public static final int MAX_CUBE_DRAW = 15;
     public static final int DEFAULT_DRAW = 20;
 
     public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 20;
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
 
         /*
     * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed

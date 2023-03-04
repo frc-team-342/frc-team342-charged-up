@@ -19,20 +19,14 @@ import frc.robot.Limelight;
 public class GripperSystem extends SubsystemBase {
 
   //controls the speed of the spinning wheels
-<<<<<<< HEAD
   //private final ColorSensorV3 colorSensor;
-=======
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
   private CANSparkMax rollerMotor;
   private Limelight limelight;
   private boolean isHolding;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
-<<<<<<< HEAD
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
-=======
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
     rollerMotor.setSmartCurrentLimit(20);
@@ -92,16 +86,11 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       //run
       () -> {
-<<<<<<< HEAD
-        System.out.println("Trying to spin");
-        spin(ROLLER_SPEED);
-=======
           if(isHolding){
             spin(0.05);
           }else{
             spin(0);
           }
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
       },
       //end
       () -> {
@@ -110,20 +99,6 @@ public class GripperSystem extends SubsystemBase {
     );
   }
 
-<<<<<<< HEAD
-
-  private boolean checkForGamePiece() {
-    return false;
-    //return colorSensor.getIR() > GripperConstants.GAME_PIECE_IR_MINIMUM;
-  }
-
-  private boolean checkForCube() {
-    return false;
-    //return checkForGamePiece() && colorSensor.getColor().blue > MINIMUM_BLUE_VALUE_FOR_CUBE;
-  }
-
-=======
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
   /**
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
@@ -148,19 +123,8 @@ public class GripperSystem extends SubsystemBase {
   public void initSendable(SendableBuilder builder){
   
     builder.setSmartDashboardType("GripperSystem");
-<<<<<<< HEAD
-/*
-    builder.addDoubleProperty("Red", () -> colorSensor.getColor().red, null);
-    builder.addDoubleProperty("Green", () -> colorSensor.getColor().green, null);
-    builder.addDoubleProperty("Blue", () -> colorSensor.getColor().blue, null);
-    builder.addDoubleProperty("IR", () -> colorSensor.getIR(), null);
-    builder.addDoubleProperty("Proximity", () -> colorSensor.getProximity(), null);
-    builder.addBooleanProperty("Cube picked up?", () -> checkForCube(), null);
-    builder.addBooleanProperty("Game piece picked up?", () -> checkForGamePiece(), null);
-=======
->>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
     builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
-*/
+
   }
   @Override
   public void periodic() {
