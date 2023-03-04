@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.drive.DriveVelocity;
 import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
@@ -114,7 +115,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new RotateToAngle(Rotation2d.fromDegrees(-180), driveSystem);
+    return new DriveDistance(0.1, 1, driveSystem);
   }
 
   public Command getTestCommand() {
