@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -38,16 +37,15 @@ public class RobotContainer {
 
   private final GripperSystem gripperSystem;
 
-  private final Intake IntakeCommand;
-
   private final AddressableLEDSubsystem aLEDSub;
   
   /* Controller and button instantiations */
   private final XboxController operator;
-  private final JoystickButton xButton;
+  private final JoystickButton rightBumper;
+  private final Trigger rightTrigger;
+  private final Trigger leftTrigger;
   private final Joystick driverLeft;
   private final Joystick driverRight;
-  private final JoystickButton rightBumperButton;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -55,8 +53,9 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
   operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  rightBumperButton = new JoystickButton(operator, XboxController.Button.kRightBumper.value);
+  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
@@ -69,10 +68,9 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
+    gripperSystem.setDefaultCommand(gripperSystem.hold());
 
     aLEDSub = new AddressableLEDSubsystem();
-
-    IntakeCommand = new Intake(aLEDSub, gripperSystem);
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -97,7 +95,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    xButton.whileTrue(IntakeCommand);
+    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
+    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
+    leftTrigger.whileTrue(gripperSystem.outtake());
   }
 
   private CommandBase getCheckCommand() {
