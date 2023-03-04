@@ -6,7 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.drive.DriveVelocity;
+import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -111,7 +114,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new InstantCommand();
+    return new RotateToAngle(Rotation2d.fromDegrees(-180), driveSystem);
   }
 
   public Command getTestCommand() {

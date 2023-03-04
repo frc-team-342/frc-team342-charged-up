@@ -63,7 +63,7 @@ public class RotateToAngle extends CommandBase {
     double rotationVel = rotateController.calculate(current.getRadians(), end.getRadians());
 
     // convert radial velocity to drive speeds
-    ChassisSpeeds radial = new ChassisSpeeds(0, 0, rotationVel);
+    ChassisSpeeds radial = new ChassisSpeeds(0, 0, -rotationVel);
     DifferentialDriveWheelSpeeds speeds = drive.inverseKinematics(radial);
 
     // clamp wheel speeds

@@ -38,7 +38,7 @@ public class DriveVelocity extends CommandBase {
     );
 
     // clamp velocity
-    this.velocity = velocity;
+    this.velocity = -velocity;
   }
 
   // Called when the command is initially scheduled.
