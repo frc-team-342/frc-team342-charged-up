@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -56,8 +55,14 @@ public class RobotContainer {
   
   /* Controller and button instantiations */
   private final XboxController operator;
+<<<<<<< HEAD
   private final JoystickButton xButton;
   private final JoystickButton yOuttakeButton;
+=======
+  private final JoystickButton rightBumper;
+  private final Trigger rightTrigger;
+  private final Trigger leftTrigger;
+>>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
   private final Joystick driverLeft;
   private final Joystick driverRight;
 
@@ -66,12 +71,21 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+<<<<<<< HEAD
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     yOuttakeButton = new JoystickButton(operator, XboxController.Button.kY.value);
 
     driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+=======
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+>>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
 
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
@@ -91,6 +105,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
+    gripperSystem.setDefaultCommand(gripperSystem.hold());
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -116,6 +131,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+<<<<<<< HEAD
     xButton.whileTrue(gripperSystem.intake());
     yOuttakeButton.whileTrue(gripperSystem.outtake());
 
@@ -123,6 +139,11 @@ public class RobotContainer {
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
+=======
+    rightBumper.whileTrue(gripperSystem.coneIntake());
+    rightTrigger.whileTrue(gripperSystem.cubeIntake());
+    leftTrigger.whileTrue(gripperSystem.outtake());
+>>>>>>> 042675701f34cb5cc47cd84e517b933d9bb4bfbb
   }
 
   private CommandBase getCheckCommand() {
