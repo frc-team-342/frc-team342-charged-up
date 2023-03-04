@@ -12,6 +12,7 @@ import frc.robot.subsystems.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -39,8 +40,6 @@ public class RobotContainer {
   //private final DriveSystem driveSystem;
   private final LiftSystem lSystem;
 
-  private JoystickButton liftToButton;
-
   private POVButton liftUp;
   private POVButton liftMidL;
   private POVButton liftMidR;
@@ -52,6 +51,8 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
+
+  private final AddressableLEDSubsystem aLEDSub;
   
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -66,20 +67,19 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
-  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
-  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
-  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+    rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+    leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
-     /** Drivesystem instantiations */
+    /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
-    liftToButton = new JoystickButton(operator, XboxController.Button.kA.value);
 
     liftUp = new POVButton(operator, 0);
     liftMidL = new POVButton(operator, 90);
@@ -92,6 +92,8 @@ public class RobotContainer {
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
     gripperSystem.setDefaultCommand(gripperSystem.hold());
+
+    aLEDSub = new AddressableLEDSubsystem();
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -117,23 +119,14 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    rightBumper.whileTrue(gripperSystem.coneIntake());
-    rightTrigger.whileTrue(gripperSystem.cubeIntake());
-    leftTrigger.whileTrue(gripperSystem.outtake());
+    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
+    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
+    leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
 
-    var up = lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION);
-    up.setName("LIFT TO TOP");
-
-    var mid = lSystem.liftArmsToPosition(LiftConstants.MID_POSITION);
-    mid.setName("LIFT TO MID");
-
-    var low = lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION);
-    low.setName("LIFT TO LOW");
-
-    liftUp.whileTrue(up);
-    liftMidL.whileTrue(mid);
-    liftMidR.whileTrue(mid);
-    liftDown.whileTrue(low);
+    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
 
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
