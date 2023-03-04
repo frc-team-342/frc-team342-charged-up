@@ -62,7 +62,7 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.HumanColorMethod(ColorType.PURPLE);
+        aLEDSub.driverColorMethod(ColorType.PURPLE);
       });
   }
 
@@ -84,7 +84,7 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.HumanColorMethod(ColorType.YELLOW);
+        aLEDSub.driverColorMethod(ColorType.YELLOW);
       });
   }
 
