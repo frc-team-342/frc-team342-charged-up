@@ -9,6 +9,7 @@ import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
@@ -38,6 +39,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final DriveSystem driveSystem;
   private final LiftSystem lSystem;
+  private final AddressableLEDSubsystem aLEDSub;
 
   private JoystickButton liftToButton;
 
@@ -58,8 +60,11 @@ public class RobotContainer {
   private final JoystickButton rightBumper;
   private final Trigger rightTrigger;
   private final Trigger leftTrigger;
+  private final JoystickButton xButton;
+  private final JoystickButton bButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
+
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -70,12 +75,16 @@ public class RobotContainer {
   rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
   rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
   leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  bButton = new JoystickButton(operator, XboxController.Button.kB.value);
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+
+    aLEDSub = new AddressableLEDSubsystem();
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
@@ -120,6 +129,8 @@ public class RobotContainer {
     rightBumper.whileTrue(gripperSystem.coneIntake());
     rightTrigger.whileTrue(gripperSystem.cubeIntake());
     leftTrigger.whileTrue(gripperSystem.outtake());
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    bButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
 
     var up = lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION);
     up.setName("LIFT TO TOP");

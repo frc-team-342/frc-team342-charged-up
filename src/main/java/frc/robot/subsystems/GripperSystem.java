@@ -33,7 +33,6 @@ public class GripperSystem extends SubsystemBase {
     rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     isHolding = true;
-    
   }
 
   public void spin(double speed){
@@ -87,7 +86,7 @@ public class GripperSystem extends SubsystemBase {
       //run
       () -> {
           if(isHolding){
-            spin(0.05);
+            spin(0.1);
           }else{
             spin(0);
           }
