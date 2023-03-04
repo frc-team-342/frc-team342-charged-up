@@ -36,7 +36,7 @@ public class Intake extends CommandBase {
   @Override
   public void execute()
   {
-    //gripperSystem.spin(ROLLER_SPEED);
+    gripperSystem.spin(ROLLER_SPEED);
   }
 
   // Called once the command ends or is interrupted.
@@ -48,10 +48,10 @@ public class Intake extends CommandBase {
     /** This logic changes the vision mode depending on whatever game piece has been grabbed */
     if(gripperSystem.checkForCube()) {
       limelight.setPipeline(1);
-      aLEDSub.DriverColorMethod(ColorType.PURPLE);
+      aLEDSub.DriverColor(ColorType.PURPLE);
     } else if(gripperSystem.checkForGamePiece()) {
       limelight.setPipeline(0);
-      aLEDSub.DriverColorMethod(ColorType.YELLOW);
+      aLEDSub.DriverColor(ColorType.YELLOW);
     }
   }
 

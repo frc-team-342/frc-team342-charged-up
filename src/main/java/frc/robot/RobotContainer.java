@@ -98,8 +98,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(IntakeCommand);
-
-    rightBumperButton.whileTrue(aLEDSub.DriverColor(ColorType.PURPLE));
   }
 
   private CommandBase getCheckCommand() {
