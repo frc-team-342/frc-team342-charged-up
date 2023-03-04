@@ -62,7 +62,7 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.DriverColorMethod(ColorType.PURPLE);
+        aLEDSub.HumanColorMethod(ColorType.PURPLE);
       });
   }
 
@@ -84,7 +84,7 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.DriverColorMethod(ColorType.YELLOW);
+        aLEDSub.HumanColorMethod(ColorType.YELLOW);
       });
   }
 
@@ -108,7 +108,7 @@ public class GripperSystem extends SubsystemBase {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake() {
+  public CommandBase outtake(AddressableLEDSubsystem aLEDSub) {
     return runEnd(
         // run
         () -> {
@@ -120,6 +120,7 @@ public class GripperSystem extends SubsystemBase {
         () -> {
           spin(0);
           isHolding = false;
+          aLEDSub.LEDOff();
         });
   }
 

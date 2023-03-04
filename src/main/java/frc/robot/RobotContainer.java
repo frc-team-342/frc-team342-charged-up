@@ -97,7 +97,7 @@ public class RobotContainer {
   private void configureBindings() {
     rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
     rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
-    leftTrigger.whileTrue(gripperSystem.outtake());
+    leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
   }
 
   private CommandBase getCheckCommand() {
