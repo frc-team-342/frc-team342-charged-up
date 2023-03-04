@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -46,6 +47,7 @@ public class RobotContainer {
   private final JoystickButton xButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
+  private final JoystickButton rightBumperButton;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -54,6 +56,7 @@ public class RobotContainer {
   public RobotContainer() {
   operator = new XboxController(OperatorConstants.OP_CONTROLLER);
   xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  rightBumperButton = new JoystickButton(operator, XboxController.Button.kRightBumper.value);
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
@@ -95,6 +98,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
     xButton.whileTrue(IntakeCommand);
+
+    rightBumperButton.whileTrue(aLEDSub.DriverColor(ColorType.PURPLE));
   }
 
   private CommandBase getCheckCommand() {

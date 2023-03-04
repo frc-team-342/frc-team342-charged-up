@@ -37,8 +37,6 @@ public class Intake extends CommandBase {
   public void execute()
   {
     //gripperSystem.spin(ROLLER_SPEED);
-    aLEDSub.DriverColorMethod(ColorType.PURPLE);
-    System.out.println("hello");
   }
 
   // Called once the command ends or is interrupted.
