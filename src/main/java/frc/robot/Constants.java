@@ -115,6 +115,8 @@ public final class Constants {
     public static final int LIMIT_SWITCH_DOWN = 1;
 
     public static final int CURRENT_LIMIT = 35;
+
+    public static final int ARM_ENCODER_PORT = 0;
   }
 
   /*

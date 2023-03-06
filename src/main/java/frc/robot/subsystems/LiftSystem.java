@@ -45,8 +45,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
   
   private final DutyCycleEncoder armEncoder;
   private final RelativeEncoder motorEncoder;
-  
-  private String liftToStatus;
 
   /** Creates a new LiftSystem. */
   public LiftSystem() {
@@ -55,11 +53,10 @@ public class LiftSystem extends SubsystemBase implements Testable {
     motorTwo = new CANSparkMax(MOTOR_RIGHT, MotorType.kBrushless);
     motorTwo.setInverted(true);
 
-    armEncoder = new DutyCycleEncoder(0);
+    armEncoder = new DutyCycleEncoder(ARM_ENCODER_PORT);
     motorEncoder = motorOne.getEncoder();
   
     liftGroup = new MotorControllerGroup(motorOne, motorTwo);
-    liftToStatus = "No velocity";
 
     //Setting default values for PID
     pControllerOne = motorOne.getPIDController();
@@ -111,7 +108,7 @@ public class LiftSystem extends SubsystemBase implements Testable {
   }
 
   /**
-   * @param position to go to
+   * @param Absolute position to lift to
    * @return Command that uses PID to lift the gripper to the specified position
    */
   public CommandBase liftArmsToPosition(double desiredPosition){
@@ -119,30 +116,34 @@ public class LiftSystem extends SubsystemBase implements Testable {
     return runEnd(
     //Runs repeatedly until the end
     () -> {
+      //If position is within the range of desired position, stop there
       if ((getPosition() < clampedPos + LiftConstants.TOLERANCE) && (getPosition() > clampedPos - LiftConstants.TOLERANCE)){
         pControllerOne.setReference(0, ControlType.kVelocity);
         pControllerTwo.setReference(0,ControlType.kVelocity);
-        liftToStatus = "Velocity: 0";
       }
+      //If the current position is lower than the desired position, move the arm up
       else if(clampedPos - getPosition() < 0){
         pControllerOne.setReference(0.25, ControlType.kVelocity);
         pControllerTwo.setReference(0.25,ControlType.kVelocity);
-        liftToStatus = "Velocity: 1";
       }
+      //If higher than desired position, move the arm down
       else {
         pControllerOne.setReference(-0.25, ControlType.kVelocity);
         pControllerTwo.setReference(-0.25,ControlType.kVelocity);
-        liftToStatus = "Velocity: -1";
       }
     }, 
     //Runs when command ends
     () -> {
-        liftGroup.set(0);
+        pControllerOne.setReference(0, ControlType.kVelocity);
+        pControllerTwo.setReference(0, ControlType.kVelocity);
       }
     );
   }
 
 
+  /**
+   * @return absolute position from 0 to 1
+   */
   public double getPosition(){
     return armEncoder.getAbsolutePosition();
   }
@@ -159,14 +160,10 @@ public class LiftSystem extends SubsystemBase implements Testable {
   public void initSendable(SendableBuilder builder) {
     builder.addDoubleProperty("Through-bore encoder position", this::getPosition, null);
   
-    builder.addDoubleProperty("Motor encoder position", motorEncoder::getPosition, null);
     builder.addDoubleProperty("Motor encoder velocity", motorEncoder::getVelocity, null);
 
     builder.addBooleanProperty("Up Limit Switch", () -> !limitDown.get(), null);
     builder.addBooleanProperty("Down Limit Switch", () -> !limitUp.get(), null);
-
-    builder.addStringProperty("Lift to status", () -> liftToStatus, null);
-  
   }
 
   @Override

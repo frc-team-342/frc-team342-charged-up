@@ -29,8 +29,6 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     LED.start();
   }
 
-
-  
   /**
    * This method sets all the LED groups (Human Player & Driver) to off
    */
