@@ -148,26 +148,11 @@ public class Limelight implements Sendable{
 
     /**
      * Uses the pitch and yaw values from networkTables to construct and returns a rotation2D
-     * @return A rotation2D made from the robot pitch and yaw values, represents rotation to the currently seen target
-     */
-    public Rotation2d createRotation2D() {
+     * @return A rotation2D made from the robot horizontal offset value
+     * */
+    public Rotation2d createRotation2D(){
 
-        /**
-         * Gets the pitch value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationPitch = getRobotPosition3D()[3].doubleValue();
-        double robotRotationPitchRadians = Math.toRadians(robotRotationPitch);
-
-        /**
-         * Gets the yaw value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationYaw = getRobotPosition3D()[4].doubleValue();
-        double robotRotationYawRadians = Math.toRadians(robotRotationYaw);
-
-        /**
-         * Uses the pitch & yaw value to construct a rotation2d, then returns it
-         */
-        return new Rotation2d(robotRotationPitchRadians, robotRotationYawRadians);
+        return new Rotation2d(getHorizontalOffset());
 
     }
 
