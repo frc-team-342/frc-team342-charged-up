@@ -117,6 +117,10 @@ public final class Constants {
     public static final int CURRENT_LIMIT = 35;
 
     public static final int ARM_ENCODER_PORT = 0;
+
+    public static final double P_VALUE = 0.001;
+    public static final double D_VALUE = 0.001;
+    public static final double FF_VALUE = 1;
   }
 
   /*
