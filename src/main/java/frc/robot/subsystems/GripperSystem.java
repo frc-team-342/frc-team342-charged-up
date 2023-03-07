@@ -31,7 +31,7 @@ public class GripperSystem extends SubsystemBase {
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
-    rollerMotor.setSmartCurrentLimit(20);
+    rollerMotor.setSmartCurrentLimit(30);
     rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     isHolding = true;
@@ -46,30 +46,7 @@ public class GripperSystem extends SubsystemBase {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-
-  public CommandBase cubeIntake(AddressableLEDSubsystem aLEDSub) {
-    return runEnd(
-      // run
-      () -> {
-        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
-        {
-          spin(ROLLER_SPEED);
-        }
-        else
-        {
-          spin(0);
-        }
-      },
-
-      // end
-      () -> {
-        spin(0);
-        isHolding = true;
-        aLEDSub.driverColorMethod(ColorType.PURPLE);
-      });
-  }
-
-  public CommandBase coneIntake(AddressableLEDSubsystem aLEDSub) {
+  public CommandBase coneIntake(AddressableLEDSubsystem aLedSubsystem){
     return runEnd(
       // run
       () -> {
@@ -87,17 +64,38 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.driverColorMethod(ColorType.YELLOW);
       });
   }
 
+  public CommandBase cubeIntake(AddressableLEDSubsystem aLedSubsystem){
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
+      });
+  }
+
+
   public CommandBase hold() {
     return runEnd(
-        // run
-        () -> {
-          if (isHolding) {
-            spin(0.05);
-          } else {
+      //run
+      () -> {
+          if(isHolding){
+            spin(0.1);
+          }else{
             spin(0);
           }
         },
@@ -111,7 +109,7 @@ public class GripperSystem extends SubsystemBase {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake(AddressableLEDSubsystem aLEDSub) {
+  public CommandBase outtake(AddressableLEDSubsystem aLedSubsystem) {
     return runEnd(
         // run
         () -> {
@@ -123,7 +121,6 @@ public class GripperSystem extends SubsystemBase {
         () -> {
           spin(0);
           isHolding = false;
-          aLEDSub.LEDOff();
         });
   }
 
