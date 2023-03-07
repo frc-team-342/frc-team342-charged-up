@@ -156,7 +156,8 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new DriveDistance(0.1,1, driveSystem);
+    //return new DriveDistance(0.1,1, driveSystem);
+    return Autos.LiftThenLeave(lSystem, driveSystem);
   }
 
   public Command getTestCommand() {

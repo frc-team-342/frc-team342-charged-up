@@ -81,7 +81,7 @@ public class LiftSystem extends SubsystemBase implements Testable {
     
     return runEnd(
       () -> {
-        double setPoint = -xboxController.getLeftY() * MAX_SPEED;
+        double setPoint = -xboxController.getLeftY() * MAX_SPEED; // Percent output 
 
         if(!limitUp.get() && (xboxController.getLeftY() > 0)) { 
           // When the upward limit switch is triggered and the operator attempts to move upward, it will not move upward.
@@ -133,6 +133,10 @@ public class LiftSystem extends SubsystemBase implements Testable {
     () -> {
         pControllerOne.setReference(0, ControlType.kVelocity);
         pControllerTwo.setReference(0, ControlType.kVelocity);
+      }
+    ).until(
+      () -> {
+        return (getPosition() < clampedPos + LiftConstants.TOLERANCE) && (getPosition() > clampedPos - LiftConstants.TOLERANCE);
       }
     );
   }
