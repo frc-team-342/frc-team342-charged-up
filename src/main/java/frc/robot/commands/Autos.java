@@ -21,6 +21,8 @@ import frc.robot.subsystems.LiftSystem;
 public final class Autos {
   /** Example static factory for an autonomous command. */
   DriveDistance driveDistance;
+  DriveSystem drive;
+  
 /*
   public static CommandBase RotateThenDriveAuto(DriveSystem driveSubsystem) {
 
@@ -35,11 +37,12 @@ public final class Autos {
     return new DriveDistance(AutoConstants.FAST_SPEED, 3.0, driveSubsystem);
   }
 
-  public static CommandBase DriveSlow(DriveSystem driveSubsystem)
+  public static CommandBase DriveSlow()
   {
-    return driveSubsystem.driveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0);
+    return drive.driveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0);
   }
 */
+
   public static CommandBase LiftThenLeave(LiftSystem lSystem, DriveSystem dSystem)
   {
     return Commands.sequence(

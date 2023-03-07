@@ -30,6 +30,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -210,6 +211,17 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @param rightSpeed values -1.0 through 1.0, scaled by max speed
    */
   public void drivePercent(double leftSpeed, double rightSpeed) {
+    // left side
+    double leftVelocity = leftSpeed * currentMode.speedMultiplier;
+    leftController.setReference(leftVelocity, ControlType.kDutyCycle);
+
+    // right side
+    double rightVelocity = rightSpeed * currentMode.speedMultiplier;
+    rightController.setReference(rightVelocity, ControlType.kDutyCycle);
+  }
+
+  public void drivePercentForTime(double leftSpeed, double rightSpeed, double time) {
+
     // left side
     double leftVelocity = leftSpeed * currentMode.speedMultiplier;
     leftController.setReference(leftVelocity, ControlType.kDutyCycle);

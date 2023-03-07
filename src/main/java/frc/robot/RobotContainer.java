@@ -8,6 +8,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.auto.LiftThenLeave;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.drive.DriveVelocity;
 import frc.robot.commands.drive.RotateToAngle;
@@ -57,6 +58,8 @@ public class RobotContainer {
 
   private final GripperSystem gripperSystem;
   
+  private final LiftThenLeave liftThenLeave;
+
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
@@ -102,7 +105,8 @@ public class RobotContainer {
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
     gripperSystem.setDefaultCommand(gripperSystem.hold());
-
+    
+    liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -165,7 +169,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     //return new DriveDistance(0.1,1, driveSystem);
-    return Autos.LiftThenLeave(lSystem, driveSystem);
+    return liftThenLeave;
   }
 
   public Command getTestCommand() {
