@@ -8,6 +8,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.drive.DriveDistance;
+import frc.robot.commands.drive.DriveVelocity;
+import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -153,7 +156,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.DriveSlow(driveSystem);
+    return new DriveDistance(0.1,1, driveSystem);
   }
 
   public Command getTestCommand() {
