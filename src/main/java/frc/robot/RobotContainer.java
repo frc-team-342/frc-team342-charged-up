@@ -20,9 +20,11 @@ import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -57,8 +59,11 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
+<<<<<<< HEAD
   
   private final LiftThenLeave liftThenLeave;
+=======
+>>>>>>> de9a70838d87307656ae41241cc2fba831051119
 
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -69,6 +74,13 @@ public class RobotContainer {
   private final JoystickButton bButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
+  private final JoystickButton autoBalanceButtonRight;
+  private final JoystickButton autoBalanceButtonLeft;
+  private final JoystickButton autoBalanceTestButtonRight;
+  private final JoystickButton autoBalanceTestButtonLeft;
+   
+
+  private SendableChooser<Command> autoChooser;
 
 
   // hardware connection check stuff
@@ -84,6 +96,10 @@ public class RobotContainer {
   bButton = new JoystickButton(operator, XboxController.Button.kB.value);
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+  autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
+  autoBalanceButtonRight = new JoystickButton(driverRight, 1);
+  autoBalanceTestButtonLeft = new JoystickButton(driverLeft, 3);
+  autoBalanceTestButtonRight = new JoystickButton(driverRight, 3);
 
     /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
@@ -120,6 +136,12 @@ public class RobotContainer {
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+
+    autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("DriveUpAndBalance", Autos.driveUpAndBalance(driveSystem));
+    autoChooser.addOption("DoNothing", new InstantCommand());
+    autoChooser.addOption("LeftSide", Autos.leftSide(driveSystem));
+
   }
 
   /**
@@ -132,6 +154,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+<<<<<<< HEAD
     rightBumper.whileTrue(gripperSystem.coneIntake());
     rightTrigger.whileTrue(gripperSystem.cubeIntake());
     leftTrigger.whileTrue(gripperSystem.outtake());
@@ -144,6 +167,13 @@ public class RobotContainer {
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
 
     SmartDashboard.putData(CommandScheduler.getInstance());
+=======
+    xButton.whileTrue(gripperSystem.intake());
+    
+    autoBalanceTestButtonLeft.whileTrue(driveSystem.autoBalance());
+    autoBalanceTestButtonRight.whileTrue(driveSystem.autoBalance());
+
+>>>>>>> de9a70838d87307656ae41241cc2fba831051119
   }
 
   private CommandBase getCheckCommand() {
@@ -167,9 +197,13 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+<<<<<<< HEAD
     // An example command will be run in autonomous
     //return new DriveDistance(0.1,1, driveSystem);
     return liftThenLeave;
+=======
+    return autoChooser.getSelected();
+>>>>>>> de9a70838d87307656ae41241cc2fba831051119
   }
 
   public Command getTestCommand() {
