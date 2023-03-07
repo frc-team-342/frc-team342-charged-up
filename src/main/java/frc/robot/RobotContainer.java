@@ -9,6 +9,7 @@ import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
@@ -39,6 +40,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final DriveSystem driveSystem;
   private final LiftSystem lSystem;
+  private final AddressableLEDSubsystem aLEDSub;
 
   private POVButton liftUp;
   private POVButton liftMidL;
@@ -51,32 +53,37 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-
-  private final AddressableLEDSubsystem aLEDSub;
   
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
   private final Trigger rightTrigger;
   private final Trigger leftTrigger;
+  private final JoystickButton xButton;
+  private final JoystickButton bButton;
   private final Joystick driverLeft;
   private final Joystick driverRight;
+
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-    rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
-    rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
-    leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
-    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+  bButton = new JoystickButton(operator, XboxController.Button.kB.value);
+  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
     /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+
+    aLEDSub = new AddressableLEDSubsystem();
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
@@ -93,7 +100,6 @@ public class RobotContainer {
     gripperSystem = new GripperSystem(limelight);
     gripperSystem.setDefaultCommand(gripperSystem.hold());
 
-    aLEDSub = new AddressableLEDSubsystem();
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -119,9 +125,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
-    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
-    leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
+    rightBumper.whileTrue(gripperSystem.coneIntake());
+    rightTrigger.whileTrue(gripperSystem.cubeIntake());
+    leftTrigger.whileTrue(gripperSystem.outtake());
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    bButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
 
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
