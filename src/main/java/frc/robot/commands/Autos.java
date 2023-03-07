@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSystem;
 
@@ -55,6 +56,7 @@ public final class Autos {
     drivesystem.autoBalance(), 
     drivesystem.driveDistance(.5, 5),
     drivesystem.driveDistance(-.5,-5),
+    new WaitCommand(1.5),
     drivesystem.autoBalance());
 
   }

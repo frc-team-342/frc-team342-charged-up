@@ -75,6 +75,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   private final AHRS gyro;
 
+  private final AHRS navX;
+
   private final PIDController rotateController;
 
   private final PIDController balanceController;
@@ -101,6 +103,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
     frontRight.setIdleMode(IdleMode.kBrake);
     backLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
+
+    //navX
+    navX = new AHRS();
 
     // pid controllers
     leftController = frontLeft.getPIDController();
@@ -369,7 +374,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
  * it returns a command that autobalances
  * @return
  */
-  public CommandBase autoBalance() {
+
+/* public CommandBase autoBalance() {
     
     
 
@@ -407,7 +413,48 @@ public class DriveSystem extends SubsystemBase implements Testable {
       balanceController::atSetpoint
     );
     
+  } 
+  */
+
+public CommandBase autoBalance(){
+  
+  return runEnd(
+    
+      () -> {
+
+        double maxPercentOutput = 0.3;
+        double maxAngle = 20;
+        double angle = -MathUtil.clamp(navX.getRoll(), -maxAngle, maxAngle ); // Negative because of robot orientation
+        double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); // Speed is proportional to the angle 
+        
+        double tolerance = 3;
+        //Add a variable called "tolerance" in degrees
+
+        //Change the logig of oyur if statement to say if the angle is inside tolerance, don't move, otherwise move.
+
+        System.out.println("Angle: " + angle);
+        System.out.println("Speed: " + speed);
+
+        if (angle < tolerance && angle > -tolerance) {
+          drivePercent(0, 0);
+        } 
+        else {
+          drivePercent(speed, speed);
+        }
+
+      },
+
+      // when it ends
+
+      () -> {
+        driveVelocity(0);
+      }
+
+    );
   }
+
+
+
 
   /**
    * sets the reference velocity of the PID controllers
@@ -487,6 +534,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // drivetrain velocity + direction
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
+    builder.addDoubleProperty("Gyro Pitch", gyro::getPitch, null);
+    builder.addDoubleProperty("Gyro Roll", gyro::getRoll, null);
 
     // odometry positions
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
