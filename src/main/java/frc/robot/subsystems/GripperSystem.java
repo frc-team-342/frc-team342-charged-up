@@ -46,7 +46,7 @@ public class GripperSystem extends SubsystemBase {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-  public CommandBase coneIntake(){
+  public CommandBase coneIntake(AddressableLEDSubsystem aLedSubsystem){
     return runEnd(
       // run
       () -> {
@@ -67,7 +67,7 @@ public class GripperSystem extends SubsystemBase {
       });
   }
 
-  public CommandBase cubeIntake(){
+  public CommandBase cubeIntake(AddressableLEDSubsystem aLedSubsystem){
     return runEnd(
       // run
       () -> {

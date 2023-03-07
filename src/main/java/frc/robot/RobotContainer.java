@@ -132,8 +132,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    rightBumper.whileTrue(gripperSystem.coneIntake());
-    rightTrigger.whileTrue(gripperSystem.cubeIntake());
+    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
+    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake());
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
