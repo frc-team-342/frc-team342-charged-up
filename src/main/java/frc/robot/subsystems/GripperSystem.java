@@ -109,7 +109,7 @@ public class GripperSystem extends SubsystemBase {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake() {
+  public CommandBase outtake(AddressableLEDSubsystem aLedSubsystem) {
     return runEnd(
         // run
         () -> {
