@@ -35,8 +35,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final CANSparkMax motorOne;
   private final CANSparkMax motorTwo;
 
-  private final MotorControllerGroup liftGroup;
-
   private final SparkMaxPIDController pControllerOne;
   private final SparkMaxPIDController pControllerTwo;
 
@@ -56,18 +54,16 @@ public class LiftSystem extends SubsystemBase implements Testable {
     armEncoder = new DutyCycleEncoder(ARM_ENCODER_PORT);
     motorEncoder = motorOne.getEncoder();
   
-    liftGroup = new MotorControllerGroup(motorOne, motorTwo);
-
     //Setting default values for PID
     pControllerOne = motorOne.getPIDController();
-    pControllerOne.setP(0.001);
-    pControllerOne.setD(0.001);
-    pControllerOne.setFF(1);
+    pControllerOne.setP(P_VALUE);
+    pControllerOne.setD(D_VALUE);
+    pControllerOne.setFF(FF_VALUE);
 
     pControllerTwo = motorTwo.getPIDController();
-    pControllerTwo.setP(0.001);
-    pControllerTwo.setD(0.001);
-    pControllerTwo.setFF(1);
+    pControllerTwo.setP(P_VALUE);
+    pControllerTwo.setD(D_VALUE);
+    pControllerTwo.setFF(FF_VALUE);
 
     //Limit Switches
     limitUp = new DigitalInput(LIMIT_SWITCH_UP);
@@ -102,7 +98,8 @@ public class LiftSystem extends SubsystemBase implements Testable {
       },
 
       () -> {
-        liftGroup.set(0);
+        pControllerOne.setReference(0, ControlType.kVelocity);
+        pControllerTwo.setReference(0, ControlType.kVelocity);
       }
     );
   }
