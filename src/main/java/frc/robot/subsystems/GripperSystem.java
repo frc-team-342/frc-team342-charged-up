@@ -46,24 +46,7 @@ public class GripperSystem extends SubsystemBase {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-
-  public CommandBase cubeIntake() {
-    return runEnd(
-      // run
-      () -> {
-          if(isHolding){
-            spin(0.1);
-          }else{
-            spin(0);}},
-
-      // end
-      () -> {
-        spin(0);
-        isHolding = true;
-      });
-  }
-
-  public CommandBase coneIntake() {
+  public CommandBase coneIntake(){
     return runEnd(
       // run
       () -> {
@@ -83,6 +66,28 @@ public class GripperSystem extends SubsystemBase {
         isHolding = true;
       });
   }
+
+  public CommandBase cubeIntake(){
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
+      });
+  }
+
 
   public CommandBase hold() {
     return runEnd(
