@@ -91,6 +91,26 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * 
+   * @return Run: HumanYellowColorMethod() & End: LEDOff()
+   * 
+   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
+   */
+  public CommandBase HumanColor(ColorType colorType) {
+    return runEnd(() -> humanColorMethod(colorType), this::LEDOff);   
+  }
+
+  /**
+   * 
+   * @return Run: DriverYellowColorMethod() & End: LEDOff()
+   * 
+   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
+   */
+  public CommandBase DriverColor(ColorType colorType) {
+    return runEnd(() -> driverColorMethod(colorType), this::LEDOff);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

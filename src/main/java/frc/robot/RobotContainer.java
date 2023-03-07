@@ -60,10 +60,13 @@ public class RobotContainer {
   private final Trigger rightTrigger;
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
-  private final JoystickButton bButton;
+  private final JoystickButton aButton;
+  private final JoystickButton yButton;
+
   private final Joystick driverLeft;
   private final Joystick driverRight;
 
+  private final InstantCommand togglePipeline;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -75,7 +78,9 @@ public class RobotContainer {
   rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
   leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
   xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  bButton = new JoystickButton(operator, XboxController.Button.kB.value);
+  aButton = new JoystickButton(operator, XboxController.Button.kA.value);
+  yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+
   driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
   driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
@@ -106,6 +111,8 @@ public class RobotContainer {
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
     SmartDashboard.putData(lSystem);
+
+    togglePipeline = new InstantCommand(limelight::togglePipeline);
     
     // Configure the trigger bindings
     configureBindings();
@@ -129,7 +136,8 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.cubeIntake());
     leftTrigger.whileTrue(gripperSystem.outtake());
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
-    bButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
 
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));

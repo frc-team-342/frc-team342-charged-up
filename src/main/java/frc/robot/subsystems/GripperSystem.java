@@ -31,7 +31,7 @@ public class GripperSystem extends SubsystemBase {
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
-    rollerMotor.setSmartCurrentLimit(20);
+    rollerMotor.setSmartCurrentLimit(30);
     rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     isHolding = true;
