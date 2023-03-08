@@ -50,7 +50,7 @@ public final class Constants {
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.75;
     public static final int MAX_CUBE_DRAW = 20;
-    public static final int DEFAULT_DRAW = 20;
+    public static final int DEFAULT_DRAW = 30;
 
     public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 20;
 
