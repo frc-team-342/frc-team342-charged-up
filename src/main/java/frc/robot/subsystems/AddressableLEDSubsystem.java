@@ -91,22 +91,10 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     }
   }
 
-  /**
-   * 
-   * @return Run: HumanYellowColorMethod() & End: LEDOff()
-   * 
-   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
-   */
   public CommandBase HumanColor(ColorType colorType) {
     return runEnd(() -> HumanColorMethod(colorType), this::LEDOff);   
   }
 
-  /**
-   * 
-   * @return Run: DriverYellowColorMethod() & End: LEDOff()
-   * 
-   * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
-   */
   public CommandBase DriverColor(ColorType colorType) {
     return runEnd(() -> DriverColorMethod(colorType), this::LEDOff);
   }

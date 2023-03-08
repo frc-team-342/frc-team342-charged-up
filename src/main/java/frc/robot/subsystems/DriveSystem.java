@@ -40,7 +40,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-
+import frc.robot.commands.drive.DriveVelocity;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -73,15 +73,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   private final AHRS gyro;
 
-<<<<<<< HEAD
-=======
-  private final AHRS navX;
-
-  private final PIDController rotateController;
-
-  private final PIDController balanceController;
-
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
 
@@ -104,9 +95,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
     frontRight.setIdleMode(IdleMode.kBrake);
     backLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
-
-    //navX
-    navX = new AHRS();
 
     // pid controllers
     leftController = frontLeft.getPIDController();
@@ -141,16 +129,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // gyro 
     gyro = new AHRS();
-<<<<<<< HEAD
-=======
-
-    // pid
-    rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
-    rotateController.setTolerance(Math.PI / 4, 0);
-
-    balanceController = new PIDController(0.85, 0, 0); // TODO: tune/test number 
-    balanceController.setTolerance(Math.PI / 4, 0);
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -296,134 +274,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return odometry.getPoseMeters();
   }
 
-<<<<<<< HEAD
   public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
     return kinematics.toWheelSpeeds(speeds);
-=======
-        // rad/s ????
-        double nextVel = rotateController.calculate(currAngle, endAngle);
-
-        // convert radial velocity to drivetrain speeds
-        ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
-
-        setDrivePIDControllers(wheelSpeeds);
-      },
-      // runs once at end of command 
-      () -> {
-        rotateController.reset();
-        
-        // stop motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-        
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
-      }
-    ).until(
-      // returns true if robot is at end angle
-      rotateController::atSetpoint
-    );
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
-  }
-/**
- * it returns a command that autobalances
- * @return
- */
-
-/* public CommandBase autoBalance() {
-    
-    
-
-    return runEnd(
-      // runs repeatedly until end of command
-      () -> {
-        // radians
-        double currAngle = Math.toRadians(gyro.getRoll());
-
-        double endAngle = 0;
-
-        // rad/s ????
-        double nextVel = balanceController.calculate(currAngle, endAngle);
-
-        // convert radial velocity to drivetrain speeds
-        ChassisSpeeds balanceVel = new ChassisSpeeds(nextVel, 0, 0);
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVel);
-
-        setDrivePIDControllers(wheelSpeeds);
-
-        
-      },
-      // runs once at end of command 
-      () -> {
-        balanceController.reset();
-        
-        // stop motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-        
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
-      }
-    ).until(
-      balanceController::atSetpoint
-    );
-    
-  } 
-  */
-
-public CommandBase autoBalance(){
-  
-  return runEnd(
-    
-      () -> {
-
-        double maxPercentOutput = 0.3;
-        double maxAngle = 20;
-        double angle = -MathUtil.clamp(navX.getRoll(), -maxAngle, maxAngle ); // Negative because of robot orientation
-        double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); // Speed is proportional to the angle 
-        
-        double tolerance = 3;
-        //Add a variable called "tolerance" in degrees
-
-        //Change the logig of oyur if statement to say if the angle is inside tolerance, don't move, otherwise move.
-
-        System.out.println("Angle: " + angle);
-        System.out.println("Speed: " + speed);
-
-        if (angle < tolerance && angle > -tolerance) {
-          drivePercent(0, 0);
-        } 
-        else {
-          drivePercent(speed, speed);
-        }
-
-      },
-
-      // when it ends
-
-      () -> {
-        driveVelocity(0);
-      }
-
-    );
-  }
-
-
-
-
-  /**
-   * sets the reference velocity of the PID controllers
-   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
-   */
-  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
-    // clamp wheel speeds to max velocity
-    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-
-    // apply drivetrain speeds to drive pid controllers
-    leftController.setReference(left, ControlType.kVelocity);
-    rightController.setReference(right, ControlType.kVelocity);
   }
 
   @Override
@@ -451,7 +303,58 @@ public CommandBase autoBalance(){
       field.setRobotPose(drivetrainSim.getPose());
     } 
   }
-
+ 
+  public CommandBase autoBalance(){
+  
+    return runEnd(
+      
+        () -> {
+  
+          double maxPercentOutput = 0.3;
+          double maxAngle = 20;
+          double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle ); // Negative because of robot orientation
+          double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); // Speed is proportional to the angle 
+          
+          double tolerance = 3;
+          //Add a variable called "tolerance" in degrees
+  
+          //Change the logig of oyur if statement to say if the angle is inside tolerance, don't move, otherwise move.
+  
+          System.out.println("Angle: " + angle);
+          System.out.println("Speed: " + speed);
+  
+          if (angle < tolerance && angle > -tolerance) {
+            drivePercent(0, 0);
+          } 
+          else {
+            drivePercent(speed, speed);
+          }
+  
+        },
+  
+        // when it ends
+  
+        () -> {
+          new DriveVelocity(0, this);
+        }
+  
+      );
+    }
+  
+    /**
+     * sets the reference velocity of the PID controllers
+     * @param wheelSpeeds - the desired referenece velocity for the PID controller  
+     */
+    private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+      // clamp wheel speeds to max velocity
+      double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+      double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+  
+      // apply drivetrain speeds to drive pid controllers
+      leftController.setReference(left, ControlType.kVelocity);
+      rightController.setReference(right, ControlType.kVelocity);
+    }
+  
   @Override
   public void simulationPeriodic() {
     // run rev lib physics sim
@@ -490,8 +393,6 @@ public CommandBase autoBalance(){
 
     // drivetrain velocity + direction
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
-    builder.addDoubleProperty("Gyro Pitch", gyro::getPitch, null);
-    builder.addDoubleProperty("Gyro Roll", gyro::getRoll, null);
 
     // odometry positions
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);

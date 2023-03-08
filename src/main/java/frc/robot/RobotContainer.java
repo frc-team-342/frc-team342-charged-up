@@ -59,11 +59,8 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-<<<<<<< HEAD
   
   private final LiftThenLeave liftThenLeave;
-=======
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
 
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -88,20 +85,24 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
-  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
-  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  bButton = new JoystickButton(operator, XboxController.Button.kB.value);
-  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
-  autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
-  autoBalanceButtonRight = new JoystickButton(driverRight, 1);
-  autoBalanceTestButtonLeft = new JoystickButton(driverLeft, 3);
-  autoBalanceTestButtonRight = new JoystickButton(driverRight, 3);
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
 
-    /** Drivesystem instantiations */
+    rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+    rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+
+    leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
+
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+
+    autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
+    autoBalanceButtonRight = new JoystickButton(driverRight, 1);
+    autoBalanceTestButtonLeft = new JoystickButton(driverLeft, 3);
+    autoBalanceTestButtonRight = new JoystickButton(driverRight, 3);
+
+      /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
 
@@ -120,8 +121,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold());
-    
+
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
     /** Dashboard sendables for the subsystems go here */
@@ -154,7 +154,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-<<<<<<< HEAD
     rightBumper.whileTrue(gripperSystem.coneIntake());
     rightTrigger.whileTrue(gripperSystem.cubeIntake());
     leftTrigger.whileTrue(gripperSystem.outtake());
@@ -167,13 +166,10 @@ public class RobotContainer {
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
 
     SmartDashboard.putData(CommandScheduler.getInstance());
-=======
-    xButton.whileTrue(gripperSystem.intake());
     
     autoBalanceTestButtonLeft.whileTrue(driveSystem.autoBalance());
     autoBalanceTestButtonRight.whileTrue(driveSystem.autoBalance());
 
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
   }
 
   private CommandBase getCheckCommand() {
@@ -197,13 +193,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-<<<<<<< HEAD
-    // An example command will be run in autonomous
-    //return new DriveDistance(0.1,1, driveSystem);
-    return liftThenLeave;
-=======
     return autoChooser.getSelected();
->>>>>>> de9a70838d87307656ae41241cc2fba831051119
   }
 
   public Command getTestCommand() {

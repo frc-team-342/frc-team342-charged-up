@@ -16,20 +16,22 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.drive.DriveVelocity;
+import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.DriveSystem;
 import frc.robot.subsystems.LiftSystem;
 
 public final class Autos {
   /** Example static factory for an autonomous command. */
-  DriveDistance driveDistance;
-  DriveSystem drive;
-  
-/*
+  private DriveDistance driveDistance;
+  private RotateToAngle rotateToAngle;
+
+  private static DriveSystem drive;  
+
   public static CommandBase RotateThenDriveAuto(DriveSystem driveSubsystem) {
 
     return Commands.sequence(
-    driveSubsystem.rotateToAngle(new Rotation2d(180)),
-    driveSubsystem.driveDistance(Constants.AutoConstants.FAST_SPEED, 3.0)
+    new RotateToAngle(new Rotation2d(180), driveSubsystem),
+    new DriveDistance(Constants.AutoConstants.FAST_SPEED, 3.0, driveSubsystem)
     );
   }
 
@@ -40,9 +42,9 @@ public final class Autos {
 
   public static CommandBase DriveSlow()
   {
-    return drive.driveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0);
+    return new DriveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0, drive);
   }
-*/
+
 
   public static CommandBase LiftThenLeave(LiftSystem lSystem, DriveSystem dSystem)
   {
@@ -62,25 +64,23 @@ public final class Autos {
   public static CommandBase driveUpAndBalance(DriveSystem drivesystem) {
     return Commands.sequence(
 
-      drivesystem.driveDistance(.5, 3),
-      drivesystem.autoBalance());
+    new DriveDistance(0.5, 3, drivesystem),
+    drive.autoBalance()
+    );
       
   }
-
-  
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
 
   public static CommandBase leftSide(DriveSystem drivesystem) {
     return Commands.sequence(
 
-    drivesystem.driveDistance(.5, 3), 
+    new DriveDistance(0.5, 3, drivesystem), 
     drivesystem.autoBalance(), 
-    drivesystem.driveDistance(.5, 5),
-    drivesystem.driveDistance(-.5,-5),
+    new DriveDistance(0.5, 3, drivesystem), 
+    new DriveDistance(-0.5, 5, drivesystem), 
     new WaitCommand(1.5),
     drivesystem.autoBalance());
-
   }
 
   private Autos() {

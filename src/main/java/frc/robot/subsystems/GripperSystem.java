@@ -60,7 +60,8 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
-      });
+        
+    });
   }
 
   public CommandBase coneIntake() {
