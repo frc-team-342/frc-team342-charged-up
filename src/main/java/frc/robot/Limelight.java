@@ -61,12 +61,12 @@ public class Limelight implements Testable, Sendable {
     * Switches between the retroreflective tape & Apriltag pipelines
     */
     public void togglePipeline() {
-        int currPipe = getPipeline();
-        if (currPipe == 0) {
-            setPipeline(1);
-        } else {
-            setPipeline(0);
-        }
+                int currPipe = getPipeline();
+                if (currPipe == 0) {
+                    setPipeline(1);
+                } else {
+                    setPipeline(0);
+                }
     }
 
     /**

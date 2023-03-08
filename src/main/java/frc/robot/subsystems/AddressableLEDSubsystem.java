@@ -29,8 +29,6 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     LED.start();
   }
 
-
-  
   /**
    * This method sets all the LED groups (Human Player & Driver) to off
    */
@@ -46,7 +44,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * This method sets the Human Player LED group to the Yellow Color or Purple Color
    */
-  public void HumanColorMethod(ColorType colortype) {
+  public void driverColorMethod(ColorType colortype) {
     //If the colortype requested is yellow, then it will set the Human Player group color to yellow
     //If the colortype requested is purple, then it will set the Human Player group color to purple
     if(ColorType.YELLOW == colortype)
@@ -72,7 +70,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * This method sets the Driver LED group to a specifed color
    */
-  public void DriverColorMethod(ColorType colorType) {
+  public void humanColorMethod(ColorType colorType) {
     if(ColorType.YELLOW == colorType)
     {
       //Sets each LED to Yellow
@@ -100,7 +98,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
   public CommandBase HumanColor(ColorType colorType) {
-    return runEnd(() -> HumanColorMethod(colorType), this::LEDOff);   
+    return runEnd(() -> humanColorMethod(colorType), this::LEDOff);   
   }
 
   /**
@@ -110,7 +108,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * @param if(colorType = Yellow) then (Yellow LED Color) & if(colorType = Purple) then (Purple LED color)
    */
   public CommandBase DriverColor(ColorType colorType) {
-    return runEnd(() -> DriverColorMethod(colorType), this::LEDOff);
+    return runEnd(() -> driverColorMethod(colorType), this::LEDOff);
   }
 
   @Override
