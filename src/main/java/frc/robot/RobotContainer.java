@@ -4,15 +4,10 @@
 
 package frc.robot;
 
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.*;
+import frc.robot.commands.drive.DriveDistance;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -47,7 +42,6 @@ public class RobotContainer {
   private POVButton liftMidR;
   private POVButton liftDown;
 
-  private JoystickButton liftSpeedButton;
   private final DriveSystem driveSystem;
 
   private final Limelight limelight;
@@ -73,16 +67,16 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-  operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-  rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
-  rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
-  leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
-  xButton = new JoystickButton(operator, XboxController.Button.kX.value);
-  aButton = new JoystickButton(operator, XboxController.Button.kA.value);
-  yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+    operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+    rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+    leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    aButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    yButton = new JoystickButton(operator, XboxController.Button.kY.value);
 
-  driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-  driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
     /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
@@ -143,8 +137,6 @@ public class RobotContainer {
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
-
-    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   private CommandBase getCheckCommand() {
@@ -169,7 +161,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.DriveSlow(driveSystem);
+    return new DriveDistance(0.1, 1, driveSystem);
   }
 
   public Command getTestCommand() {
@@ -191,6 +183,7 @@ public class RobotContainer {
   }
 
   public void setBrakeMode(boolean mode){
+    driveSystem.setBrakeMode(mode);
     lSystem.setBrakeMode(mode);
   }
 }
