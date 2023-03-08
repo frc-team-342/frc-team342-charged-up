@@ -61,8 +61,8 @@ public class RobotContainer {
 
   private final Joystick driverLeft;
   private final Joystick driverRight;
-  private final JoystickButton autoBalanceTestButtonRight;
-  private final JoystickButton autoBalanceTestButtonLeft;
+  private final JoystickButton balanceLeftBtn;
+  private final JoystickButton balanceRightBtn;
 
   private SendableChooser<Command> autoChooser;
 
@@ -79,8 +79,8 @@ public class RobotContainer {
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
     
     // autobalance driver buttons
-    autoBalanceTestButtonLeft = new JoystickButton(driverLeft, 3);
-    autoBalanceTestButtonRight = new JoystickButton(driverRight, 3);
+    balanceLeftBtn = new JoystickButton(driverLeft, 3);
+    balanceRightBtn = new JoystickButton(driverRight, 3);
 
     // intake + outtake
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
@@ -152,6 +152,10 @@ public class RobotContainer {
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    balanceRightBtn.whileTrue(driveSystem.autoBalance());
     
     // operator assist arm lift buttons
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
