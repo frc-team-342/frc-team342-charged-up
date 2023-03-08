@@ -241,11 +241,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
     );
   }
 
+  /**
+   * Set the speeds of the drivetrain in m/s using motor PID controllers
+   * @param speeds m/s
+   */
   public void setVelocity(DifferentialDriveWheelSpeeds speeds) {
     leftController.setReference(speeds.leftMetersPerSecond, ControlType.kVelocity);
     rightController.setReference(speeds.rightMetersPerSecond, ControlType.kVelocity);
   }
 
+  /** stop all drive motors */
   public void stopMotors() {
     frontLeft.stopMotor();
     frontRight.stopMotor();
@@ -253,14 +258,27 @@ public class DriveSystem extends SubsystemBase implements Testable {
     backRight.stopMotor();
   }
 
+  /**
+   * get the current yaw of the robot
+   * @return
+   */
   public Rotation2d getGyroAngle() {
     return odometry.getPoseMeters().getRotation();
   }
 
+  /**
+   * current robot pose from odometry
+   * @return relative position, start is (0, 0)
+   */
   public Pose2d getOdometryPosition() {
     return odometry.getPoseMeters();
   }
 
+  /**
+   * convert robot-relative speeds to wheel speeds
+   * @param speeds x vel, y vel, rotational vel
+   * @return left and right wheel speeds
+   */
   public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
     return kinematics.toWheelSpeeds(speeds);
   }

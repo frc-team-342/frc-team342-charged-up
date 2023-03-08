@@ -33,7 +33,7 @@ public class DriveDistance extends CommandBase {
     this.distance = distance;
 
     // determine wheel velocity based on whether dist is forwards or backwards
-    this.velocity = (distance >= 0)
+    this.velocity = (distance <= 0)
       ? MathUtil.clamp(Math.abs(velocityIn), 0.0, MAX_SPEED)
       : -Math.abs(MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED));
 
@@ -55,6 +55,7 @@ public class DriveDistance extends CommandBase {
     start = drive.getOdometryPosition();
 
     // set final position based on initial position
+    // TODO: ???
     end = start.transformBy(
       new Transform2d(
         new Translation2d(distance, start.getRotation()),
@@ -75,8 +76,8 @@ public class DriveDistance extends CommandBase {
 
     // wheel speeds using rotation
     var speeds = new DifferentialDriveWheelSpeeds(
-      velocity - rotation,
-      velocity + rotation
+      velocity + rotation,
+      velocity - rotation
     );
 
     // clamp wheel speeds
@@ -101,10 +102,10 @@ public class DriveDistance extends CommandBase {
     Pose2d current = drive.getOdometryPosition();
     
     // find difference between current and end positions
-    double diff = current.getTranslation().getDistance(end.getTranslation());
+    double diff = current.getTranslation().getDistance(start.getTranslation());
 
     // check if distance traveled is within tolerance
-    return diff < DISTANCE_TOLERANCE;
+    return diff > (distance - DISTANCE_TOLERANCE) && diff < (distance + DISTANCE_TOLERANCE);
   }
 
   @Override
