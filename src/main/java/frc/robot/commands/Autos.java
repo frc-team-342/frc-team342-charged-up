@@ -16,21 +16,15 @@ public final class Autos {
   /** Example static factory for an autonomous command. */
 
   public static CommandBase RotateThenDriveAuto(DriveSystem driveSubsystem) {
-
-    return Commands.sequence(
-    driveSubsystem.rotateToAngle(new Rotation2d(180)),
-    driveSubsystem.driveDistance(Constants.AutoConstants.FAST_SPEED, 3.0)
-    );
+    return Commands.sequence();
   }
 
-  public static CommandBase DriveFast(DriveSystem driveSubsystem)
-  {
-    return driveSubsystem.driveDistance(Constants.AutoConstants.FAST_SPEED, 3.0);
+  public static CommandBase DriveFast(DriveSystem driveSubsystem) {
+    return Commands.sequence();
   }
 
-  public static CommandBase DriveSlow(DriveSystem driveSubsystem)
-  {
-    return driveSubsystem.driveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0);
+  public static CommandBase DriveSlow(DriveSystem driveSubsystem) {
+    return Commands.sequence();
   }
 
   private Autos() {
