@@ -4,14 +4,11 @@
 
 package frc.robot;
 
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftThenLeave;
 import frc.robot.commands.drive.DriveDistance;
-import frc.robot.commands.drive.DriveVelocity;
-import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -33,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -53,7 +51,6 @@ public class RobotContainer {
   private POVButton liftMidR;
   private POVButton liftDown;
 
-  private JoystickButton liftSpeedButton;
   private final DriveSystem driveSystem;
 
   private final Limelight limelight;
@@ -68,17 +65,18 @@ public class RobotContainer {
   private final Trigger rightTrigger;
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
+  private final JoystickButton aButton;
   private final JoystickButton bButton;
+  private final JoystickButton yButton;
+
   private final Joystick driverLeft;
   private final Joystick driverRight;
   private final JoystickButton autoBalanceButtonRight;
   private final JoystickButton autoBalanceButtonLeft;
-  private final JoystickButton autoBalanceTestButtonRight;
-  private final JoystickButton autoBalanceTestButtonLeft;
-   
 
   private SendableChooser<Command> autoChooser;
 
+  private final InstantCommand togglePipeline;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -86,12 +84,14 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
-
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
     rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
-
     leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
+
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    aButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+
     bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
@@ -99,8 +99,6 @@ public class RobotContainer {
 
     autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
     autoBalanceButtonRight = new JoystickButton(driverRight, 1);
-    autoBalanceTestButtonLeft = new JoystickButton(driverLeft, 3);
-    autoBalanceTestButtonRight = new JoystickButton(driverRight, 3);
 
       /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
@@ -129,6 +127,8 @@ public class RobotContainer {
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
     SmartDashboard.putData(lSystem);
+
+    togglePipeline = new InstantCommand(limelight::togglePipeline);
     
     // Configure the trigger bindings
     configureBindings();
@@ -156,9 +156,13 @@ public class RobotContainer {
   private void configureBindings() {
     rightBumper.whileTrue(gripperSystem.coneIntake());
     rightTrigger.whileTrue(gripperSystem.cubeIntake());
-    leftTrigger.whileTrue(gripperSystem.outtake());
+    leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
-    bButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    autoBalanceButtonLeft.whileTrue(driveSystem.autoBalance());
+    autoBalanceButtonRight.whileTrue(driveSystem.autoBalance());
 
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
@@ -166,10 +170,6 @@ public class RobotContainer {
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
 
     SmartDashboard.putData(CommandScheduler.getInstance());
-    
-    autoBalanceTestButtonLeft.whileTrue(driveSystem.autoBalance());
-    autoBalanceTestButtonRight.whileTrue(driveSystem.autoBalance());
-
   }
 
   private CommandBase getCheckCommand() {
@@ -215,6 +215,7 @@ public class RobotContainer {
   }
 
   public void setBrakeMode(boolean mode){
+    driveSystem.setBrakeMode(mode);
     lSystem.setBrakeMode(mode);
   }
 }

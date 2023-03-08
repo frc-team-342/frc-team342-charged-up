@@ -97,7 +97,7 @@ public final class Constants {
     public static final double MASS = 35.27; // subject to change
 
     /** meters */
-    public static final double DISTANCE_TOLERANCE = 0.25;
+    public static final double DISTANCE_TOLERANCE = 0.15;
 
     // rotation pid controller
     public static final double ROTATION_P = 8.0;

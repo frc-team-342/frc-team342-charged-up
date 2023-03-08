@@ -31,7 +31,7 @@ public class GripperSystem extends SubsystemBase {
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
-    rollerMotor.setSmartCurrentLimit(20);
+    rollerMotor.setSmartCurrentLimit(30);
     rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     isHolding = true;
@@ -46,15 +46,19 @@ public class GripperSystem extends SubsystemBase {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-
-  public CommandBase cubeIntake() {
+  public CommandBase coneIntake(AddressableLEDSubsystem aLedSubsystem){
     return runEnd(
       // run
       () -> {
-          if(isHolding){
-            spin(0.1);
-          }else{
-            spin(0);}},
+        if (rollerMotor.getOutputCurrent() < DEFAULT_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
 
       // end
       () -> {
@@ -68,7 +72,28 @@ public class GripperSystem extends SubsystemBase {
     return runEnd(
       // run
       () -> {
-        if (rollerMotor.getOutputCurrent() < DEFAULT_DRAW)
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
+      });
+  }
+
+  public CommandBase cubeIntake(AddressableLEDSubsystem aLedSubsystem){
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
         {
           spin(ROLLER_SPEED);
         }
@@ -105,7 +130,7 @@ public class GripperSystem extends SubsystemBase {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake() {
+  public CommandBase outtake(AddressableLEDSubsystem aLedSubsystem) {
     return runEnd(
         // run
         () -> {
