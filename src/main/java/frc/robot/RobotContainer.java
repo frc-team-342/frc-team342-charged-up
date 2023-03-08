@@ -4,13 +4,11 @@
 
 package frc.robot;
 
+import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.*;
 import frc.robot.commands.drive.DriveDistance;
-import frc.robot.commands.drive.DriveVelocity;
-import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
-import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,9 +19,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -35,6 +33,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  //private final DriveSystem driveSystem;
+  private final LiftSystem lSystem;
+  private final AddressableLEDSubsystem aLEDSub;
+
+  private POVButton liftUp;
+  private POVButton liftMidL;
+  private POVButton liftMidR;
+  private POVButton liftDown;
+
   private final DriveSystem driveSystem;
 
   private final Limelight limelight;
@@ -43,9 +50,17 @@ public class RobotContainer {
   
   /* Controller and button instantiations */
   private final XboxController operator;
+  private final JoystickButton rightBumper;
+  private final Trigger rightTrigger;
+  private final Trigger leftTrigger;
   private final JoystickButton xButton;
+  private final JoystickButton aButton;
+  private final JoystickButton yButton;
+
   private final Joystick driverLeft;
   private final Joystick driverRight;
+
+  private final InstantCommand togglePipeline;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
@@ -53,24 +68,45 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
+    rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
+    leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    aButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+
     driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
-     /** Drivesystem instantiations */
+    /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+
+    aLEDSub = new AddressableLEDSubsystem();
+  
+    lSystem = new LiftSystem();
+    lSystem.setDefaultCommand(lSystem.liftArms(operator));
+
+    liftUp = new POVButton(operator, 0);
+    liftMidL = new POVButton(operator, 90);
+    liftMidR = new POVButton(operator, 270);
+    liftDown = new POVButton(operator, 180);
 
     /** Limelight instantiations */
     limelight = new Limelight();
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
+    gripperSystem.setDefaultCommand(gripperSystem.hold());
+
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
+    SmartDashboard.putData(lSystem);
+
+    togglePipeline = new InstantCommand(limelight::togglePipeline);
     
     // Configure the trigger bindings
     configureBindings();
@@ -90,7 +126,17 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    xButton.whileTrue(gripperSystem.intake());
+    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
+    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
+    leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
+    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
   }
 
   private CommandBase getCheckCommand() {
@@ -134,5 +180,10 @@ public class RobotContainer {
        */
       driveSystem.testRoutine()
     );
+  }
+
+  public void setBrakeMode(boolean mode){
+    driveSystem.setBrakeMode(mode);
+    lSystem.setBrakeMode(mode);
   }
 }

@@ -105,7 +105,8 @@ public class DriveDistance extends CommandBase {
     double diff = current.getTranslation().getDistance(start.getTranslation());
 
     // check if distance traveled is within tolerance
-    return diff > (distance - DISTANCE_TOLERANCE) && diff < (distance + DISTANCE_TOLERANCE);
+    double absDist = Math.abs(distance);
+    return diff > (absDist - DISTANCE_TOLERANCE) && diff < (absDist + DISTANCE_TOLERANCE);
   }
 
   @Override
