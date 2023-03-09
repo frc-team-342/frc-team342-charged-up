@@ -17,6 +17,7 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -72,6 +73,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
   private final RelativeEncoder rightEncoder;
 
   private final AHRS gyro;
+
+  private final PIDController rotateController;
 
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
@@ -129,6 +132,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // gyro 
     gyro = new AHRS();
+
+    // pid
+    rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
+    rotateController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -296,6 +303,55 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return kinematics.toWheelSpeeds(speeds);
   }
 
+  /**
+   * automatically balance on the charge station
+   */
+  public CommandBase autoBalance(){
+    return runEnd(
+      // runs repeatedly while command active
+      () -> {
+        double maxPercentOutput = 0.3;
+        double maxAngle = 20;
+
+        // Negative because of robot orientation
+        double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
+
+        // Speed is proportional to the angle 
+        double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); 
+        
+        // degrees
+        double tolerance = 3;
+
+        if (angle < tolerance && angle > -tolerance) {
+          // hold position if within roll tolerance
+          drivePercent(0, 0);
+        } else {
+          // drive to balance if outside of roll tolerance
+          drivePercent(speed, speed);
+        }
+      },
+      // when it ends
+      () -> {
+        leftController.setReference(0.0, ControlType.kVelocity);
+        rightController.setReference(0.0, ControlType.kVelocity);
+      }
+    );
+  }
+
+  /**
+   * sets the reference velocity of the PID controllers
+   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
+   */
+  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+    // clamp wheel speeds to max velocity
+    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+
+    // apply drivetrain speeds to drive pid controllers
+    leftController.setReference(left, ControlType.kVelocity);
+    rightController.setReference(right, ControlType.kVelocity);
+  }
+
   @Override
   public void periodic() {
     // odometry and pose visualization update different in simulation and real
@@ -321,57 +377,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
       field.setRobotPose(drivetrainSim.getPose());
     } 
   }
- 
-  public CommandBase autoBalance(){
-  
-    return runEnd(
-      
-        () -> {
-  
-          double maxPercentOutput = 0.3;
-          double maxAngle = 20;
-          double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle ); // Negative because of robot orientation
-          double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); // Speed is proportional to the angle 
-          
-          double tolerance = 3;
-          //Add a variable called "tolerance" in degrees
-  
-          //Change the logig of oyur if statement to say if the angle is inside tolerance, don't move, otherwise move.
-  
-          System.out.println("Angle: " + angle);
-          System.out.println("Speed: " + speed);
-  
-          if (angle < tolerance && angle > -tolerance) {
-            drivePercent(0, 0);
-          } 
-          else {
-            drivePercent(speed, speed);
-          }
-  
-        },
-  
-        // when it ends
-  
-        () -> {
-          new DriveVelocity(0, this);
-        }
-  
-      );
-    }
-  
-    /**
-     * sets the reference velocity of the PID controllers
-     * @param wheelSpeeds - the desired referenece velocity for the PID controller  
-     */
-    private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
-      // clamp wheel speeds to max velocity
-      double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-      double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-  
-      // apply drivetrain speeds to drive pid controllers
-      leftController.setReference(left, ControlType.kVelocity);
-      rightController.setReference(right, ControlType.kVelocity);
-    }
   
   @Override
   public void simulationPeriodic() {

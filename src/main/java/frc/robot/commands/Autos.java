@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -23,34 +22,24 @@ import frc.robot.subsystems.DriveSystem;
 import frc.robot.subsystems.GripperSystem;
 import frc.robot.subsystems.LiftSystem;
 
+/** Example static factory for an autonomous command. */
 public final class Autos {
-  /** Example static factory for an autonomous command. */
-  private DriveDistance driveDistance;
-  private RotateToAngle rotateToAngle;
-
-  private static DriveSystem drive;  
-
   public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem) {
-
     return Commands.sequence(
-    new RotateToAngle(new Rotation2d(180), driveSubsystem),
-    new DriveDistance( 3.0, Constants.AutoConstants.FAST_SPEED, driveSubsystem)
+      new RotateToAngle(new Rotation2d(180), driveSubsystem),
+      new DriveDistance( 3.0, Constants.AutoConstants.FAST_SPEED, driveSubsystem)
     );
   }
 
-  public static CommandBase driveFast(DriveSystem driveSubsystem)
-  {
-    return new DriveDistance(3.0, AutoConstants.FAST_SPEED, driveSubsystem);
+  public static CommandBase driveFast(DriveSystem drive) {
+    return new DriveDistance(3.0, AutoConstants.FAST_SPEED, drive);
   }
 
-  public static CommandBase driveSlow()
-  {
+  public static CommandBase driveSlow(DriveSystem drive) {
     return new DriveDistance(3.0, Constants.AutoConstants.SLOW_SPEED, drive);
   }
 
-
-  public static CommandBase liftThenLeave(LiftSystem lSystem, DriveSystem driveSystem)
-  {
+  public static CommandBase liftThenLeave(LiftSystem lSystem, DriveSystem driveSystem) {
     return Commands.sequence(
       lSystem.liftArmsToPosition(LiftConstants.MID_POSITION), 
       new InstantCommand(
@@ -61,9 +50,7 @@ public final class Autos {
     );
   }
   
-  // needs testing 
   /** robot drives onto charge station and balances */
-
   public static CommandBase backUpAndBalance(DriveSystem drivesystem) {
     return Commands.sequence(
 

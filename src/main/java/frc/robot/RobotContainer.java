@@ -71,8 +71,8 @@ public class RobotContainer {
 
   private final Joystick driverLeft;
   private final Joystick driverRight;
-  private final JoystickButton autoBalanceButtonRight;
-  private final JoystickButton autoBalanceButtonLeft;
+  private final JoystickButton balanceLeftBtn;
+  private final JoystickButton balanceRightBtn;
 
   private SendableChooser<Command> autoChooser;
 
@@ -83,24 +83,33 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // controllers
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    
+    // autobalance driver buttons
+    balanceLeftBtn = new JoystickButton(driverLeft, 3);
+    balanceRightBtn = new JoystickButton(driverRight, 3);
+
+    // intake + outtake
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
     rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
     leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
 
+    // xbox controller buttons
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
-
     bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
-    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    // operator assist lift buttons
+    liftUp = new POVButton(operator, 0);
+    liftMidL = new POVButton(operator, 90);
+    liftMidR = new POVButton(operator, 270);
+    liftDown = new POVButton(operator, 180);
 
-    autoBalanceButtonLeft = new JoystickButton(driverLeft, 1);
-    autoBalanceButtonRight = new JoystickButton(driverRight, 1);
-
-      /** Drivesystem instantiations */
+    /** Drivesystem instantiations */
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
 
@@ -108,11 +117,6 @@ public class RobotContainer {
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
-
-    liftUp = new POVButton(operator, 0);
-    liftMidL = new POVButton(operator, 90);
-    liftMidR = new POVButton(operator, 270);
-    liftDown = new POVButton(operator, 180);
 
     /** Limelight instantiations */
     limelight = new Limelight();
@@ -156,22 +160,23 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    rightBumper.whileTrue(gripperSystem.coneIntake());
+    rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
     rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
+
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
 
-    autoBalanceButtonLeft.whileTrue(driveSystem.autoBalance());
-    autoBalanceButtonRight.whileTrue(driveSystem.autoBalance());
-
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    balanceRightBtn.whileTrue(driveSystem.autoBalance());
+    
+    // operator assist arm lift buttons
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
-
-    SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
   private CommandBase getCheckCommand() {
