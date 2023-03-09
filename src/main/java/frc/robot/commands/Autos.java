@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -51,11 +52,19 @@ public final class Autos {
   }
   
   /** robot drives onto charge station and balances */
-  public static CommandBase backUpAndBalance(DriveSystem drivesystem) {
+  public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-
-      new DriveDistance(0.3048, 3, drivesystem),
-      drivesystem.autoBalance()
+      gripper.hold().withTimeout(0.5),
+      new ParallelRaceGroup(
+        gripper.hold(),
+        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
+      ),
+      gripper.outtake(led).withTimeout(0.8),
+      new DriveDistance(-2, 1.8, drivesystem).withTimeout(2),
+      new ParallelCommandGroup(
+        lift.liftArmsToPosition(LiftConstants.LOW_POSITION),
+        drivesystem.autoBalance()
+      )
     );
       
   }
@@ -68,7 +77,7 @@ public final class Autos {
         gripper.hold(),
         lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
       ),
-      gripper.outtake(led).withTimeout(0.5),
+      gripper.outtake(led).withTimeout(0.8),
       lift.liftArmsToPosition(LiftConstants.LOW_POSITION),
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
@@ -82,7 +91,7 @@ public final class Autos {
 
     public static CommandBase rightSide(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
       return Commands.sequence(
-        gripper.hold().withTimeout(0.5),
+        gripper.hold().withTimeout(0.8),
         new ParallelRaceGroup(
           gripper.hold(),
           lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
@@ -92,7 +101,7 @@ public final class Autos {
         new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
         new DriveDistance(-0.5, 1, drivesystem), 
         new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-        new DriveDistance(-2, 1.3, drivesystem), 
+        new DriveDistance(-3.05, 1.5, drivesystem), 
         new WaitCommand(1.5)
       );
     }
