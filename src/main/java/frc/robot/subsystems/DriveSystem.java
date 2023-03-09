@@ -31,6 +31,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.commands.drive.DriveVelocity;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -226,6 +228,17 @@ public class DriveSystem extends SubsystemBase implements Testable {
     rightController.setReference(rightVelocity, ControlType.kDutyCycle);
   }
 
+  public void drivePercentForTime(double leftSpeed, double rightSpeed, double time) {
+
+    // left side
+    double leftVelocity = leftSpeed * currentMode.speedMultiplier;
+    leftController.setReference(leftVelocity, ControlType.kDutyCycle);
+
+    // right side
+    double rightVelocity = rightSpeed * currentMode.speedMultiplier;
+    rightController.setReference(rightVelocity, ControlType.kDutyCycle);
+  }
+
   /**
    * 
    * @param joyLeft the left joystick being used to drive the robot
@@ -297,14 +310,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return runEnd(
       // runs repeatedly while command active
       () -> {
+        double proportional = 0.3;
         double maxPercentOutput = 0.3;
+
         double maxAngle = 20;
 
         // Negative because of robot orientation
         double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
 
         // Speed is proportional to the angle 
-        double speed = MathUtil.clamp((angle / maxAngle) * maxPercentOutput, -maxPercentOutput, maxPercentOutput); 
+        double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
         
         // degrees
         double tolerance = 3;
@@ -314,17 +329,14 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(0, 0);
         } else {
           // drive to balance if outside of roll tolerance
-          drivePercent(speed, speed);
+          drivePercent(speed + 0.1, speed);
         }
       },
       // when it ends
       () -> {
         leftController.setReference(0.0, ControlType.kVelocity);
         rightController.setReference(0.0, ControlType.kVelocity);
-
-        stopMotors();
       }
-
     );
   }
 
@@ -367,7 +379,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       field.setRobotPose(drivetrainSim.getPose());
     } 
   }
-
+  
   @Override
   public void simulationPeriodic() {
     // run rev lib physics sim
@@ -406,8 +418,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // drivetrain velocity + direction
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
-    builder.addDoubleProperty("Gyro Pitch", gyro::getPitch, null);
-    builder.addDoubleProperty("Gyro Roll", gyro::getRoll, null);
 
     // odometry positions
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);

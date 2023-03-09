@@ -6,8 +6,14 @@ package frc.robot;
 
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.*;
+import frc.robot.commands.auto.LiftThenLeave;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -24,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -49,6 +56,8 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
+  
+  private final LiftThenLeave liftThenLeave;
 
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -57,6 +66,7 @@ public class RobotContainer {
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
   private final JoystickButton aButton;
+  private final JoystickButton bButton;
   private final JoystickButton yButton;
 
   private final Joystick driverLeft;
@@ -91,6 +101,7 @@ public class RobotContainer {
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
@@ -112,7 +123,8 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold());
+
+    liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -130,9 +142,12 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("DriveUpAndBalance", new InstantCommand());
+    autoChooser.setDefaultOption("Balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("DoNothing", new InstantCommand());
-    autoChooser.addOption("LeftSide", new InstantCommand());
+    autoChooser.addOption("2-Side Leave", Autos.leftSide(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("8-Side Leave", Autos.rightSide(driveSystem, lSystem, gripperSystem, aLEDSub));
+
+    SmartDashboard.putData(autoChooser);
   }
 
   /**

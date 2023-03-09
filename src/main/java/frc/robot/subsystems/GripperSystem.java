@@ -63,6 +63,28 @@ public class GripperSystem extends SubsystemBase {
       () -> {
         spin(0);
         isHolding = true;
+        
+    });
+  }
+
+  public CommandBase coneIntake() {
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
       });
   }
 
@@ -86,7 +108,6 @@ public class GripperSystem extends SubsystemBase {
         isHolding = true;
       });
   }
-
 
   public CommandBase hold() {
     return runEnd(
