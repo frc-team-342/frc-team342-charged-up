@@ -138,10 +138,12 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("DriveUpAndBalance", Autos.driveUpAndBalance(driveSystem));
+    autoChooser.setDefaultOption("Balance", Autos.backUpAndBalance(driveSystem));
     autoChooser.addOption("DoNothing", new InstantCommand());
-    autoChooser.addOption("LeftSide", Autos.leftSide(driveSystem));
+    autoChooser.addOption("2-Side Leave", Autos.leftSide(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("8-Side Leave", Autos.rightSide(driveSystem, lSystem, gripperSystem, aLEDSub));
 
+    SmartDashboard.putData(autoChooser);
   }
 
   /**
@@ -155,7 +157,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     rightBumper.whileTrue(gripperSystem.coneIntake());
-    rightTrigger.whileTrue(gripperSystem.cubeIntake());
+    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));

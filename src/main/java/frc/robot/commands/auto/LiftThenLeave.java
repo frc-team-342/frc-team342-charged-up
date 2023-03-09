@@ -4,9 +4,12 @@
 
 package frc.robot.commands.auto;
 
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.AddressableLEDSim;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.LiftConstants;
+import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.DriveSystem;
 import frc.robot.subsystems.GripperSystem;
 import frc.robot.subsystems.LiftSystem;
@@ -15,6 +18,7 @@ public class LiftThenLeave extends CommandBase {
   private DriveSystem drive;
   private LiftSystem lift;
   private GripperSystem gripper;
+  private AddressableLEDSubsystem aLEDSub;
 
   private Timer timer;
   private double time;
@@ -36,7 +40,7 @@ public class LiftThenLeave extends CommandBase {
   @Override
   public void execute() {
     lift.liftArmsToPosition(LiftConstants.MID_POSITION);
-    gripper.outtake();
+    gripper.outtake(aLEDSub);
 
     timer.start();
     drive.drivePercent(-0.1, -0.1);

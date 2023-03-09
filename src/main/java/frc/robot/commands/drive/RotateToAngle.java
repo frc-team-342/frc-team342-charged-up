@@ -78,7 +78,6 @@ public class RotateToAngle extends CommandBase {
   public void end(boolean interrupted) {
     // stop motors
     drive.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
-    drive.stopMotors();
   }
 
   // Returns true when the command should end.
