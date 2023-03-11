@@ -124,7 +124,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     
     // Inverts the leader motors
     frontRight.setInverted(true);
-    frontLeft.setInverted(false);
+    frontLeft.setInverted(true);
 
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
@@ -311,7 +311,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs repeatedly while command active
       () -> {
         double proportional = 0.3;
-        double maxPercentOutput = 0.3;
+        double maxPercentOutput = 0.2;
 
         double maxAngle = 20;
 
