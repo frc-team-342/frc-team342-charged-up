@@ -114,7 +114,7 @@ public class GripperSystem extends SubsystemBase {
       //run
       () -> {
           if(isHolding){
-            spin(0.1);
+            spin(0.15);
           }else{
             spin(0);
           }

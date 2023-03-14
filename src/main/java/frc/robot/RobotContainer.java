@@ -230,7 +230,6 @@ public class RobotContainer {
   }
 
   public void setBrakeMode(boolean mode){
-    driveSystem.setBrakeMode(mode);
     lSystem.setBrakeMode(mode);
   }
 }
