@@ -66,7 +66,4 @@ public class RobotContainer {
       //driveSystem.driveDistance(5, 2)
     );
   }
-  public void getCheckToRaiseArm(){
-    limelight.autoArmLift();
-  }
 }
