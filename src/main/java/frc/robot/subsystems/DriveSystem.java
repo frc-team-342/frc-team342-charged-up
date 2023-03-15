@@ -18,6 +18,8 @@ import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -25,9 +27,11 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.spline.Spline;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -37,9 +41,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Limelight;
 import frc.robot.Robot;
 import frc.robot.commands.drive.DriveVelocity;
 
@@ -73,11 +79,13 @@ public class DriveSystem extends SubsystemBase implements Testable {
   private final RelativeEncoder rightEncoder;
 
   private final AHRS gyro;
+  private final Limelight limelight;
 
   private final PIDController rotateController;
+  private final RamseteController ramsete;
 
   private final DifferentialDriveKinematics kinematics;
-  private final DifferentialDriveOdometry odometry;
+  private final DifferentialDrivePoseEstimator poseEstimator;
 
   private final LinearSystem<N2, N2, N2> model;
   private final DifferentialDrivetrainSim drivetrainSim;
@@ -87,7 +95,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
   private Mode currentMode = Mode.NORMAL;
 
   /** Creates a new DriveSystem. */
-  public DriveSystem() {
+  public DriveSystem(Limelight limelight) {
     // motors
     frontLeft = new CANSparkMax(FRONT_LEFT_MOTOR, MotorType.kBrushless);
     frontRight = new CANSparkMax(FRONT_RIGHT_MOTOR, MotorType.kBrushless);
@@ -140,9 +148,15 @@ public class DriveSystem extends SubsystemBase implements Testable {
     // gyro 
     gyro = new AHRS();
 
+    // limelight
+    this.limelight = limelight;
+
     // pid
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
+
+    // ramsete controller
+    ramsete = new RamseteController();
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -182,16 +196,20 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // odometry instantiated differently in sim or real robot
     if (Robot.isReal()) {
-      odometry = new DifferentialDriveOdometry(
-        Rotation2d.fromDegrees(gyro.getAngle()), 
+      poseEstimator = new DifferentialDrivePoseEstimator(
+        kinematics, 
+        getGyroAngle(), 
         leftEncoder.getPosition(), 
-        rightEncoder.getPosition()
+        rightEncoder.getPosition(), 
+        null
       );
     } else {
-      odometry = new DifferentialDriveOdometry(
+      poseEstimator = new DifferentialDrivePoseEstimator(
+        kinematics, 
         drivetrainSim.getHeading(), 
-        drivetrainSim.getLeftPositionMeters(), 
-        drivetrainSim.getRightPositionMeters()
+        leftEncoder.getPosition(), 
+        rightEncoder.getPosition(), 
+        null
       );
     }
   }
@@ -268,15 +286,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
     );
   }
 
-  /**
-   * Set the speeds of the drivetrain in m/s using motor PID controllers
-   * @param speeds m/s
-   */
-  public void setVelocity(DifferentialDriveWheelSpeeds speeds) {
-    leftController.setReference(speeds.leftMetersPerSecond, ControlType.kVelocity);
-    rightController.setReference(speeds.rightMetersPerSecond, ControlType.kVelocity);
-  }
-
   /** stop all drive motors */
   public void stopMotors() {
     frontLeft.stopMotor();
@@ -290,7 +299,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @return
    */
   public Rotation2d getGyroAngle() {
-    return odometry.getPoseMeters().getRotation();
+    return poseEstimator.getEstimatedPosition().getRotation();
   }
 
   /**
@@ -298,7 +307,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * @return relative position, start is (0, 0)
    */
   public Pose2d getOdometryPosition() {
-    return odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -308,6 +317,45 @@ public class DriveSystem extends SubsystemBase implements Testable {
    */
   public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
     return kinematics.toWheelSpeeds(speeds);
+  }
+
+  public CommandBase followTrajectory(Trajectory trajectory) {
+    Timer trajectoryTime = new Timer();
+
+    return new FunctionalCommand(
+      // runs once at start
+      () -> {
+        // start timer for trajectory
+        trajectoryTime.start();
+      }, 
+      // runs repeatedly during command execution
+      () -> {
+        // sample the trajectory at current timestamp
+        Trajectory.State goal = trajectory.sample(trajectoryTime.get());
+
+        // find wheel speeds based on robot speeds at timestamp
+        ChassisSpeeds robotSpeeds = ramsete.calculate(getOdometryPosition(), goal);
+        DifferentialDriveWheelSpeeds wheelSpeeds = inverseKinematics(robotSpeeds);
+
+        // set robot speed based on goal
+        this.setVelocity(wheelSpeeds);
+      }, 
+      // runs once at command end
+      (Boolean interrupted) -> {
+        // stop updating timestamp
+        trajectoryTime.stop();
+
+        // stop drive motors
+        this.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
+      },
+      // determines when command ends 
+      () -> {
+        // TODO: yeah
+        return false; 
+      }, 
+      // subsystems this command depends on
+      this
+    );
   }
 
   /**
@@ -361,7 +409,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
    * sets the reference velocity of the PID controllers
    * @param wheelSpeeds - the desired referenece velocity for the PID controller  
    */
-  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+  public void setVelocity(DifferentialDriveWheelSpeeds wheelSpeeds) {
     // clamp wheel speeds to max velocity
     double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
     double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
@@ -376,17 +424,17 @@ public class DriveSystem extends SubsystemBase implements Testable {
     // odometry and pose visualization update different in simulation and real
     if (Robot.isReal()) {
       // update from real encoder and gyro values
-      odometry.update(
+      poseEstimator.update(
         Rotation2d.fromDegrees(-gyro.getAngle()), 
         leftEncoder.getPosition(), 
         rightEncoder.getPosition()
       );
 
       // update field visualization from odometry in real robot
-      field.setRobotPose(odometry.getPoseMeters());
+      field.setRobotPose(poseEstimator.getEstimatedPosition());
     } else {
       // update from drivetrain sim
-      odometry.update(
+      poseEstimator.update(
         drivetrainSim.getHeading(), 
         drivetrainSim.getLeftPositionMeters(), 
         drivetrainSim.getRightPositionMeters()
@@ -394,7 +442,12 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
       // update field visualization from drivetrain sim in simulation
       field.setRobotPose(drivetrainSim.getPose());
-    } 
+    }
+
+    // update pose estimator from vision
+    if (limelight.hasTargets()) {
+      poseEstimator.addVisionMeasurement(new Pose2d(), Timer.getFPGATimestamp());
+    }
   }
   
   @Override
@@ -440,10 +493,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     builder.addDoubleProperty("Gyro angle", gyro::getAngle, null);
 
     // odometry positions
-    builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
-    builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
-    builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
-    builder.addDoubleProperty("Odometry angle (rad)", () -> odometry.getPoseMeters().getRotation().getRadians(), null);
+    builder.addDoubleProperty("Odometry X position (m)", () -> poseEstimator.getEstimatedPosition().getX(), null);
+    builder.addDoubleProperty("Odometry Y position (m)", () -> poseEstimator.getEstimatedPosition().getY(), null);
+    builder.addDoubleProperty("Odometry angle (deg)", () -> this.getGyroAngle().getDegrees(), null);
+    builder.addDoubleProperty("Odometry angle (rad)", () -> this.getGyroAngle().getRadians(), null);
 
     if (Robot.isSimulation()) {
       builder.addDoubleProperty("Voltage", RobotController::getInputVoltage, null);

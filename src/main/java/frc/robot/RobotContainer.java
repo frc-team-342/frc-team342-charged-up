@@ -109,17 +109,17 @@ public class RobotContainer {
     liftMidR = new POVButton(operator, 270);
     liftDown = new POVButton(operator, 180);
 
+    /** Limelight instantiations */
+    limelight = new Limelight();
+
     /** Drivesystem instantiations */
-    driveSystem = new DriveSystem();
+    driveSystem = new DriveSystem(limelight);
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
 
     aLEDSub = new AddressableLEDSubsystem();
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
-
-    /** Limelight instantiations */
-    limelight = new Limelight();
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
