@@ -25,19 +25,32 @@ import frc.robot.subsystems.LiftSystem;
 
 /** Example static factory for an autonomous command. */
 public final class Autos {
+  /** intake, lift arms, outtake, lower arms */
+  private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    return Commands.sequence(
+      // intake preloaded game piece
+      gripper.hold().withTimeout(0.5),
+      // run until either command finishes
+      new ParallelRaceGroup(
+        // hold preloaded game piece in gripper
+        gripper.hold(),
+        // lift arms to high scoring position
+        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
+        // cancel command group if not finished in x seconds
+        //new WaitCommand(9)
+      ),
+      // outtake game piece
+      gripper.outtake(led).withTimeout(0.8),
+      // lower arms
+      lift.liftArmsToPosition(LiftConstants.LOW_POSITION)
+    );
+  }
+
   public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem) {
     return Commands.sequence(
       new RotateToAngle(new Rotation2d(180), driveSubsystem),
       new DriveDistance( 3.0, Constants.AutoConstants.FAST_SPEED, driveSubsystem)
     );
-  }
-
-  public static CommandBase driveFast(DriveSystem drive) {
-    return new DriveDistance(3.0, AutoConstants.FAST_SPEED, drive);
-  }
-
-  public static CommandBase driveSlow(DriveSystem drive) {
-    return new DriveDistance(3.0, Constants.AutoConstants.SLOW_SPEED, drive);
   }
 
   public static CommandBase liftThenLeave(LiftSystem lSystem, DriveSystem driveSystem) {
@@ -54,31 +67,17 @@ public final class Autos {
   /** robot drives onto charge station and balances */
   public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-      gripper.hold().withTimeout(0.5),
-      new ParallelRaceGroup(
-        gripper.hold(),
-        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
-      ),
-      gripper.outtake(led).withTimeout(0.8),
-      new DriveDistance(-2, 1.8, drivesystem).withTimeout(2),
-      new ParallelCommandGroup(
-        lift.liftArmsToPosition(LiftConstants.LOW_POSITION),
-        drivesystem.autoBalance()
-      )
+      liftAndOuttake(lift, gripper, led),
+      new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+      drivesystem.autoBalance()
     );
       
   }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-  public static CommandBase leftSide(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-      gripper.hold().withTimeout(0.5),
-      new ParallelRaceGroup(
-        gripper.hold(),
-        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
-      ),
-      gripper.outtake(led).withTimeout(0.8),
-      lift.liftArmsToPosition(LiftConstants.LOW_POSITION),
+      liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
@@ -87,24 +86,39 @@ public final class Autos {
     );
   }
 
-    /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
+  /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
+  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
+      new DriveDistance(-0.5, 1, drivesystem), 
+      new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
+      new DriveDistance(-3.05, 1.5, drivesystem), 
+      new WaitCommand(1.5)
+    );
+  }
 
-    public static CommandBase rightSide(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
-      return Commands.sequence(
-        gripper.hold().withTimeout(0.8),
-        new ParallelRaceGroup(
-          gripper.hold(),
-          lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
-        ),
-        gripper.outtake(led).withTimeout(0.5),
-        lift.liftArmsToPosition(LiftConstants.LOW_POSITION),
-        new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
-        new DriveDistance(-0.5, 1, drivesystem), 
-        new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-        new DriveDistance(-3.05, 1.5, drivesystem), 
-        new WaitCommand(1.5)
-      );
-    }
+  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
+      new DriveDistance(-0.5, 1, drive), 
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
+      new DriveDistance(-3.05, 1.5, drive), 
+      new WaitCommand(1.5)
+    );
+  }
+
+  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
+      new DriveDistance(-0.5, 1, drive), 
+      new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
+      new DriveDistance(-1.7, 1.3, drive), 
+      new WaitCommand(1.5)
+    );
+  }
 
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");

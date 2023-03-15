@@ -123,6 +123,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
+    gripperSystem.setDefaultCommand(gripperSystem.hold());
 
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
@@ -141,11 +142,18 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
+    // autos
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
-    autoChooser.addOption("DoNothing", new InstantCommand());
-    autoChooser.addOption("2-Side Leave", Autos.leftSide(driveSystem, lSystem, gripperSystem, aLEDSub));
-    autoChooser.addOption("8-Side Leave", Autos.rightSide(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("Do nothing", new InstantCommand());
+
+    // blue side
+    autoChooser.addOption("2-Side Blue Leave", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("8-Side Blue Leave", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub));
+
+    // red side
+    autoChooser.addOption("8-Side Red Leave", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("2-Side Red Leave", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
 
     SmartDashboard.putData(autoChooser);
   }
@@ -222,7 +230,6 @@ public class RobotContainer {
   }
 
   public void setBrakeMode(boolean mode){
-    driveSystem.setBrakeMode(mode);
     lSystem.setBrakeMode(mode);
   }
 }

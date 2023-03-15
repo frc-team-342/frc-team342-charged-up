@@ -126,9 +126,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
     frontRight.setInverted(true);
     frontLeft.setInverted(false);
 
+    setBrakeMode(true);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
+
+    frontLeft.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
+    frontRight.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
 
     // gyro 
     gyro = new AHRS();
@@ -310,8 +317,12 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return runEnd(
       // runs repeatedly while command active
       () -> {
-        double proportional = 0.3;
-        double maxPercentOutput = 0.3;
+        // robot is back-heavy
+        double forwardP = 0.17;
+        double backP = 0.32;
+
+        // maximum drivetrain output
+        double maxPercentOutput = 0.33;
 
         double maxAngle = 20;
 
@@ -319,7 +330,13 @@ public class DriveSystem extends SubsystemBase implements Testable {
         double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
 
         // Speed is proportional to the angle 
-        double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
+        //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
+
+        double speed = (angle > 0)
+          ? (angle / maxAngle) * forwardP
+          : (angle / maxAngle) * backP;
+
+        speed = MathUtil.clamp(speed, -maxPercentOutput, maxPercentOutput);
         
         // degrees
         double tolerance = 3;
@@ -329,7 +346,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
           drivePercent(0, 0);
         } else {
           // drive to balance if outside of roll tolerance
-          drivePercent(speed + 0.1, speed);
+          drivePercent(speed, speed);
         }
       },
       // when it ends
@@ -406,6 +423,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Drive");
+
+    // used for autobalance
+    builder.addDoubleProperty("Roll (deg)", gyro::getRoll, null);
 
     // motor velocities
     builder.addDoubleProperty("Left velocity", leftEncoder::getVelocity, null);
