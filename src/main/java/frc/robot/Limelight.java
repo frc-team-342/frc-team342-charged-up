@@ -9,7 +9,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import static frc.robot.Constants.LimelightConstants.*;
 
 
@@ -252,14 +251,24 @@ public class Limelight implements Sendable{
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
     }
 
+    /** Creates a pose 2d from the robot X & Y pose values */
     private Pose2d createPose2d(double robotPositionX, double robotPositionY){
         return new Pose2d(robotPositionX, robotPositionY, new Rotation2d(0));
+    }
+
+    /** Activates 3D Mode on the Limelight */
+    private void enable3DMode() {
+        table.getEntry("Pipeline").setNumber(3);
+    }
+
+    /** Disables 3D mode on the limelight */
+    private void disable3DMode(){
+        table.getEntry("Pipeline").setNumber(0);
     }
 
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        SmartDashboard.putString("dfhgjk", "FGHJK");
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
