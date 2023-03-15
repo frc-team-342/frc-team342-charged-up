@@ -75,15 +75,9 @@ public final class Constants {
     public static final double MAX_VERT_OFFSET_FOR_MED = 27.0;
 
     /** Degrees */
-    // public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+    public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
 
     /** Degrees */
     public static final double MAX_VERT_OFFSET_FOR_HP_STATION = 29.0;
-
-    /* Feet */
-    public static final double AUTO_ARM_RAISE_MAX_RANGE = 2;
-
-    /* Feet */
-    public static final double DISTANCE_BETWEEN_MID_AND_HIGH = 0.0;
   }
 }

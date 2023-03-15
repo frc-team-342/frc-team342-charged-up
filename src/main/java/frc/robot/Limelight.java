@@ -1,4 +1,5 @@
 package frc.robot;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -152,7 +153,7 @@ public class Limelight implements Sendable{
      * */
     public Rotation2d createRotation2D(){
 
-        return new Rotation2d(getHorizontalOffset());
+        return new Rotation2d(-(Math.toRadians(getHorizontalOffset())));
 
     }
 
@@ -214,61 +215,15 @@ public class Limelight implements Sendable{
         return null;
 
     }
-
-    /**
-     * Checks what target we are looking at, calculates the forward distance, and returns it
-     * @return Forward distance from the current vision target
-     */
-    public Double forwardDistanceToTarget()
-    {
-        if(hasTargets()){
-            double verticalOffset = getVerticalOffset();
-            if(getPipeline() == 0)
-            {
-                if(isMidLevelTarget(verticalOffset)){
-                    double forwardDistanceFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-                    return forwardDistanceFromMed;
-                }
-
-                if(verticalOffset > HEIGHT_TO_MED)
-                {
-                    double forwardDistanceFromHigh = (HEIGHT_TO_MED / Math.tan(verticalOffset)) + DISTANCE_BETWEEN_MID_AND_HIGH;
-                    return forwardDistanceFromHigh;
-                }
-                //if(isHighLevelTarget(verticalOffset)){
-                    //double forwardDistanceFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                    //return forwardDistanceFromHigh;
-                //}
-
-            }
-
-            if(getPipeline() == 1)
-            {
-                if(isLowLevelTarget(verticalOffset)){
-                    double forwardDistanceFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
-                    return forwardDistanceFromLow;
-                }
-
-                if(isHumanPlayerStation(verticalOffset)){
-                        double forwardDistanceFromHPStation = HEIGHT_TO_HP_STATION / Math.tan(verticalOffset);
-                        return forwardDistanceFromHPStation;
-                }
-
-            }
-        }
-
-            return Double.NaN;
-     }
-
     
      /**
      * Determines if the limelight is looking at a high-level scoring target
      * @param verticalOffset
      * @return A boolean value of whether the limelight is seeing a high target
      */
-        // private boolean isHighLevelTarget(double verticalOffset) {
-        // return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
-        // }
+         private boolean isHighLevelTarget(double verticalOffset) {
+         return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
+        }
 
     /**
      * Determines if the limelight is looking at a mid-level scoring target
@@ -297,18 +252,10 @@ public class Limelight implements Sendable{
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
     }
 
-    
-    /**
-     * Lifts the arm if the robot is within a certain forward distance
-     */
-    public void autoArmLift(){
-            System.out.println("Entering method");
-            if(isLowLevelTarget(getVerticalOffset())){
-                if(forwardDistanceToTarget() <= AUTO_ARM_RAISE_MAX_RANGE){
-                    System.out.println("Raising Arm");
-                }
-            }
-        }
+    private Pose2d createPose2d(double robotPositionX, double robotPositionY){
+        return new Pose2d(robotPositionX, robotPositionY, new Rotation2d(0));
+    }
+
 
     @Override
     public void initSendable(SendableBuilder builder) {
@@ -317,6 +264,5 @@ public class Limelight implements Sendable{
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
     }
 }
