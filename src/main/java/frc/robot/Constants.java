@@ -43,6 +43,9 @@ public final class Constants {
     public static final int PURPLE_H = 150;
     public static final int PURPLE_S = 255;
     public static final int PURPLE_V = 70;
+    public static final int RED_H = 0;
+    public static final int RED_S = 255;
+    public static final int RED_V = 255;
   }
   
   public static class GripperConstants {

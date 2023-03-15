@@ -66,7 +66,6 @@ public class RobotContainer {
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
   private final JoystickButton aButton;
-  private final JoystickButton bButton;
   private final JoystickButton yButton;
 
   private final Joystick driverLeft;
@@ -101,7 +100,6 @@ public class RobotContainer {
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
-    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
@@ -123,7 +121,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold());
+    gripperSystem.setDefaultCommand(gripperSystem.hold(/*aLEDSub*/));
 
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
