@@ -17,6 +17,7 @@ public class Limelight implements Sendable{
     public Limelight(){
         SendableRegistry.addLW(this, "Limelight", "Limelight");
     }
+
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
      */
@@ -165,8 +166,8 @@ public class Limelight implements Sendable{
         /**
          * Gets the x & y values from the robotPositionValues array
          */
-        double robotPositionX = getRobotPosition3D()[0].doubleValue();
-        double robotPositionY = getRobotPosition3D()[1].doubleValue();
+        double robotPositionX = getRobotXPosition();
+        double robotPositionY = getRobotYPosition();
 
         /**
          * Uses the x & y values to construct a translation2d, then returns it
@@ -220,36 +221,37 @@ public class Limelight implements Sendable{
      * @param verticalOffset
      * @return A boolean value of whether the limelight is seeing a high target
      */
-         private boolean isHighLevelTarget(double verticalOffset) {
+      /**private boolean isHighLevelTarget(double verticalOffset) {
          return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
-        }
+        }/
 
     /**
      * Determines if the limelight is looking at a mid-level scoring target
      * @param verticalOffset
      * @return A boolean value of whether the limelight is seeing a middle target
      */
-    private boolean isMidLevelTarget(double verticalOffset) {
+    /**private boolean isMidLevelTarget(double verticalOffset) {
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED;
-    }
+    }/
 
     /**
      * Determines if the limelight is looking at a low-level scoring target
      * @param verticalOffset
      * @return A boolean value of whether the limelight sees a human player station target
      */
-    private boolean isLowLevelTarget (double verticalOffset) {
+    /**private boolean isLowLevelTarget (double verticalOffset) {
         return verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW;
-    }
+    }/
 
     /**
      * Determines if the limelight is looking at a Human Player station target
      * @param verticalOffset
      * @return A boolean value of whether the limelight sees a human player station target
      */
-    private boolean isHumanPlayerStation (double verticalOffset){
+
+    /**private boolean isHumanPlayerStation (double verticalOffset){
         return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
-    }
+    }/
 
     /** Creates a pose 2d from the robot X & Y pose values */
     private Pose2d createPose2d(double robotPositionX, double robotPositionY){
@@ -266,12 +268,26 @@ public class Limelight implements Sendable{
         table.getEntry("Pipeline").setNumber(0);
     }
 
+    private boolean is3DMode(){
+        return(getPipeline() == 3);
+    }
+
+    private Double getRobotXPosition(){
+        return(getRobotPosition3D()[1].doubleValue());
+    }
+
+    private Double getRobotYPosition(){
+       return(getRobotPosition3D()[2].doubleValue());
+    }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
+        builder.addBooleanProperty("3D Mode?", this::is3DMode, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
+        builder.addDoubleProperty("Robot X Position", this::getRobotXPosition, null);
+        builder.addDoubleProperty("Robot Y Position", this::getRobotYPosition, null);
     }
 }
