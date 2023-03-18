@@ -121,7 +121,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold(/*aLEDSub*/));
+    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
 
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 

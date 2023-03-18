@@ -113,18 +113,17 @@ public class GripperSystem extends SubsystemBase {
       });
   }
 
-  public CommandBase hold(/*AddressableLEDSubsystem aLedSubsystem*/) {
+  public CommandBase hold(AddressableLEDSubsystem aLedSubsystem) {
     return runEnd(
       //run
       () -> {
           if(isHolding){
             spin(0.15);
-            /*
+            
             if(rollerMotor.getEncoder().getPosition() <= (lastPosition + 5))
             {
               aLedSubsystem.DriverColor(ColorType.RED);
             }
-            */
           }else{
             spin(0);
           }

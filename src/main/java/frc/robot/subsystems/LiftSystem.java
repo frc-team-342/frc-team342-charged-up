@@ -44,6 +44,8 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final DutyCycleEncoder armEncoder;
   private final RelativeEncoder motorEncoder;
 
+  private final SparkMaxPIDController armPosPID;
+
   /** Creates a new LiftSystem. */
   public LiftSystem() {
     motorOne = new CANSparkMax(MOTOR_LEFT, MotorType.kBrushless);
@@ -71,6 +73,10 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
     motorOne.setSmartCurrentLimit(CURRENT_LIMIT);
     motorTwo.setSmartCurrentLimit(CURRENT_LIMIT);
+
+    armPosPID = motorOne.getPIDController();
+    armPosPID.setP(0.01);
+    armPosPID.setD(0.0);
   }
 
   /**
@@ -120,13 +126,13 @@ public class LiftSystem extends SubsystemBase implements Testable {
       }
       //If the current position is lower than the desired position, move the arm up
       else if(clampedPos - getPosition() < 0){
-        pControllerOne.setReference(0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(0.25,ControlType.kVelocity);
+        pControllerOne.setReference(LiftConstants.AUTO_SPEED, ControlType.kVelocity);
+        pControllerTwo.setReference(LiftConstants.AUTO_SPEED,ControlType.kVelocity);
       }
       //If higher than desired position, move the arm down
       else {
-        pControllerOne.setReference(-0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(-0.25,ControlType.kVelocity);
+        pControllerOne.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity);
+        pControllerTwo.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity);
       }
     }, 
     //Runs when command ends
