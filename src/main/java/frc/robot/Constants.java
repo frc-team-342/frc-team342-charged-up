@@ -129,7 +129,7 @@ public final class Constants {
 
     public static final double P_VALUE = 0.001;
     public static final double D_VALUE = 0.001;
-    public static final double FF_VALUE = 1.2;
+    public static final double FF_VALUE = 1.5;
   }
 
   /*
