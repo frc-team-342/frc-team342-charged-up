@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -9,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,6 +21,10 @@ import static frc.robot.Constants.LimelightConstants.*;
 
 
 public class Limelight implements Testable, Sendable {
+
+    public Limelight(){
+        SendableRegistry.addLW(this, "Limelight", "Limelight");
+    }
 
     /**
      * Provides an object through which to access the networkTables entries associated with the limelight
@@ -61,12 +67,12 @@ public class Limelight implements Testable, Sendable {
     * Switches between the retroreflective tape & Apriltag pipelines
     */
     public void togglePipeline() {
-                int currPipe = getPipeline();
-                if (currPipe == 0) {
-                    setPipeline(1);
-                } else {
-                    setPipeline(0);
-                }
+        int currPipe = getPipeline();
+        if (currPipe == 0) {
+            setPipeline(1);
+        } else {
+            setPipeline(0);
+        }
     }
 
     /**
@@ -103,11 +109,8 @@ public class Limelight implements Testable, Sendable {
      * @return The vertical angle from the limelight crosshair to the target
      */
     public Double getVerticalOffset() {
-
         if(hasTargets()){
-
-            return table.getEntry("tx").getNumber(0).doubleValue();
-
+            return 30 + (table.getEntry("ty").getNumber(0).doubleValue());
         }
         
         return Double.NaN;
@@ -154,26 +157,11 @@ public class Limelight implements Testable, Sendable {
 
     /**
      * Uses the pitch and yaw values from networkTables to construct and returns a rotation2D
-     * @return A rotation2D made from the robot pitch and yaw values, represents rotation to the currently seen target
-     */
-    public Rotation2d createRotation2D() {
+     * @return A rotation2D made from the robot horizontal offset value
+     * */
+    public Rotation2d createRotation2D(){
 
-        /**
-         * Gets the pitch value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationPitch = getRobotPosition3D()[3].doubleValue();
-        double robotRotationPitchRadians = Math.toRadians(robotRotationPitch);
-
-        /**
-         * Gets the yaw value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationYaw = getRobotPosition3D()[4].doubleValue();
-        double robotRotationYawRadians = Math.toRadians(robotRotationYaw);
-
-        /**
-         * Uses the pitch & yaw value to construct a rotation2d, then returns it
-         */
-        return new Rotation2d(robotRotationPitchRadians, robotRotationYawRadians);
+        return new Rotation2d(-(Math.toRadians(getHorizontalOffset())));
 
     }
 
@@ -187,8 +175,8 @@ public class Limelight implements Testable, Sendable {
         /**
          * Gets the x & y values from the robotPositionValues array
          */
-        double robotPositionX = getRobotPosition3D()[0].doubleValue();
-        double robotPositionY = getRobotPosition3D()[1].doubleValue();
+        double robotPositionX = getRobotXPosition();
+        double robotPositionY = getRobotYPosition();
 
         /**
          * Uses the x & y values to construct a translation2d, then returns it
@@ -217,7 +205,7 @@ public class Limelight implements Testable, Sendable {
       * @return If the limelight has any targets
       */
     public boolean hasTargets() {
-        return table.getEntry("tv").getBoolean(false);
+        return (table.getEntry("tv").getDouble(0) > 0);
     }
 
 
@@ -225,9 +213,10 @@ public class Limelight implements Testable, Sendable {
       *checks if the limelight is in Apriltag, and if it has a target,  returns the ID of the Apriltag. Otherwise, it returns null.
       * @return The ID of the currently targeted Apriltag
       */
-    public Double getTargetID() {
-        if(getPipeline() == 1) {
-            if(hasTargets()) {
+    public Double getTargetID(){
+        if(getPipeline() == 1)
+        {
+            if(hasTargets()){
                 return table.getEntry("tid").getDouble(0.0);
             }
         }
@@ -237,32 +226,43 @@ public class Limelight implements Testable, Sendable {
     }
 
     /**
-     * Checks what target we are looking at, calculates the forward distance, and returns it
-     * @return Forward distance from the current vision target
+     * Determines if the limelight is looking at a mid-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight is seeing a middle target
      */
     public Double forwardDistanceToTarget() {
         if(hasTargets()){
             double verticalOffset = getVerticalOffset();
-
-            if(verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW){
-                double horizontalFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
-                return horizontalFromLow;
-            }
-
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED){
-                double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-                return horizontalFromMed;
-            }
-            
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH){
-                double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                return horizontalFromHigh;
-            }
-
-            return 0.0;
         }
 
         return Double.NaN;
+    }
+
+    /** Creates a pose 2d from the robot X & Y pose values */
+    private Pose2d createPose2d(double robotPositionX, double robotPositionY){
+        return new Pose2d(robotPositionX, robotPositionY, new Rotation2d(0));
+    }
+
+    /** Activates 3D Mode on the Limelight */
+    private void enable3DMode() {
+        table.getEntry("Pipeline").setNumber(3);
+    }
+
+    /** Disables 3D mode on the limelight */
+    private void disable3DMode(){
+        table.getEntry("Pipeline").setNumber(0);
+    }
+
+    private boolean is3DMode(){
+        return(getPipeline() == 3);
+    }
+
+    private Double getRobotXPosition(){
+        return(getRobotPosition3D()[1].doubleValue());
+    }
+
+    private Double getRobotYPosition(){
+       return(getRobotPosition3D()[2].doubleValue());
     }
 
     @Override
@@ -294,9 +294,12 @@ public class Limelight implements Testable, Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
+        builder.addBooleanProperty("3D Mode?", this::is3DMode, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
         builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
         builder.addIntegerProperty("Current Pipeline", this::getPipeline, null);
+        builder.addDoubleProperty("Robot X Position", this::getRobotXPosition, null);
+        builder.addDoubleProperty("Robot Y Position", this::getRobotYPosition, null);
     }
 }

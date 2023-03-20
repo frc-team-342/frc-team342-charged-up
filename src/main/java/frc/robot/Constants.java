@@ -36,7 +36,7 @@ public final class Constants {
     public static final int LENGTH = 512;
     public static final int DRIVER_START_RANGE = 256;
 
-    //HSV Values
+    // HSV Values
     public static final int YELLOW_H = 40;
     public static final int YELLOW_S = 255;
     public static final int YELLOW_V = 70;
@@ -135,22 +135,35 @@ public final class Constants {
     public static final double FF_VALUE = 1.2;
   }
 
-  /*
-   * todo: add actual values for all of the constants, they are currently placeholders
-   */
   public static class LimelightConstants {
-    public static final double HEIGHT_TO_LOW = 0.0;
-    public static final double HEIGHT_TO_MED = 0.0;
-    public static final double HEIGHT_TO_HIGH = 0.0;
-    public static final double MAX_VERT_OFFSET_FOR_LOW = 30.0;
-    public static final double MAX_VERT_OFFSET_FOR_MED = 60.0;
+    /** Meters */
+    public static final double HEIGHT_TO_LOW = Units.inchesToMeters(6.25);
+
+    /** Meters */
+    public static final double HEIGHT_TO_MED = Units.inchesToMeters(19.125);
+
+    /** Meters */
+    public static final double HEIGHT_TO_HIGH = Units.inchesToMeters(30.875);
+
+    /** Meters */
+    public static final double HEIGHT_TO_HP_STATION = Units.inchesToMeters(15.375);
+
+    /** todo: add actual values for constants below this line */
+    /** Degrees */
+    public static final double MAX_VERT_OFFSET_FOR_LOW = 16.0;
+
+    /** Degrees */
+    public static final double MAX_VERT_OFFSET_FOR_MED = 27.0;
+
+    /** Degrees */
     public static final double MAX_VERT_OFFSET_FOR_HIGH = 90.0;
+
+    /** Degrees */
+    public static final double MAX_VERT_OFFSET_FOR_HP_STATION = 29.0;
   }
   
-  public static class AutoConstants
-  {
+  public static class AutoConstants {
     public static final double FAST_SPEED = 0.5;
     public static final double SLOW_SPEED = 0.25;
-
   }
 }
