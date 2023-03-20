@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.SendableCameraWrapper;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -51,10 +52,16 @@ public class RobotContainer {
   private POVButton liftMidR;
   private POVButton liftDown;
 
+<<<<<<< HEAD
   private LiftArmToPosition liftArmToPosition;
 
   private final DriveSystem driveSystem;
+=======
+  private JoystickButton liftSpeedButton;
+  private LiftArmToPosition liftArmToPosition;
+>>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
 
+  private final DriveSystem driveSystem;
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
@@ -66,7 +73,6 @@ public class RobotContainer {
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
   private final JoystickButton aButton;
-  private final JoystickButton bButton;
   private final JoystickButton yButton;
 
   private final Joystick driverLeft;
@@ -101,7 +107,6 @@ public class RobotContainer {
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
-    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
@@ -123,8 +128,13 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
+<<<<<<< HEAD
     gripperSystem.setDefaultCommand(gripperSystem.hold());
 
+=======
+    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
+    
+>>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
@@ -170,6 +180,13 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
 
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    SmartDashboard.putData(CommandScheduler.getInstance());
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
