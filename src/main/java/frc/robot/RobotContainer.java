@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
@@ -11,7 +12,15 @@ import frc.robot.commands.auto.LiftThenLeave;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
+
+import java.util.List;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
@@ -154,6 +163,17 @@ public class RobotContainer {
     // red side
     autoChooser.addOption("8-Side Red Leave", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("2-Side Red Leave", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
+
+    // testing
+    Trajectory test = TrajectoryGenerator.generateTrajectory(
+      new Pose2d(), 
+      List.of(
+        new Translation2d(0.35, 0.2)
+      ), 
+      new Pose2d(1, 0, Rotation2d.fromDegrees(0)), 
+      new TrajectoryConfig(DriveConstants.MAX_SPEED, 2.5)
+    );
+    autoChooser.addOption("trajectorie", driveSystem.followTrajectory(test));    
 
     SmartDashboard.putData(autoChooser);
   }

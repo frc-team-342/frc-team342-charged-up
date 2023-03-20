@@ -32,6 +32,7 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -82,7 +83,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
   private final Limelight limelight;
 
   private final PIDController rotateController;
+
   private final RamseteController ramsete;
+  private final TrajectoryConfig defaultConfig;
 
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDrivePoseEstimator poseEstimator;
@@ -155,8 +158,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
 
-    // ramsete controller
+    // trajectory stuff
     ramsete = new RamseteController();
+    defaultConfig = new TrajectoryConfig(MAX_SPEED, MAX_ACCEL);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -198,10 +202,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     if (Robot.isReal()) {
       poseEstimator = new DifferentialDrivePoseEstimator(
         kinematics, 
-        getGyroAngle(), 
+        Rotation2d.fromDegrees(-gyro.getAngle()), 
         leftEncoder.getPosition(), 
         rightEncoder.getPosition(), 
-        null
+        new Pose2d()
       );
     } else {
       poseEstimator = new DifferentialDrivePoseEstimator(
@@ -209,7 +213,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
         drivetrainSim.getHeading(), 
         leftEncoder.getPosition(), 
         rightEncoder.getPosition(), 
-        null
+        new Pose2d()
       );
     }
   }
@@ -310,6 +314,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     return poseEstimator.getEstimatedPosition();
   }
 
+  public TrajectoryConfig getDefaultTrajetoryConfig() {
+    return defaultConfig;
+  }
+
   /**
    * convert robot-relative speeds to wheel speeds
    * @param speeds x vel, y vel, rotational vel
@@ -326,6 +334,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs once at start
       () -> {
         // start timer for trajectory
+        trajectoryTime.reset();
         trajectoryTime.start();
       }, 
       // runs repeatedly during command execution
@@ -336,6 +345,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
         // find wheel speeds based on robot speeds at timestamp
         ChassisSpeeds robotSpeeds = ramsete.calculate(getOdometryPosition(), goal);
         DifferentialDriveWheelSpeeds wheelSpeeds = inverseKinematics(robotSpeeds);
+
+        System.out.println("Left: " + wheelSpeeds.leftMetersPerSecond);
+        System.out.println("Right: " + wheelSpeeds.rightMetersPerSecond);
+        System.out.println("Time: " + trajectoryTime.get());
 
         // set robot speed based on goal
         this.setVelocity(wheelSpeeds);
@@ -350,8 +363,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
       },
       // determines when command ends 
       () -> {
-        // TODO: yeah
-        return false; 
+        // TODO: check against end pose instead of time
+        return trajectory.getTotalTimeSeconds() < trajectoryTime.get(); 
       }, 
       // subsystems this command depends on
       this
@@ -361,7 +374,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
   /**
    * automatically balance on the charge station
    */
-  public CommandBase autoBalance(){
+  public CommandBase autoBalance() {
     return runEnd(
       // runs repeatedly while command active
       () -> {
@@ -446,7 +459,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // update pose estimator from vision
     if (limelight.hasTargets()) {
-      poseEstimator.addVisionMeasurement(new Pose2d(), Timer.getFPGATimestamp());
+      //poseEstimator.addVisionMeasurement(new Pose2d(), Timer.getFPGATimestamp());
     }
   }
   

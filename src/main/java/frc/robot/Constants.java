@@ -90,6 +90,9 @@ public final class Constants {
     /** meters / second */
     public static final double MAX_SPEED = 5.0;
 
+    /** meters / second^2 */
+    public static final double MAX_ACCEL = 2.5;
+
     /** kg m^2 */
     public static final double MOMENT_OF_INERTIA = 3.53325;
 
