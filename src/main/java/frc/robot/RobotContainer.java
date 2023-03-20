@@ -8,6 +8,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.drive.DriveVelocity;
 import frc.robot.commands.drive.RotateToAngle;
@@ -20,7 +21,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.SendableCameraWrapper;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -49,13 +52,16 @@ public class RobotContainer {
   private POVButton liftDown;
 
   private JoystickButton liftSpeedButton;
-  private final DriveSystem driveSystem;
+  private LiftArmToPosition liftArmToPosition;
 
+  private final DriveSystem driveSystem;
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
 
   private final AddressableLEDSubsystem aLEDSub;
+
+  private SendableChooser autoChooser;
   
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -110,6 +116,20 @@ public class RobotContainer {
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+
+    autoChooser = new SendableChooser<>();
+    autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("Do nothing", new InstantCommand());
+
+    // blue side
+    autoChooser.addOption("2-Side Blue Leave", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("8-Side Blue Leave", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub));
+
+    // red side
+    autoChooser.addOption("8-Side Red Leave", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("2-Side Red Leave", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, aLEDSub));
+
+    SmartDashboard.putData(autoChooser);
   }
 
   /**
@@ -132,6 +152,19 @@ public class RobotContainer {
     liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
 
     SmartDashboard.putData(CommandScheduler.getInstance());
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    balanceRightBtn.whileTrue(driveSystem.autoBalance());
+    
+    // operator assist arm lift buttons
+    liftUp.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftDown.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.LOW_POSITION));
   }
 
   private CommandBase getCheckCommand() {
