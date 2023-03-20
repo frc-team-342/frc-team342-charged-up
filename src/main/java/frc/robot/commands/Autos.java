@@ -29,11 +29,11 @@ public final class Autos {
   private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
       // intake preloaded game piece
-      gripper.hold(led).withTimeout(0.5),
+      gripper.hold().withTimeout(0.5),
       // run until either command finishes
       new ParallelRaceGroup(
         // hold preloaded game piece in gripper
-        gripper.hold(led),
+        gripper.hold(),
         // lift arms to high scoring position
         lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
         // cancel command group if not finished in x seconds

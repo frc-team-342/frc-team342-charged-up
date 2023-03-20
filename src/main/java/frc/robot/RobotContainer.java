@@ -8,6 +8,7 @@ import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftArmToPosition;
+import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
@@ -52,19 +53,14 @@ public class RobotContainer {
   private POVButton liftMidR;
   private POVButton liftDown;
 
-<<<<<<< HEAD
   private LiftArmToPosition liftArmToPosition;
 
   private final DriveSystem driveSystem;
-=======
-  private JoystickButton liftSpeedButton;
-  private LiftArmToPosition liftArmToPosition;
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
 
-  private final DriveSystem driveSystem;
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
+  
   
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -73,6 +69,7 @@ public class RobotContainer {
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
   private final JoystickButton aButton;
+  private final JoystickButton bButton;
   private final JoystickButton yButton;
 
   private final Joystick driverLeft;
@@ -107,6 +104,7 @@ public class RobotContainer {
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
@@ -128,13 +126,8 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-<<<<<<< HEAD
     gripperSystem.setDefaultCommand(gripperSystem.hold());
 
-=======
-    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
-    
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
@@ -148,7 +141,7 @@ public class RobotContainer {
 
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
-    Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
  
     autoChooser = new SendableChooser<>();

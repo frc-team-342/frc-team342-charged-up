@@ -44,21 +44,11 @@ public class LiftSystem extends SubsystemBase implements Testable {
   private final DutyCycleEncoder armEncoder;
   private final RelativeEncoder motorOneEncoder;
   private final RelativeEncoder motorTwoEncoder;
-<<<<<<< HEAD
-=======
 
   private double posSetpointOne = 0;
   private double posSetpointTwo = 0;
   private double velSetpoint = 0;
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
 
-<<<<<<< Updated upstream
-=======
-  private double posSetpointOne = 0;
-  private double posSetpointTwo = 0;
-  private double velSetpoint = 0;
-
->>>>>>> Stashed changes
   /** Creates a new LiftSystem. */
   public LiftSystem() {
     motorOne = new CANSparkMax(MOTOR_LEFT, MotorType.kBrushless);
@@ -87,11 +77,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
 
     motorOne.setSmartCurrentLimit(CURRENT_LIMIT);
     motorTwo.setSmartCurrentLimit(CURRENT_LIMIT);
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
 
     pControllerOne.setP(0.01275,2);
     pControllerOne.setD(0.00625, 2);
@@ -100,10 +85,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
     pControllerTwo.setP(0.01275, 2);
     pControllerTwo.setD(0.00625, 2);
     pControllerTwo.setFF(1.0, 2);
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
   }
 
   /**
@@ -154,33 +135,13 @@ public class LiftSystem extends SubsystemBase implements Testable {
       }
       //If the current position is lower than the desired position, move the arm up
       else if(clampedPos - getPosition() < 0){
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-        pControllerOne.setReference(0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(0.25,ControlType.kVelocity);
+        pControllerOne.setReference(LiftConstants.MAX_SPEED, ControlType.kVelocity, 1);
+        pControllerTwo.setReference(LiftConstants.MAX_SPEED,ControlType.kVelocity, 1);
       }
       //If higher than desired position, move the arm down
       else {
-        pControllerOne.setReference(-0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(-0.25,ControlType.kVelocity);
-=======
-        pControllerOne.setReference(LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
-        pControllerTwo.setReference(LiftConstants.AUTO_SPEED,ControlType.kVelocity, 1);
-      }
-      //If higher than desired position, move the arm down
-      else {
-        pControllerOne.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
-        pControllerTwo.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
->>>>>>> Stashed changes
-=======
-        pControllerOne.setReference(LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
-        pControllerTwo.setReference(LiftConstants.AUTO_SPEED,ControlType.kVelocity, 1);
-      }
-      //If higher than desired position, move the arm down
-      else {
-        pControllerOne.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
-        pControllerTwo.setReference(-LiftConstants.AUTO_SPEED, ControlType.kVelocity, 1);
->>>>>>> 5cc7dc60dbacb346fd83eec78f6883b002614ee5
+        pControllerOne.setReference(-LiftConstants.MAX_SPEED, ControlType.kVelocity, 1);
+        pControllerTwo.setReference(-LiftConstants.MAX_SPEED, ControlType.kVelocity, 1);
       }
     }, 
     //Runs when command ends
@@ -194,7 +155,6 @@ public class LiftSystem extends SubsystemBase implements Testable {
       }
     );
   }
-
 
   /**
    * @return absolute position from 0 to 1
@@ -263,5 +223,4 @@ public class LiftSystem extends SubsystemBase implements Testable {
       Connection.fromSparkMax(motorTwo)
     );
   }
-
 }
