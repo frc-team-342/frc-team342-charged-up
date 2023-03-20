@@ -17,6 +17,7 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.commands.drive.DriveVelocity;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -70,6 +73,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
   private final RelativeEncoder rightEncoder;
 
   private final AHRS gyro;
+
+  private final PIDController rotateController;
 
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
@@ -121,12 +126,23 @@ public class DriveSystem extends SubsystemBase implements Testable {
     frontRight.setInverted(true);
     frontLeft.setInverted(false);
 
+    setBrakeMode(true);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
 
+    frontLeft.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
+    frontRight.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
+
     // gyro 
     gyro = new AHRS();
+
+    // pid
+    rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
+    rotateController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -219,6 +235,17 @@ public class DriveSystem extends SubsystemBase implements Testable {
     rightController.setReference(rightVelocity, ControlType.kDutyCycle);
   }
 
+  public void drivePercentForTime(double leftSpeed, double rightSpeed, double time) {
+
+    // left side
+    double leftVelocity = leftSpeed * currentMode.speedMultiplier;
+    leftController.setReference(leftVelocity, ControlType.kDutyCycle);
+
+    // right side
+    double rightVelocity = rightSpeed * currentMode.speedMultiplier;
+    rightController.setReference(rightVelocity, ControlType.kDutyCycle);
+  }
+
   /**
    * 
    * @param joyLeft the left joystick being used to drive the robot
@@ -241,11 +268,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
     );
   }
 
+  /**
+   * Set the speeds of the drivetrain in m/s using motor PID controllers
+   * @param speeds m/s
+   */
   public void setVelocity(DifferentialDriveWheelSpeeds speeds) {
     leftController.setReference(speeds.leftMetersPerSecond, ControlType.kVelocity);
     rightController.setReference(speeds.rightMetersPerSecond, ControlType.kVelocity);
   }
 
+  /** stop all drive motors */
   public void stopMotors() {
     frontLeft.stopMotor();
     frontRight.stopMotor();
@@ -253,16 +285,90 @@ public class DriveSystem extends SubsystemBase implements Testable {
     backRight.stopMotor();
   }
 
+  /**
+   * get the current yaw of the robot
+   * @return
+   */
   public Rotation2d getGyroAngle() {
     return odometry.getPoseMeters().getRotation();
   }
 
+  /**
+   * current robot pose from odometry
+   * @return relative position, start is (0, 0)
+   */
   public Pose2d getOdometryPosition() {
     return odometry.getPoseMeters();
   }
 
+  /**
+   * convert robot-relative speeds to wheel speeds
+   * @param speeds x vel, y vel, rotational vel
+   * @return left and right wheel speeds
+   */
   public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
     return kinematics.toWheelSpeeds(speeds);
+  }
+
+  /**
+   * automatically balance on the charge station
+   */
+  public CommandBase autoBalance(){
+    return runEnd(
+      // runs repeatedly while command active
+      () -> {
+        // robot is back-heavy
+        double forwardP = 0.17;
+        double backP = 0.32;
+
+        // maximum drivetrain output
+        double maxPercentOutput = 0.33;
+
+        double maxAngle = 20;
+
+        // Negative because of robot orientation
+        double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
+
+        // Speed is proportional to the angle 
+        //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
+
+        double speed = (angle > 0)
+          ? (angle / maxAngle) * forwardP
+          : (angle / maxAngle) * backP;
+
+        speed = MathUtil.clamp(speed, -maxPercentOutput, maxPercentOutput);
+        
+        // degrees
+        double tolerance = 3;
+
+        if (angle < tolerance && angle > -tolerance) {
+          // hold position if within roll tolerance
+          drivePercent(0, 0);
+        } else {
+          // drive to balance if outside of roll tolerance
+          drivePercent(speed, speed);
+        }
+      },
+      // when it ends
+      () -> {
+        leftController.setReference(0.0, ControlType.kVelocity);
+        rightController.setReference(0.0, ControlType.kVelocity);
+      }
+    );
+  }
+
+  /**
+   * sets the reference velocity of the PID controllers
+   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
+   */
+  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+    // clamp wheel speeds to max velocity
+    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+
+    // apply drivetrain speeds to drive pid controllers
+    leftController.setReference(left, ControlType.kVelocity);
+    rightController.setReference(right, ControlType.kVelocity);
   }
 
   @Override
@@ -290,7 +396,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       field.setRobotPose(drivetrainSim.getPose());
     } 
   }
-
+  
   @Override
   public void simulationPeriodic() {
     // run rev lib physics sim
@@ -317,6 +423,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Drive");
+
+    // used for autobalance
+    builder.addDoubleProperty("Roll (deg)", gyro::getRoll, null);
 
     // motor velocities
     builder.addDoubleProperty("Left velocity", leftEncoder::getVelocity, null);

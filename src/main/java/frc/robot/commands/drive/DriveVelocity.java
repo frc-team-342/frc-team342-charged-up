@@ -75,7 +75,6 @@ public class DriveVelocity extends CommandBase {
   public void end(boolean interrupted) {
     // stop drive motors
     drive.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
-    drive.stopMotors();
   }
 
   // Returns true when the command should end.

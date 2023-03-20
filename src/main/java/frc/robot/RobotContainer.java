@@ -4,21 +4,20 @@
 
 package frc.robot;
 
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
-import frc.robot.commands.drive.DriveVelocity;
-import frc.robot.commands.drive.RotateToAngle;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.SendableCameraWrapper;
@@ -32,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -45,6 +45,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final DriveSystem driveSystem;
   private final LiftSystem lSystem;
+  private final AddressableLEDSubsystem aLEDSub;
 
   private POVButton liftUp;
   private POVButton liftMidL;
@@ -59,56 +60,77 @@ public class RobotContainer {
 
   private final GripperSystem gripperSystem;
 
-  private final AddressableLEDSubsystem aLEDSub;
-
-  private SendableChooser autoChooser;
-  
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
   private final Trigger rightTrigger;
   private final Trigger leftTrigger;
+  private final JoystickButton xButton;
+  private final JoystickButton aButton;
+  private final JoystickButton yButton;
+
   private final Joystick driverLeft;
   private final Joystick driverRight;
+  private final JoystickButton balanceLeftBtn;
+  private final JoystickButton balanceRightBtn;
+
+  private SendableChooser<Command> autoChooser;
+
+  private final InstantCommand togglePipeline;
 
   // hardware connection check stuff
   private final NetworkTable hardware = NetworkTableInstance.getDefault().getTable("Hardware");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // controllers
     operator = new XboxController(OperatorConstants.OP_CONTROLLER);
+    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
+    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
+    
+    // autobalance driver buttons
+    balanceLeftBtn = new JoystickButton(driverLeft, 3);
+    balanceRightBtn = new JoystickButton(driverRight, 3);
+
+    // intake + outtake
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
     rightTrigger = new Trigger(() -> { return (operator.getRightTriggerAxis() >= 0.8); });
     leftTrigger = new Trigger(() -> { return (operator.getLeftTriggerAxis() >= 0.8); });
-    driverLeft = new Joystick(OperatorConstants.DRIVER_LEFT_PORT);
-    driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
 
-    /** Drivesystem instantiations */
-    driveSystem = new DriveSystem();
-    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
-  
-    lSystem = new LiftSystem();
-    lSystem.setDefaultCommand(lSystem.liftArms(operator));
+    // xbox controller buttons
+    xButton = new JoystickButton(operator, XboxController.Button.kX.value);
+    aButton = new JoystickButton(operator, XboxController.Button.kA.value);
+    yButton = new JoystickButton(operator, XboxController.Button.kY.value);
 
+    // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
     liftMidL = new POVButton(operator, 90);
     liftMidR = new POVButton(operator, 270);
     liftDown = new POVButton(operator, 180);
+
+    /** Drivesystem instantiations */
+    driveSystem = new DriveSystem();
+    driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
+
+    aLEDSub = new AddressableLEDSubsystem();
+  
+    lSystem = new LiftSystem();
+    lSystem.setDefaultCommand(lSystem.liftArms(operator));
 
     /** Limelight instantiations */
     limelight = new Limelight();
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold());
-
-    aLEDSub = new AddressableLEDSubsystem();
-
+    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
+    
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
     SmartDashboard.putData(limelight);
     SmartDashboard.putData(lSystem);
+
+    togglePipeline = new InstantCommand(limelight::togglePipeline);
     
     // Configure the trigger bindings
     configureBindings();
@@ -117,6 +139,7 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
+    // autos
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Do nothing", new InstantCommand());
@@ -146,6 +169,15 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
 
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    balanceRightBtn.whileTrue(driveSystem.autoBalance());
+    
+    // operator assist arm lift buttons
     liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
     liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
     liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
@@ -188,8 +220,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return new DriveDistance(0.1,1, driveSystem);
+    return autoChooser.getSelected();
   }
 
   public Command getTestCommand() {
