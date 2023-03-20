@@ -459,7 +459,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     // update pose estimator from vision
     if (limelight.hasTargets()) {
-      //poseEstimator.addVisionMeasurement(new Pose2d(), Timer.getFPGATimestamp());
+      poseEstimator.addVisionMeasurement(limelight.getPosition(), Timer.getFPGATimestamp());
     }
   }
   

@@ -90,6 +90,10 @@ public class Limelight implements Testable, Sendable {
         table.getEntry("pipeline").setNumber(desiredPipeline);
     }
 
+    public Pose2d getPosition() {
+        return new Pose2d(getRobotXPosition(), getRobotYPosition(), createRotation2D());
+    }
+
     /**
      * Gets the horizontal offset angle from networkTable
      * @return The horizontal offset angle from the limelight crosshair to the target
@@ -101,8 +105,6 @@ public class Limelight implements Testable, Sendable {
 
         return Double.NaN;
     }
-
-   
 
     /**
      * Gets the vertical offset angle from the limelight to the target
@@ -149,56 +151,16 @@ public class Limelight implements Testable, Sendable {
       * @return A boolean that says if the robot is looking left
       */
     public boolean isLookingLeft() {
-
         return getHorizontalOffset() < 0;
-
     }
-
 
     /**
      * Uses the pitch and yaw values from networkTables to construct and returns a rotation2D
      * @return A rotation2D made from the robot horizontal offset value
      * */
     public Rotation2d createRotation2D(){
-
         return new Rotation2d(-(Math.toRadians(getHorizontalOffset())));
-
     }
-
-
-    /**
-     * Uses values from networkTables to construct and return a translation2D
-     * @return a translation2D made from the robot x and robot y values, represents movement to the currently seen target
-     */
-    public Translation2d createTranslation2D() {
-        
-        /**
-         * Gets the x & y values from the robotPositionValues array
-         */
-        double robotPositionX = getRobotXPosition();
-        double robotPositionY = getRobotYPosition();
-
-        /**
-         * Uses the x & y values to construct a translation2d, then returns it
-         */
-        return new Translation2d(robotPositionX, robotPositionY);
-
-    }
-
-
-    /**
-     *  Uses an existing translation2d and rotation2d to make a transform2d
-     * @param constructorTranslation2d
-     * @param constructorRotation2d
-     * @return A transform2d (rotates and drives at the same time)
-     */
-    public Transform2d createTransform2D(Translation2d constructorTranslation2d, Rotation2d constructorRotation2d) {
-        /**
-         * Uses a translation2d & a rotation2d parameter to construct a transform2d, then returns it
-         */
-        return new Transform2d(constructorTranslation2d, constructorRotation2d);
-    }
-
 
     /**
       * returns a boolean value that lets us know if the limelight has any targets
@@ -214,33 +176,13 @@ public class Limelight implements Testable, Sendable {
       * @return The ID of the currently targeted Apriltag
       */
     public Double getTargetID(){
-        if(getPipeline() == 1)
-        {
-            if(hasTargets()){
+        if(getPipeline() == 1) {
+            if(hasTargets()) {
                 return table.getEntry("tid").getDouble(0.0);
             }
         }
 
         return null;
-
-    }
-
-    /**
-     * Determines if the limelight is looking at a mid-level scoring target
-     * @param verticalOffset
-     * @return A boolean value of whether the limelight is seeing a middle target
-     */
-    public Double forwardDistanceToTarget() {
-        if(hasTargets()){
-            double verticalOffset = getVerticalOffset();
-        }
-
-        return Double.NaN;
-    }
-
-    /** Creates a pose 2d from the robot X & Y pose values */
-    private Pose2d createPose2d(double robotPositionX, double robotPositionY){
-        return new Pose2d(robotPositionX, robotPositionY, new Rotation2d(0));
     }
 
     /** Activates 3D Mode on the Limelight */
@@ -297,7 +239,6 @@ public class Limelight implements Testable, Sendable {
         builder.addBooleanProperty("3D Mode?", this::is3DMode, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
         builder.addIntegerProperty("Current Pipeline", this::getPipeline, null);
         builder.addDoubleProperty("Robot X Position", this::getRobotXPosition, null);
         builder.addDoubleProperty("Robot Y Position", this::getRobotYPosition, null);
