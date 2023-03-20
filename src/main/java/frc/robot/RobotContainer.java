@@ -59,7 +59,7 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-
+  
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
@@ -139,7 +139,7 @@ public class RobotContainer {
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
-    // autos
+ 
     autoChooser = new SendableChooser<>();
     autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Do nothing", new InstantCommand());
@@ -175,14 +175,6 @@ public class RobotContainer {
 
     // autobalance driver buttons
     balanceLeftBtn.whileTrue(driveSystem.autoBalance());
-    balanceRightBtn.whileTrue(driveSystem.autoBalance());
-    
-    // operator assist arm lift buttons
-    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
-    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
-
     SmartDashboard.putData(CommandScheduler.getInstance());
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
     aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
