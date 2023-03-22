@@ -15,7 +15,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
 
   public enum ColorType {
     YELLOW,
-    PURPLE;
+    PURPLE,
+    RED;
   }
 
   private final AddressableLED LED;
@@ -62,6 +63,14 @@ public class AddressableLEDSubsystem extends SubsystemBase {
       for(int i = 0; i < DRIVER_START_RANGE; i++)
       {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      }
+      LED.setData(LEDBuffer);
+    }
+    else if(ColorType.RED == colortype)
+    {
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, RED_H, RED_S, RED_V);
       }
       LED.setData(LEDBuffer);
     }

@@ -93,7 +93,7 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drivesystem), 
+      new DriveDistance(-3.2, 1.5, drivesystem), 
       new WaitCommand(1.5)
     );
   }
@@ -104,7 +104,7 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drive), 
+      new DriveDistance(-3.2, 1.5, drive), 
       new WaitCommand(1.5)
     );
   }

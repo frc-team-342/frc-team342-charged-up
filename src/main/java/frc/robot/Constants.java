@@ -43,6 +43,9 @@ public final class Constants {
     public static final int PURPLE_H = 150;
     public static final int PURPLE_S = 255;
     public static final int PURPLE_V = 70;
+    public static final int RED_H = 0;
+    public static final int RED_S = 255;
+    public static final int RED_V = 255;
   }
   
   public static class GripperConstants {
@@ -72,7 +75,7 @@ public final class Constants {
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
-    public static final double NORMAL_SPEED = 0.8;
+    public static final double NORMAL_SPEED = 0.85;
     public static final double SLOW_SPEED = 0.4; 
 
     /** meters */
@@ -108,13 +111,15 @@ public final class Constants {
 
   public static class LiftConstants {
     public static final double MAX_SPEED = 0.40;
+    public static final double AUTO_SPEED = 0.35;
+
     public static final double TOLERANCE = 0.01;
 
     public static final double MAX_POSITION = 0.2;
     public static final double MIN_POSITION = 0.51;
 
     public static final double TOP_POSITION = 0.30;
-    public static final double MID_POSITION = 0.389;
+    public static final double MID_POSITION = 0.38;
     public static final double LOW_POSITION = 0.51;
     
     public static final int MOTOR_LEFT = 6;
@@ -129,7 +134,7 @@ public final class Constants {
 
     public static final double P_VALUE = 0.001;
     public static final double D_VALUE = 0.001;
-    public static final double FF_VALUE = 1.2;
+    public static final double FF_VALUE = 1.5;
   }
 
   /*
