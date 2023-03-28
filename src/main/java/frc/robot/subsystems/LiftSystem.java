@@ -119,13 +119,13 @@ public class LiftSystem extends SubsystemBase implements Testable {
       }
       //If the current position is lower than the desired position, move the arm up
       else if(clampedPos - getPosition() < 0){
-        pControllerOne.setReference(0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(0.25,ControlType.kVelocity);
+        pControllerOne.setReference(0.40, ControlType.kVelocity);
+        pControllerTwo.setReference(0.40,ControlType.kVelocity);
       }
       //If higher than desired position, move the arm down
       else {
-        pControllerOne.setReference(-0.25, ControlType.kVelocity);
-        pControllerTwo.setReference(-0.25,ControlType.kVelocity);
+        pControllerOne.setReference(-0.40, ControlType.kVelocity);
+        pControllerTwo.setReference(-0.40,ControlType.kVelocity);
       }
     }, 
     //Runs when command ends

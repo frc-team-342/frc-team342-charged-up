@@ -47,6 +47,8 @@ import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.List;
 
+import org.ejml.equation.IntegerSequence.For;
+
 public class DriveSystem extends SubsystemBase implements Testable {
   // speeds are statically imported constants
   private enum Mode {
@@ -318,21 +320,21 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs repeatedly while command active
       () -> {
         // robot is back-heavy
-        double forwardP = 0.17;
-        double backP = 0.32;
+        double forwardP = 0.2;
+        double backP = 0.28;
 
         // maximum drivetrain output
-        double maxPercentOutput = 0.33;
+        double maxPercentOutput = 0.38;
 
         double maxAngle = 20;
 
         // Negative because of robot orientation
-        double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
+        double angle = -MathUtil.clamp(gyro.getRoll() - 1.9, -maxAngle, maxAngle); 
 
         // Speed is proportional to the angle 
         //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
 
-        double speed = (angle > 0)
+        double speed = (angle < 0)
           ? (angle / maxAngle) * forwardP
           : (angle / maxAngle) * backP;
 
@@ -343,7 +345,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
         if (angle < tolerance && angle > -tolerance) {
           // hold position if within roll tolerance
-          drivePercent(0, 0);
+        leftController.setReference(0.0, ControlType.kVelocity);
+        rightController.setReference(0.0, ControlType.kVelocity);
+          
+          backP = .10;
         } else {
           // drive to balance if outside of roll tolerance
           drivePercent(speed, speed);
@@ -351,8 +356,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
       },
       // when it ends
       () -> {
-        leftController.setReference(0.0, ControlType.kVelocity);
-        rightController.setReference(0.0, ControlType.kVelocity);
+        // leftController.setReference(0.0, ControlType.kVelocity);
+        // rightController.setReference(0.0, ControlType.kVelocity);
+        this.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
       }
     );
   }

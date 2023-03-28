@@ -89,8 +89,8 @@ public class RobotContainer {
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
     
     // autobalance driver buttons
-    balanceLeftBtn = new JoystickButton(driverLeft, 3);
-    balanceRightBtn = new JoystickButton(driverRight, 3);
+    balanceLeftBtn = new JoystickButton(driverLeft, 2);
+    balanceRightBtn = new JoystickButton(driverRight, 2);
 
     // intake + outtake
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
@@ -144,7 +144,8 @@ public class RobotContainer {
 
     // autos
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    //autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("Score low and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Do nothing", new InstantCommand());
 
     // blue side
@@ -168,8 +169,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    
+    //rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
-    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
 
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
@@ -231,5 +233,9 @@ public class RobotContainer {
 
   public void setBrakeMode(boolean mode){
     lSystem.setBrakeMode(mode);
+  }
+
+  public void disableLL3DMode(){
+    limelight.setPipeline(0);
   }
 }

@@ -49,6 +49,7 @@ public final class Constants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
     public static final double ROLLER_SPEED = 0.75;
+    public static final double CONE_SPEED = 0.55;
     public static final int MAX_CUBE_DRAW = 20;
     public static final int DEFAULT_DRAW = 30;
 
@@ -107,7 +108,7 @@ public final class Constants {
   }
 
   public static class LiftConstants {
-    public static final double MAX_SPEED = 0.40;
+    public static final double MAX_SPEED = 0.45;
     public static final double TOLERANCE = 0.01;
 
     public static final double MAX_POSITION = 0.2;
