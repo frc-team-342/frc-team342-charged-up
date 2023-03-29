@@ -7,7 +7,8 @@ package frc.robot;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
-import frc.robot.commands.auto.LiftThenLeave;
+import frc.robot.commands.auto.LiftArmToPosition;
+import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
@@ -16,6 +17,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.SendableCameraWrapper;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,14 +49,15 @@ public class RobotContainer {
   private POVButton liftMidR;
   private POVButton liftDown;
 
+  private LiftArmToPosition liftArmToPosition;
+
   private final DriveSystem driveSystem;
 
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
   
-  private final LiftThenLeave liftThenLeave;
-
+  
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
@@ -121,8 +124,6 @@ public class RobotContainer {
     gripperSystem = new GripperSystem(limelight);
     gripperSystem.setDefaultCommand(gripperSystem.hold());
 
-    liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
-
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
     SmartDashboard.putData(gripperSystem);
@@ -136,9 +137,9 @@ public class RobotContainer {
 
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
-    Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
-    // autos
+ 
     autoChooser = new SendableChooser<>();
     //autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Score low and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
@@ -176,13 +177,20 @@ public class RobotContainer {
 
     // autobalance driver buttons
     balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    SmartDashboard.putData(CommandScheduler.getInstance());
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
     balanceRightBtn.whileTrue(driveSystem.autoBalance());
     
     // operator assist arm lift buttons
-    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
-    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
+    liftUp.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftDown.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.LOW_POSITION));
   }
 
   private CommandBase getCheckCommand() {
