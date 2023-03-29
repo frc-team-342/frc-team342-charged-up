@@ -170,7 +170,27 @@ public class RobotContainer {
        * - turn counterclockwise
        * - drive forwards in slow mode
        */
-      driveSystem.testRoutine()
+      driveSystem.testRoutine(),
+
+      /*
+       * intake
+       */
+      gripperSystem.testRoutine(),
+
+      /*
+       * led test routine
+       * - both sides purple for 2 seconds
+       * - both sides yellow for 2 seconds
+       * - leds off
+       */
+      aLEDSub.testRoutine(),
+
+      /*
+       * limelight test routine
+       * - blink leds for 2 seconds
+       * - go back to pipeline default for leds
+       */
+      limelight.testRoutine()
     );
   }
 

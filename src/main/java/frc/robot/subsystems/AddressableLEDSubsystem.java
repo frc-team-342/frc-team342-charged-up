@@ -7,10 +7,15 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.LEDConstants.*;
 
-public class AddressableLEDSubsystem extends SubsystemBase {
+import java.util.List;
+
+public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
   /** Creates a new AddressableLEDSubsystem. */
 
   public enum ColorType {
@@ -94,5 +99,37 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    return List.of();
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    return Commands.sequence(
+      // show purple
+      new RunCommand(
+        () -> {
+          driverColorMethod(ColorType.PURPLE);
+          humanColorMethod(ColorType.PURPLE);
+        },
+        this
+      ).withTimeout(2.0),
+      // show yellow
+      new RunCommand(
+        () -> {
+          driverColorMethod(ColorType.YELLOW);
+          humanColorMethod(ColorType.YELLOW);
+        }, 
+        this
+      ).withTimeout(2.0),
+      // turn leds off
+      new InstantCommand(
+        () -> LEDOff(),
+        this
+      )
+    );
   }
 }

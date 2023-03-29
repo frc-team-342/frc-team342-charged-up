@@ -10,6 +10,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
 import frc.robot.Constants.LimelightConstants;
@@ -120,9 +121,7 @@ public class GripperSystem extends SubsystemBase implements Testable {
     return runEnd(
         // run
         () -> {
-
-          spin(-(ROLLER_SPEED));
-
+          spin(-ROLLER_SPEED);
         },
         // end
         () -> {
@@ -153,11 +152,8 @@ public class GripperSystem extends SubsystemBase implements Testable {
   @Override
   public CommandBase testRoutine() {
     return Commands.sequence(
-      // TODO
-      // run cube intake
-      // outtake
-      // run cone intake
-      // outtake
+      // run intake
+      cubeIntake(null).withTimeout(1.5)
     );
   }
 }
