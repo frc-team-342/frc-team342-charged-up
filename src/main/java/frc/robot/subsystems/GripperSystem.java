@@ -12,9 +12,6 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GripperConstants;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 import static frc.robot.Constants.GripperConstants.*;
 
@@ -148,6 +145,22 @@ public class GripperSystem extends SubsystemBase {
           spin(0);
           isHolding = false;
         });
+  }
+
+  public CommandBase coneOuttake(AddressableLEDSubsystem aLedSubsystem) {
+    return runEnd(
+      () -> {
+
+        spin(-(CONE_SPEED));
+
+      },
+
+      () -> {
+        
+        spin(0);
+        isHolding = false;
+
+      });
   }
 
   @Override

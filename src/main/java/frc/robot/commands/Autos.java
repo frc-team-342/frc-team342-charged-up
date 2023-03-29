@@ -35,9 +35,9 @@ public final class Autos {
         // hold preloaded game piece in gripper
         gripper.hold(),
         // lift arms to high scoring position
-        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
+        lift.liftArmsToPosition(LiftConstants.TOP_POSITION),
         // cancel command group if not finished in x seconds
-        //new WaitCommand(9)
+        new WaitCommand(4)
       ),
       // outtake game piece
       gripper.outtake(led).withTimeout(0.8),
@@ -73,6 +73,16 @@ public final class Autos {
     );
       
   }
+
+    /** robot scores low then drives onto charge station and balances */
+    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+      return Commands.sequence(
+        gripper.outtake(led).withTimeout(0.5),
+        new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+        drivesystem.autoBalance()
+      );
+        
+    }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
   public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
