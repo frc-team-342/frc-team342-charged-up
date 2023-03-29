@@ -9,9 +9,6 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GripperConstants;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 import static frc.robot.Constants.GripperConstants.*;
 
