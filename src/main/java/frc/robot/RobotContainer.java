@@ -121,7 +121,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold(/*aLEDSub*/));
+    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
 
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
@@ -167,7 +167,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     rightBumper.whileTrue(gripperSystem.coneIntake(aLEDSub));
-    rightTrigger.whileTrue(gripperSystem.cubeIntake(aLEDSub));
+    rightTrigger.whileTrue(gripperSystem.cubeIntake());
     leftTrigger.whileTrue(gripperSystem.outtake(aLEDSub));
 
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
