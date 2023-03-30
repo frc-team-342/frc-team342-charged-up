@@ -40,7 +40,7 @@ public class LiftThenLeave extends CommandBase {
   @Override
   public void execute() {
     lift.liftArmsToPosition(LiftConstants.MID_POSITION);
-    gripper.outtake(aLEDSub);
+    gripper.outtake();
 
     timer.start();
     drive.drivePercent(-0.1, -0.1);

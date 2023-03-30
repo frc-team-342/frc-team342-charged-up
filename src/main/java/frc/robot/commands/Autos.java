@@ -40,7 +40,7 @@ public final class Autos {
         //new WaitCommand(9)
       ),
       // outtake game piece
-      gripper.outtake(led).withTimeout(0.8),
+      gripper.outtake().withTimeout(0.8),
       // lower arms
       lift.liftArmsToPosition(LiftConstants.LOW_POSITION)
     );

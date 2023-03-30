@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GripperConstants;
@@ -28,6 +29,7 @@ public class GripperSystem extends SubsystemBase {
   private CANSparkMax rollerMotor;
   private Limelight limelight;
   private boolean isHolding;
+  private RelativeEncoder encoder;
 
   private double lastPosition;
 
@@ -39,36 +41,12 @@ public class GripperSystem extends SubsystemBase {
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     rollerMotor.setInverted(true);
     isHolding = true;
+    encoder = rollerMotor.getEncoder();
 
   }
 
   public void spin(double speed) {
     rollerMotor.set(speed);
-  }
-
-  /**
-   * Spins the gripper roller to intake
-   * sets speed to 0 to stop
-   **/
-  public CommandBase coneIntake(AddressableLEDSubsystem aLedSubsystem){
-    return runEnd(
-      // run
-      () -> {
-        if (rollerMotor.getOutputCurrent() < DEFAULT_DRAW)
-        {
-          spin(ROLLER_SPEED);
-        }
-        else
-        {
-          spin(0);
-        }
-      },
-
-      // end
-      () -> {
-        spin(0);
-        isHolding = true;
-      });
   }
 
   public CommandBase coneIntake() {
@@ -137,7 +115,7 @@ public class GripperSystem extends SubsystemBase {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake(AddressableLEDSubsystem aLedSubsystem) {
+  public CommandBase outtake() {
     return runEnd(
         // run
         () -> {
@@ -150,6 +128,21 @@ public class GripperSystem extends SubsystemBase {
           spin(0);
           isHolding = false;
         });
+  }
+
+  public boolean getIsHolding()
+  {
+    return isHolding;
+  }
+
+  public double getLastPosition()
+  {
+    return lastPosition;
+  }
+
+  public RelativeEncoder getEncoder()
+  {
+    return encoder;
   }
 
   @Override
