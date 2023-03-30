@@ -72,7 +72,7 @@ public final class Constants {
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
-    public static final double NORMAL_SPEED = 0.8;
+    public static final double NORMAL_SPEED = 0.85;
     public static final double SLOW_SPEED = 0.4; 
 
     /** meters */
