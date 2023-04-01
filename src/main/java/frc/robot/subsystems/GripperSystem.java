@@ -5,16 +5,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GripperConstants;
-import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 import static frc.robot.Constants.GripperConstants.*;
@@ -22,141 +18,109 @@ import static frc.robot.Constants.GripperConstants.*;
 import frc.robot.Limelight;
 
 public class GripperSystem extends SubsystemBase {
-
-  //controls the speed of the spinning wheels
-  //private final ColorSensorV3 colorSensor;
-  // controls the speed of the spinning wheels
   private CANSparkMax rollerMotor;
-  private Limelight limelight;
-  private boolean isHolding;
   private RelativeEncoder encoder;
 
+  private double currPosition;
   private double lastPosition;
+
+  /** check whether intake has run since last outtake */
+  private boolean isHolding;
 
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
-    //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
-    this.limelight = limelight;
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     rollerMotor.setInverted(true);
-    isHolding = true;
+
     encoder = rollerMotor.getEncoder();
 
+    isHolding = true;
   }
 
+  /**
+   * spin the roller motor on the gripper using percent output
+   * @param speed [-1.0, 1.0]
+   */
   public void spin(double speed) {
     rollerMotor.set(speed);
   }
 
-  public CommandBase coneIntake() {
+  /**
+   * spin the gripper motors inwards to intake a game piece
+   * @return intake command
+   */
+  public CommandBase intake() {
     return runEnd(
-      // run
+      // runs repeatedly while command is active
       () -> {
-        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
-        {
+        if (rollerMotor.getOutputCurrent() < DEFAULT_DRAW) {
           spin(ROLLER_SPEED);
-        }
-        else
-        {
+        } else {
           spin(0);
         }
       },
-
-      // end
+      // runs once at end of command
       () -> {
         spin(0);
+        
+        // possibly holding a game piece after intake runs
         isHolding = true;
-      });
-  }
-
-  public CommandBase cubeIntake(){
-    return runEnd(
-      // run
-      () -> {
-        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
-        {
-          spin(ROLLER_SPEED);
-        }
-        else
-        {
-          spin(0);
-        }
-      },
-
-      // end
-      () -> {
-        spin(0);
-        isHolding = true;
-      });
-  }
-
-  public CommandBase hold(AddressableLEDSubsystem aLedSubsystem) {
-    return runEnd(
-      //run
-      () -> {
-          if(isHolding){
-            spin(0.15);
-            if(rollerMotor.getEncoder().getPosition() <= (lastPosition + 5))
-            {
-              aLedSubsystem.DriverColor(ColorType.RED);
-            }
-          }else{
-            spin(0);
-          }
-        },
-        // end
-        () -> {
-          spin(0);
-        });
+      }
+    );
   }
 
   /**
-   * spins the gripper roller at a negative speed to outtake
-   * sets speed to 0 to stop
-   **/
+   * spins the gripper motor in reverse to outtake a piece
+   * @return outtake command
+   */
   public CommandBase outtake() {
     return runEnd(
-        // run
-        () -> {
-
-          spin(-(ROLLER_SPEED));
-
-        },
-        // end
-        () -> {
-          spin(0);
-          isHolding = false;
-        });
+      // runs repeatedly during command
+      () -> {
+        // negative speed for reverse
+        spin(-ROLLER_SPEED);
+      },
+      // runs once at end of command
+      () -> {
+        spin(0);
+        isHolding = false;
+      }
+    );
   }
 
-  public boolean getIsHolding()
-  {
+  /** check whether intake has run since last outtake */
+  public boolean isHolding() {
     return isHolding;
   }
 
-  public double getLastPosition()
-  {
+  /** get encoder position from last periodic loop */
+  public double getLastPosition() {
     return lastPosition;
   }
 
-  public RelativeEncoder getEncoder()
-  {
-    return encoder;
-  }
-
-  @Override
-  public void initSendable(SendableBuilder builder) {
-
-    builder.setSmartDashboardType("GripperSystem");
-    builder.addDoubleProperty("Current Draw Readings", () -> rollerMotor.getOutputCurrent(), null);
-
+  /** get current encoder position */
+  public double getCurrentPosition() {
+    return currPosition;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    lastPosition = rollerMotor.getEncoder().getPosition();
-    System.out.println(lastPosition);
+    lastPosition = currPosition;
+    currPosition = encoder.getPosition();
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("GripperSystem");
+    
+    builder.addBooleanProperty("Possibly holding", () -> isHolding, null);
+
+    builder.addDoubleProperty("Current draw (Amps)", () -> rollerMotor.getOutputCurrent(), null);
+
+    builder.addDoubleProperty("Current encoder position (rot)", () -> currPosition, null);
+    builder.addDoubleProperty("Last encoder position (rot)", () -> lastPosition, null);
+    builder.addDoubleProperty("Position delta (rot)", () -> currPosition - lastPosition, null);
   }
 }

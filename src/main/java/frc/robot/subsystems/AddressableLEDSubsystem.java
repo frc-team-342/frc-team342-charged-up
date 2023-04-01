@@ -34,9 +34,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
    * This method sets all the LED groups (Human Player & Driver) to off
    */
   public void LEDOff() {
-    //Sets each LED to off
-    for(int i = 0; i < LEDBuffer.getLength(); i++)
-    {
+    // Sets each LED to off
+    for(int i = 0; i < LEDBuffer.getLength(); i++) {
       LEDBuffer.setHSV(i, 0, 0, 0);
     }
     LED.setData(LEDBuffer);
@@ -60,17 +59,16 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colortype)
     {
       //Sets each LED to Purple
-      for(int i = 0; i < DRIVER_START_RANGE; i++)
-      {
+      for(int i = 0; i < DRIVER_START_RANGE; i++) {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
       LED.setData(LEDBuffer);
     }
     else if(ColorType.RED == colortype)
     {
-      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
+      for(int i = 0; i < DRIVER_START_RANGE; i++)
       {
-        LEDBuffer.setHSV(i, RED_H, RED_S, RED_V);
+        LEDBuffer.setHSV(i, RED_H, RED_S, 70);
       }
       LED.setData(LEDBuffer);
     }
@@ -92,8 +90,7 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colorType)
     {
       //Sets each LED to Purple
-      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
-      {
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++) {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
       LED.setData(LEDBuffer);

@@ -10,11 +10,10 @@ import frc.robot.subsystems.GripperSystem;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 public class Hold extends CommandBase {
-  /** Creates a new ConeIntake. */
+  private GripperSystem gripperSubsystem;
+  private AddressableLEDSubsystem aLedSubsystem;
 
-  GripperSystem gripperSubsystem;
-  AddressableLEDSubsystem aLedSubsystem;
-
+  /** hold game piece, display led if game piece is in gripper */
   public Hold(GripperSystem gripperSubSystem, AddressableLEDSubsystem aLedSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.gripperSubsystem = gripperSubSystem;
@@ -30,16 +29,22 @@ public class Hold extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute()
-  {
-    if(gripperSubsystem.getIsHolding()){
+  public void execute() {
+    // check whether a piece has been intaked since last outtake
+    if (gripperSubsystem.isHolding()) {
+      // hold game piece in intake
       gripperSubsystem.spin(0.15);
-      if(gripperSubsystem.getEncoder().getPosition() <= (gripperSubsystem.getLastPosition() + 5))
-      {
-        aLedSubsystem.DriverColor(ColorType.RED);
+
+      // if there is a game piece in the intake, display the red driver light
+      if (gripperSubsystem.getCurrentPosition() <= (gripperSubsystem.getLastPosition() + 0.5)) {
+        aLedSubsystem.driverColorMethod(ColorType.RED);
+        System.out.print("HOLD");
+      } else {
+        System.out.print("NO");
+        aLedSubsystem.LEDOff();
       }
-    }
-    else{
+    } else {
+      // otherwise just don't spin
       gripperSubsystem.spin(0);
     }
   }

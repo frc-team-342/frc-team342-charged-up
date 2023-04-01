@@ -8,16 +8,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
+
 import frc.robot.Constants.LiftConstants;
 import frc.robot.commands.drive.DriveDistance;
-import frc.robot.commands.drive.DriveVelocity;
 import frc.robot.commands.drive.RotateToAngle;
+import frc.robot.commands.gripper.Hold;
 import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.DriveSystem;
 import frc.robot.subsystems.GripperSystem;
@@ -29,15 +27,13 @@ public final class Autos {
   private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
       // intake preloaded game piece
-      gripper.hold(led).withTimeout(0.5),
+      new Hold(gripper, led).withTimeout(0.5),
       // run until either command finishes
       new ParallelRaceGroup(
         // hold preloaded game piece in gripper
-        gripper.hold(led),
+        new Hold(gripper, led),
         // lift arms to high scoring position
         lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
-        // cancel command group if not finished in x seconds
-        //new WaitCommand(9)
       ),
       // outtake game piece
       gripper.outtake().withTimeout(0.8),

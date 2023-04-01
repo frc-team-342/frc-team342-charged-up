@@ -9,6 +9,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftThenLeave;
 import frc.robot.commands.drive.DriveDistance;
+import frc.robot.commands.gripper.Hold;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -121,7 +122,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem(limelight);
-    gripperSystem.setDefaultCommand(gripperSystem.hold(aLEDSub));
+    gripperSystem.setDefaultCommand(new Hold(gripperSystem, aLEDSub));
 
     liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
@@ -166,8 +167,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    rightBumper.whileTrue(gripperSystem.coneIntake());
-    rightTrigger.whileTrue(gripperSystem.cubeIntake());
+    rightBumper.whileTrue(gripperSystem.intake());
+    rightTrigger.whileTrue(gripperSystem.intake());
     leftTrigger.whileTrue(gripperSystem.outtake());
 
     xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
