@@ -139,6 +139,18 @@ public class RobotContainer {
         driveSystem
       ),
 
+      // lift
+      new InstantCommand(
+        () -> { hardware.getEntry("Lift").setString(driveSystem.checkAllConnections()); },
+        lSystem
+      ),
+
+      // gripper
+      new InstantCommand(
+        () -> { hardware.getEntry("Gripper").setString(gripperSystem.checkAllConnections()); },
+        gripperSystem
+      ),
+
       // limelight
       new InstantCommand(
         () -> { hardware.getEntry("Limelight").setString(limelight.checkAllConnections()); }
@@ -191,6 +203,8 @@ public class RobotContainer {
        * - go back to pipeline default for leds
        */
       limelight.testRoutine()
+
+      // arm test is not included for safety reasons
     );
   }
 

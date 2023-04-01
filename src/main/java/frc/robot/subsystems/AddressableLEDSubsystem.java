@@ -103,6 +103,7 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
 
   @Override
   public List<Connection> hardwareConnections() {
+    // cannot check for leds bc they are connected over pwm
     return List.of();
   }
 
