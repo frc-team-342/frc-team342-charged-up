@@ -20,8 +20,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
@@ -105,11 +103,11 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
     leftController.setP(0.001);
     leftController.setD(0.001);
-    leftController.setFF(1.0);
+    leftController.setFF(0.15);
 
     rightController.setP(0.001);
     rightController.setD(0.001);
-    rightController.setFF(1.0);
+    rightController.setFF(0.15);
 
     // encoders
     leftEncoder = frontLeft.getEncoder();
@@ -126,9 +124,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
     frontRight.setInverted(true);
     frontLeft.setInverted(false);
 
+    setBrakeMode(true);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
+
+    frontLeft.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
+    frontRight.setSmartCurrentLimit(60);
+    backLeft.setSmartCurrentLimit(60);
 
     // gyro 
     gyro = new AHRS();
@@ -199,12 +204,37 @@ public class DriveSystem extends SubsystemBase implements Testable {
   }
 
   /**
+   * sets the idle mode of the drivetrain motors
+   * @param brake brake mode if true, coast mode if false
+   */
+  public void setBrakeMode(boolean brake) {
+    // ternary operator: `(condition) ? (value if true) : (value if false)`
+    IdleMode mode = brake ? IdleMode.kBrake : IdleMode.kCoast;
+
+    frontLeft.setIdleMode(mode);
+    frontRight.setIdleMode(mode);
+    backLeft.setIdleMode(mode);
+    backRight.setIdleMode(mode);
+  }
+
+  /**
    * drives the robot with tank drive
    * 
    * @param leftSpeed values -1.0 through 1.0, scaled by max speed
    * @param rightSpeed values -1.0 through 1.0, scaled by max speed
    */
   public void drivePercent(double leftSpeed, double rightSpeed) {
+    // left side
+    double leftVelocity = leftSpeed * currentMode.speedMultiplier;
+    leftController.setReference(leftVelocity, ControlType.kDutyCycle);
+
+    // right side
+    double rightVelocity = rightSpeed * currentMode.speedMultiplier;
+    rightController.setReference(rightVelocity, ControlType.kDutyCycle);
+  }
+
+  public void drivePercentForTime(double leftSpeed, double rightSpeed, double time) {
+
     // left side
     double leftVelocity = leftSpeed * currentMode.speedMultiplier;
     leftController.setReference(leftVelocity, ControlType.kDutyCycle);
@@ -237,132 +267,95 @@ public class DriveSystem extends SubsystemBase implements Testable {
   }
 
   /**
-   * @param velocityIn meters/second
-   * @param distance meters
-   * @return command that drives 
+   * Set the speeds of the drivetrain in m/s using motor PID controllers
+   * @param speeds m/s
    */
-  public CommandBase driveDistance(double velocityIn, double distance) {
-    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
+  public void setVelocity(DifferentialDriveWheelSpeeds speeds) {
+    leftController.setReference(speeds.leftMetersPerSecond, ControlType.kVelocity);
+    rightController.setReference(speeds.rightMetersPerSecond, ControlType.kVelocity);
+  }
 
-    Pose2d start = odometry.getPoseMeters();
-    Transform2d transform = new Transform2d(
-      // distance from current position facing current direction
-      new Translation2d(distance, start.getRotation()), 
-      // don't rotate while driving
-      new Rotation2d(0.0)
-    );
-    Pose2d end = start.plus(transform);
-
-    // start heading is recorded to make sure it stays straight
-    Rotation2d startAngle = start.getRotation();
-
-    return runEnd(
-      // runs repeatedly during command
-      () -> {
-        // get current heading
-        Rotation2d currentAngle = Rotation2d.fromDegrees(gyro.getAngle());
-        Rotation2d error = currentAngle.minus(startAngle); // radians
-
-        // use rotation controller to drive error to zero to drive straight
-        double rotation = rotateController.calculate(error.getRadians(), 0);
-
-        // drive at velocity from parameter
-        leftController.setReference(velocity + (-1 * rotation), ControlType.kVelocity); 
-        rightController.setReference(velocity + rotation, ControlType.kVelocity);
-      }, 
-      // runs once at end of command
-      () -> {
-        // stops motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
-      }
-    ).until(
-      () -> {
-        // get current distance from original position
-        Pose2d curr = odometry.getPoseMeters();
-        Transform2d distTraveled = curr.minus(start);
-        
-        // check that current distance is close to intended distance
-        double dist = Math.hypot(distTraveled.getX(), distTraveled.getY());
-        return (distance - 0.3) < dist && (distance + 0.3) > dist; // TODO: replace tolerance with constant 
-      }
-    );
+  /** stop all drive motors */
+  public void stopMotors() {
+    frontLeft.stopMotor();
+    frontRight.stopMotor();
+    backLeft.stopMotor();
+    backRight.stopMotor();
   }
 
   /**
-   * @param velocityIn meters/second
-   * @return command that drives at given velocity without an end condition
-   */
-  public CommandBase driveVelocity(double velocityIn) {
-    double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
-
-    return runEnd(
-      // runs repeatedly until end of command
-      () -> {      
-        // units don't need to be adjusted because of encoder conversion factor
-        leftController.setReference(velocity, ControlType.kVelocity);
-        rightController.setReference(velocity, ControlType.kVelocity);
-      }, 
-      // runs once at command end
-      () -> {
-        // stop motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
-      }
-    );
-  }
-
-  /**
-   * 
-   * @param angle robot-relative angle
+   * get the current yaw of the robot
    * @return
    */
-  public CommandBase rotateToAngle(Rotation2d angle) {
-    // radians
-    double startAngle = Math.toRadians(gyro.getAngle());
-    double endAngle = startAngle + angle.getRadians();
+  public Rotation2d getGyroAngle() {
+    return odometry.getPoseMeters().getRotation();
+  }
 
+  /**
+   * current robot pose from odometry
+   * @return relative position, start is (0, 0)
+   */
+  public Pose2d getOdometryPosition() {
+    return odometry.getPoseMeters();
+  }
+
+  /**
+   * convert robot-relative speeds to wheel speeds
+   * @param speeds x vel, y vel, rotational vel
+   * @return left and right wheel speeds
+   */
+  public DifferentialDriveWheelSpeeds inverseKinematics(ChassisSpeeds speeds) {
+    return kinematics.toWheelSpeeds(speeds);
+  }
+
+  /**
+   * automatically balance on the charge station
+   */
+  public CommandBase autoBalance(){
     return runEnd(
-      // runs repeatedly until end of command
+      // runs repeatedly while command active
       () -> {
-        // radians
-        double currAngle = Math.toRadians(gyro.getAngle());
+        // robot is back-heavy
+        double forwardP = 0.2;
+        double backP = 0.28;
 
-        // rad/s ????
-        double nextVel = rotateController.calculate(currAngle, endAngle);
+        // maximum drivetrain output
+        double maxPercentOutput = 0.38;
 
-        // convert radial velocity to drivetrain speeds
-        ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
-        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
+        double maxAngle = 20;
 
-        // clamp wheel speeds to max velocity
-        double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-        double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+        // Negative because of robot orientation
+        double angle = -MathUtil.clamp(gyro.getRoll() - 1.9, -maxAngle, maxAngle); 
 
-        // apply drivetrain speeds to drive pid controllers
-        leftController.setReference(left, ControlType.kVelocity);
-        rightController.setReference(right, ControlType.kVelocity);
+        // Speed is proportional to the angle 
+        //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
+
+        double speed = (angle < 0)
+          ? (angle / maxAngle) * forwardP
+          : (angle / maxAngle) * backP;
+
+        speed = MathUtil.clamp(speed, -maxPercentOutput, maxPercentOutput);
+        
+        // degrees
+        double tolerance = 3;
+
+        if (angle < tolerance && angle > -tolerance) {
+          // hold position if within roll tolerance
+        leftController.setReference(0.0, ControlType.kVelocity);
+        rightController.setReference(0.0, ControlType.kVelocity);
+          
+          backP = .10;
+        } else {
+          // drive to balance if outside of roll tolerance
+          drivePercent(speed, speed);
+        }
       },
-      // runs once at end of command 
+      // when it ends
       () -> {
-        rotateController.reset();
-
-        // stop motors
-        leftController.setReference(0, ControlType.kVelocity);
-        rightController.setReference(0, ControlType.kVelocity);
-
-        frontLeft.stopMotor();
-        frontRight.stopMotor();
+        // leftController.setReference(0.0, ControlType.kVelocity);
+        // rightController.setReference(0.0, ControlType.kVelocity);
+        this.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
       }
-    ).until(
-      // returns true if robot is at end angle
-      rotateController::atSetpoint
     );
   }
 
@@ -391,7 +384,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
       field.setRobotPose(drivetrainSim.getPose());
     } 
   }
-
+  
   @Override
   public void simulationPeriodic() {
     // run rev lib physics sim
@@ -419,9 +412,12 @@ public class DriveSystem extends SubsystemBase implements Testable {
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Drive");
 
+    // used for autobalance
+    builder.addDoubleProperty("Roll (deg)", gyro::getRoll, null);
+
     // motor velocities
-    builder.addDoubleProperty("Left velocity", frontLeft.getEncoder()::getVelocity, null);
-    builder.addDoubleProperty("Right Velocity", frontRight.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Left velocity", leftEncoder::getVelocity, null);
+    builder.addDoubleProperty("Right velocity", rightEncoder::getVelocity, null);
 
     if (Robot.isSimulation()) {
       builder.addDoubleProperty("Simulation left velocity", drivetrainSim::getLeftVelocityMetersPerSecond, null);
@@ -435,6 +431,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     builder.addDoubleProperty("Odometry X position (m)", () -> odometry.getPoseMeters().getX(), null);
     builder.addDoubleProperty("Odometry Y position (m)", () -> odometry.getPoseMeters().getY(), null);
     builder.addDoubleProperty("Odometry angle (deg)", () -> odometry.getPoseMeters().getRotation().getDegrees(), null);
+    builder.addDoubleProperty("Odometry angle (rad)", () -> odometry.getPoseMeters().getRotation().getRadians(), null);
 
     if (Robot.isSimulation()) {
       builder.addDoubleProperty("Voltage", RobotController::getInputVoltage, null);

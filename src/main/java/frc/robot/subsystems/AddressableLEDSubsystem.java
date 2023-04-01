@@ -20,7 +20,8 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
 
   public enum ColorType {
     YELLOW,
-    PURPLE;
+    PURPLE,
+    RED;
   }
 
   private final AddressableLED LED;
@@ -70,6 +71,14 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
       }
       LED.setData(LEDBuffer);
     }
+    else if(ColorType.RED == colortype)
+    {
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
+      {
+        LEDBuffer.setHSV(i, RED_H, RED_S, RED_V);
+      }
+      LED.setData(LEDBuffer);
+    }
   }
 
   /**
@@ -94,6 +103,14 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
       }
       LED.setData(LEDBuffer);
     }
+  }
+
+  public CommandBase HumanColor(ColorType colorType) {
+    return runEnd(() -> humanColorMethod(colorType), this::LEDOff);   
+  }
+
+  public CommandBase DriverColor(ColorType colorType) {
+    return runEnd(() -> driverColorMethod(colorType), this::LEDOff);
   }
 
   @Override

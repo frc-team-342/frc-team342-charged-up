@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -63,11 +64,11 @@ public class Limelight implements Testable, Sendable {
     public void togglePipeline() {
         int currPipe = getPipeline();
         if (currPipe == 0) {
-            setPipeline(1);
+                    setPipeline(1);
         } else {
-            setPipeline(0);
+                    setPipeline(0);
+                }
         }
-    }
 
     /**
      * change the led mode of the limelight
@@ -88,9 +89,9 @@ public class Limelight implements Testable, Sendable {
      * Gets the horizontal offset angle from networkTable
      * @return The horizontal offset angle from the limelight crosshair to the target
      */
-    public Double getHorizontalOffset() {  
+    public Double getHorizontalOffset() {
         if(hasTargets()){
-            return table.getEntry("tx").getNumber(0).doubleValue();
+        return table.getEntry("tx").getNumber(0).doubleValue();
         }
 
         return Double.NaN;
@@ -110,11 +111,12 @@ public class Limelight implements Testable, Sendable {
 
         }
         
-        return Double.NaN;
+            return Double.NaN;
     }
 
+   
 
-    /**
+     /**
       * Outputs between -90 and 0 degrees
       * @return The skew of the target that is currently within the limelight's viewframe
       */
@@ -123,25 +125,25 @@ public class Limelight implements Testable, Sendable {
             return table.getEntry("ts0").getNumber(0).doubleValue();
         }
 
-        return Double.NaN;
+            return Double.NaN;
     }
 
-     
-    /**
+   
+     /**
       * Returns the total area that the current target takes up on the limelight's screen
       * Outputs a value associated with the percent of the screen being taken up
       * @return The area of the limelight screen being taken up
       */
     public Double getTargetArea() {
         if(hasTargets()){
-            return table.getEntry("ta").getNumber(0).doubleValue();
+        return table.getEntry("ta").getNumber(0).doubleValue();
         }
 
         return Double.NaN;
     }
 
 
-    /**
+     /**
       * Uses the horizontal offset that determines if the robot is looking left
       * @return A boolean that says if the robot is looking left
       */
@@ -157,26 +159,17 @@ public class Limelight implements Testable, Sendable {
      * @return A rotation2D made from the robot pitch and yaw values, represents rotation to the currently seen target
      */
     public Rotation2d createRotation2D() {
-
-        /**
-         * Gets the pitch value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationPitch = getRobotPosition3D()[3].doubleValue();
-        double robotRotationPitchRadians = Math.toRadians(robotRotationPitch);
-
-        /**
-         * Gets the yaw value from the robotPositionValues array & converts it to radians
-         */
-        double robotRotationYaw = getRobotPosition3D()[4].doubleValue();
-        double robotRotationYawRadians = Math.toRadians(robotRotationYaw);
-
-        /**
-         * Uses the pitch & yaw value to construct a rotation2d, then returns it
-         */
-        return new Rotation2d(robotRotationPitchRadians, robotRotationYawRadians);
-
+        Rotation2d limeRotation2d = new Rotation2d(-Math.toRadians(getHorizontalOffset()));
+        return limeRotation2d;
     }
 
+    public double getRobotXPosition(){
+        return(getRobotPosition3D()[0].doubleValue());
+    }
+
+    public double getRobotYPosition(){
+        return(getRobotPosition3D()[1].doubleValue());
+    }
 
     /**
      * Uses values from networkTables to construct and return a translation2D
@@ -187,8 +180,8 @@ public class Limelight implements Testable, Sendable {
         /**
          * Gets the x & y values from the robotPositionValues array
          */
-        double robotPositionX = getRobotPosition3D()[0].doubleValue();
-        double robotPositionY = getRobotPosition3D()[1].doubleValue();
+        double robotPositionX = getRobotXPosition();
+        double robotPositionY = getRobotYPosition();
 
         /**
          * Uses the x & y values to construct a translation2d, then returns it
@@ -212,57 +205,83 @@ public class Limelight implements Testable, Sendable {
     }
 
 
-    /**
+     /**
       * returns a boolean value that lets us know if the limelight has any targets
       * @return If the limelight has any targets
       */
     public boolean hasTargets() {
-        return table.getEntry("tv").getBoolean(false);
+        return (table.getEntry("tv").getDouble(0) > 0);
     }
 
 
-    /**
+     /**
       *checks if the limelight is in Apriltag, and if it has a target,  returns the ID of the Apriltag. Otherwise, it returns null.
       * @return The ID of the currently targeted Apriltag
       */
     public Double getTargetID() {
         if(getPipeline() == 1) {
             if(hasTargets()) {
-                return table.getEntry("tid").getDouble(0.0);
             }
-        }
+         }
 
         return null;
 
     }
+    
+     /**
+     * Determines if the limelight is looking at a high-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight is seeing a high target
+     */
+      /**private boolean isHighLevelTarget(double verticalOffset) {
+         return verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH;
+        }/
 
     /**
-     * Checks what target we are looking at, calculates the forward distance, and returns it
-     * @return Forward distance from the current vision target
+     * Determines if the limelight is looking at a mid-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight is seeing a middle target
      */
-    public Double forwardDistanceToTarget() {
-        if(hasTargets()){
-            double verticalOffset = getVerticalOffset();
+    /**private boolean isMidLevelTarget(double verticalOffset) {
+        return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED;
+    }/
 
-            if(verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW){
-                double horizontalFromLow = HEIGHT_TO_LOW / Math.tan(verticalOffset);
-                return horizontalFromLow;
-            }
+    /**
+     * Determines if the limelight is looking at a low-level scoring target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight sees a human player station target
+     */
+    /**private boolean isLowLevelTarget (double verticalOffset) {
+        return verticalOffset > 0 && verticalOffset <= MAX_VERT_OFFSET_FOR_LOW;
+    }/
 
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_MED){
-                double horizontalFromMed = HEIGHT_TO_MED / Math.tan(verticalOffset);
-                return horizontalFromMed;
-            }
-            
-            if(verticalOffset > MAX_VERT_OFFSET_FOR_MED && verticalOffset <= MAX_VERT_OFFSET_FOR_HIGH){
-                double horizontalFromHigh = HEIGHT_TO_HIGH / Math.tan(verticalOffset);
-                return horizontalFromHigh;
-            }
+    /**
+     * Determines if the limelight is looking at a Human Player station target
+     * @param verticalOffset
+     * @return A boolean value of whether the limelight sees a human player station target
+     */
 
-            return 0.0;
-        }
+    /**private boolean isHumanPlayerStation (double verticalOffset){
+        return verticalOffset > MAX_VERT_OFFSET_FOR_LOW && verticalOffset <= MAX_VERT_OFFSET_FOR_HP_STATION;
+    }/
 
-        return Double.NaN;
+    /** Creates a pose 2d from the robot X & Y pose values */
+    private Pose2d createPose2d(double robotPositionX, double robotPositionY){
+        return new Pose2d(robotPositionX, robotPositionY, new Rotation2d(0));
+    }
+
+    /** Activates 3D Mode on the Limelight */
+    private void enable3DMode() {
+        table.getEntry("Pipeline").setNumber(3);
+    }
+
+    /** Disables 3D mode on the limelight, sets to RR Tape pipeline */
+    private void disable3DMode(){
+        table.getEntry("Pipeline").setNumber(0);
+    }
+
+    private boolean is3DMode(){
+        return(getPipeline() == 3);
     }
 
     @Override
@@ -294,9 +313,11 @@ public class Limelight implements Testable, Sendable {
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Limelight");
         builder.addBooleanProperty("Has Targets", this::hasTargets, null);
+        builder.addBooleanProperty("3D Mode?", this::is3DMode, null);
         builder.addDoubleProperty("Horizontal Offset", this::getHorizontalOffset, null);
         builder.addDoubleProperty("Vertical Offset", this::getVerticalOffset, null);
-        builder.addDoubleProperty("Forward Distance From Target", this::forwardDistanceToTarget, null);
+        builder.addDoubleProperty("Robot X Position", this::getRobotXPosition, null);
+        builder.addDoubleProperty("Robot Y Position", this::getRobotYPosition, null);
         builder.addIntegerProperty("Current Pipeline", this::getPipeline, null);
     }
 }

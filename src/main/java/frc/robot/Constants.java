@@ -43,16 +43,20 @@ public final class Constants {
     public static final int PURPLE_H = 150;
     public static final int PURPLE_S = 255;
     public static final int PURPLE_V = 70;
+    public static final int RED_H = 0;
+    public static final int RED_S = 255;
+    public static final int RED_V = 255;
   }
   
   public static class GripperConstants {
     public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
     public static final int ROLLER_MOTOR = 5;
-    public static final double ROLLER_SPEED = 0.5;
-    public static final int MAX_CUBE_DRAW = 15;
-    public static final int DEFAULT_DRAW = 20;
+    public static final double ROLLER_SPEED = 0.75;
+    public static final double CONE_SPEED = 0.55;
+    public static final int MAX_CUBE_DRAW = 20;
+    public static final int DEFAULT_DRAW = 30;
 
-    public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 20;
+    public static final int ROLLER_MOTOR_CURRENT_LIMIT_VALUE = 30;
 
         /*
     * The minimum value that the IR sensor must read for a game piece to grabbed to be consider grabbed
@@ -72,7 +76,7 @@ public final class Constants {
     public static final int BACK_LEFT_MOTOR = 3;
     public static final int BACK_RIGHT_MOTOR = 4;
 
-    public static final double NORMAL_SPEED = 0.8;
+    public static final double NORMAL_SPEED = 0.85;
     public static final double SLOW_SPEED = 0.4; 
 
     /** meters */
@@ -95,17 +99,27 @@ public final class Constants {
 
     /** kg */
     public static final double MASS = 35.27; // subject to change
+
+    /** meters */
+    public static final double DISTANCE_TOLERANCE = 0.15;
+
+    // rotation pid controller
+    public static final double ROTATION_P = 8.0;
+    public static final double ROTATION_I = 0.0;
+    public static final double ROTATION_D = 3.0;
+    public static final double ROTATION_TOLERANCE = Math.toRadians(5);
   }
 
   public static class LiftConstants {
-    public static final double MAX_SPEED = 0.30;
+    public static final double MAX_SPEED = 0.40;
+    public static final double AUTO_SPEED = 0.35;
     public static final double TOLERANCE = 0.01;
 
     public static final double MAX_POSITION = 0.2;
     public static final double MIN_POSITION = 0.51;
 
     public static final double TOP_POSITION = 0.30;
-    public static final double MID_POSITION = 0.389;
+    public static final double MID_POSITION = 0.38;
     public static final double LOW_POSITION = 0.51;
     
     public static final int MOTOR_LEFT = 6;
@@ -117,6 +131,10 @@ public final class Constants {
     public static final int CURRENT_LIMIT = 35;
 
     public static final int ARM_ENCODER_PORT = 0;
+
+    public static final double P_VALUE = 0.001;
+    public static final double D_VALUE = 0.001;
+    public static final double FF_VALUE = 1.5;
   }
 
   /*

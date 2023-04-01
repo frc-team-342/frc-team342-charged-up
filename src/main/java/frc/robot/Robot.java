@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
       autonomousCommand.cancel();
     }
     robotContainer.setBrakeMode(true);
+    robotContainer.disableLL3DMode();
   }
 
   /** This function is called periodically during operator control. */

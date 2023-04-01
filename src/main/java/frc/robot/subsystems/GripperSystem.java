@@ -5,16 +5,16 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GripperConstants;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 import static frc.robot.Constants.GripperConstants.*;
 
@@ -31,15 +31,15 @@ public class GripperSystem extends SubsystemBase implements Testable {
   private Limelight limelight;
   private boolean isHolding;
 
+  private double lastPosition;
+
   /** Creates a new GripperSystem. */
   public GripperSystem(Limelight limelight) {
     //colorSensor = new ColorSensorV3(GripperConstants.I2C_PORT);
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     this.limelight = limelight;
-
-    rollerMotor.setSmartCurrentLimit(20);
-    rollerMotor.setInverted(true);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
+    rollerMotor.setInverted(true);
 
     isHolding = true;
   }
@@ -52,30 +52,7 @@ public class GripperSystem extends SubsystemBase implements Testable {
    * Spins the gripper roller to intake
    * sets speed to 0 to stop
    **/
-
-  public CommandBase cubeIntake(AddressableLEDSubsystem aLEDSub) {
-    return runEnd(
-      // run
-      () -> {
-        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
-        {
-          spin(ROLLER_SPEED);
-        }
-        else
-        {
-          spin(0);
-        }
-      },
-
-      // end
-      () -> {
-        spin(0);
-        isHolding = true;
-        aLEDSub.driverColorMethod(ColorType.PURPLE);
-      });
-  }
-
-  public CommandBase coneIntake(AddressableLEDSubsystem aLEDSub) {
+  public CommandBase coneIntake(AddressableLEDSubsystem aLedSubsystem){
     return runEnd(
       // run
       () -> {
@@ -93,17 +70,60 @@ public class GripperSystem extends SubsystemBase implements Testable {
       () -> {
         spin(0);
         isHolding = true;
-        aLEDSub.driverColorMethod(ColorType.YELLOW);
+      });
+  }
+
+  public CommandBase coneIntake() {
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
+      });
+  }
+
+  public CommandBase cubeIntake(AddressableLEDSubsystem aLedSubsystem){
+    return runEnd(
+      // run
+      () -> {
+        if (rollerMotor.getOutputCurrent() < MAX_CUBE_DRAW)
+        {
+          spin(ROLLER_SPEED);
+        }
+        else
+        {
+          spin(0);
+        }
+      },
+
+      // end
+      () -> {
+        spin(0);
+        isHolding = true;
       });
   }
 
   public CommandBase hold() {
     return runEnd(
-        // run
-        () -> {
-          if (isHolding) {
-            spin(0.05);
-          } else {
+      //run
+      () -> {
+          if(isHolding){
+            spin(0.15);
+          }
+          else
+          {
             spin(0);
           }
         },
@@ -117,7 +137,7 @@ public class GripperSystem extends SubsystemBase implements Testable {
    * spins the gripper roller at a negative speed to outtake
    * sets speed to 0 to stop
    **/
-  public CommandBase outtake(AddressableLEDSubsystem aLEDSub) {
+  public CommandBase outtake(AddressableLEDSubsystem aLedSubsystem) {
     return runEnd(
         // run
         () -> {
@@ -127,8 +147,23 @@ public class GripperSystem extends SubsystemBase implements Testable {
         () -> {
           spin(0);
           isHolding = false;
-          aLEDSub.LEDOff();
         });
+  }
+
+  public CommandBase coneOuttake(AddressableLEDSubsystem aLedSubsystem) {
+    return runEnd(
+      () -> {
+
+        spin(-(CONE_SPEED));
+
+      },
+
+      () -> {
+        
+        spin(0);
+        isHolding = false;
+
+      });
   }
 
   @Override
@@ -140,6 +175,8 @@ public class GripperSystem extends SubsystemBase implements Testable {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    lastPosition = rollerMotor.getEncoder().getPosition();
+    System.out.println(lastPosition);
   }
 
   @Override
