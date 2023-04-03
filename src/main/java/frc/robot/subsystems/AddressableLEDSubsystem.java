@@ -120,7 +120,13 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
     }
   }
 
+  /**
+   * show a color on the led panel on the front of the robot
+   * @param colorType purple or yellow
+   * @return
+   */
   public CommandBase HumanColor(ColorType colorType) {
+    // subsystem requirement is PURPOSEFULLY OMITTED
     return new RunCommand(
       // turn leds on while command is active
       () -> humanColorMethod(colorType)
@@ -130,7 +136,13 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
     );   
   }
 
+  /**
+   * show a color on the led panel on the back of the robot
+   * @param colorType purple, yellow, or red
+   * @return 
+   */
   public CommandBase DriverColor(ColorType colorType) {
+    // subsystem requirement is PURPOSEFULLY OMITTED
     return new RunCommand(
       // turn leds on while command is active
       () -> driverColorMethod(colorType)
@@ -154,26 +166,23 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
   @Override
   public CommandBase testRoutine() {
     return Commands.sequence(
-      // show purple
+      // show purple on both leds
       new RunCommand(
         () -> {
           driverColorMethod(ColorType.PURPLE);
           humanColorMethod(ColorType.PURPLE);
-        },
-        this
+        }
       ).withTimeout(2.0),
-      // show yellow
+      // show yellow on both leds
       new RunCommand(
         () -> {
           driverColorMethod(ColorType.YELLOW);
           humanColorMethod(ColorType.YELLOW);
-        }, 
-        this
+        }
       ).withTimeout(2.0),
-      // turn leds off
+      // turn all leds off
       new InstantCommand(
-        () -> allOff(),
-        this
+        () -> allOff()
       )
     );
   }

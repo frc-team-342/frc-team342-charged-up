@@ -11,8 +11,6 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.List;
@@ -24,7 +22,10 @@ public class GripperSystem extends SubsystemBase implements Testable {
   private CANSparkMax rollerMotor;
   private RelativeEncoder encoder;
 
+  /** current encoder position: rotations of motor shaft */
   private double currPosition;
+
+  /** encoder position during previous robot loop: rotations of motor shaft */
   private double lastPosition;
 
   /** check whether intake has run since last outtake */
@@ -57,6 +58,7 @@ public class GripperSystem extends SubsystemBase implements Testable {
     return runEnd(
       // runs repeatedly while command is active
       () -> {
+        // don't pop the cube
         if (rollerMotor.getOutputCurrent() < DEFAULT_DRAW) {
           spin(ROLLER_SPEED);
         } else {
@@ -87,6 +89,8 @@ public class GripperSystem extends SubsystemBase implements Testable {
       // runs once at end of command
       () -> {
         spin(0);
+        
+        // cannot be holding a game piece after outtaking
         isHolding = false;
       }
     );
@@ -117,11 +121,9 @@ public class GripperSystem extends SubsystemBase implements Testable {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("GripperSystem");
-    
     builder.addBooleanProperty("Possibly holding", () -> isHolding, null);
 
     builder.addDoubleProperty("Current draw (Amps)", () -> rollerMotor.getOutputCurrent(), null);
-
     builder.addDoubleProperty("Current encoder position (rot)", () -> currPosition, null);
     builder.addDoubleProperty("Last encoder position (rot)", () -> lastPosition, null);
     builder.addDoubleProperty("Position delta (rot)", () -> currPosition - lastPosition, null);
