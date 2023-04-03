@@ -10,14 +10,17 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
+
+import java.util.List;
 
 import static frc.robot.Constants.GripperConstants.*;
 
-import frc.robot.Limelight;
+public class GripperSystem extends SubsystemBase implements Testable {
 
-public class GripperSystem extends SubsystemBase {
   private CANSparkMax rollerMotor;
   private RelativeEncoder encoder;
 
@@ -28,7 +31,7 @@ public class GripperSystem extends SubsystemBase {
   private boolean isHolding;
 
   /** Creates a new GripperSystem. */
-  public GripperSystem(Limelight limelight) {
+  public GripperSystem() {
     rollerMotor = new CANSparkMax(ROLLER_MOTOR, MotorType.kBrushless);
     rollerMotor.setSmartCurrentLimit(ROLLER_MOTOR_CURRENT_LIMIT_VALUE);
     rollerMotor.setInverted(true);
@@ -122,5 +125,20 @@ public class GripperSystem extends SubsystemBase {
     builder.addDoubleProperty("Current encoder position (rot)", () -> currPosition, null);
     builder.addDoubleProperty("Last encoder position (rot)", () -> lastPosition, null);
     builder.addDoubleProperty("Position delta (rot)", () -> currPosition - lastPosition, null);
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    return List.of(
+      Connection.fromSparkMax(rollerMotor)
+    );
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    return Commands.sequence(
+      // run intake
+      intake().withTimeout(1.5)
+    );
   }
 }

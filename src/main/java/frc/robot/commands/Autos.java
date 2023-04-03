@@ -70,6 +70,16 @@ public final class Autos {
       
   }
 
+    /** robot scores low then drives onto charge station and balances */
+    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+      return Commands.sequence(
+        gripper.outtake().withTimeout(0.5),
+        new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+        drivesystem.autoBalance()
+      );
+        
+    }
+
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
   public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
@@ -89,7 +99,7 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drivesystem), 
+      new DriveDistance(-3.2, 1.5, drivesystem), 
       new WaitCommand(1.5)
     );
   }
@@ -100,7 +110,7 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drive), 
+      new DriveDistance(-3.2, 1.5, drive), 
       new WaitCommand(1.5)
     );
   }

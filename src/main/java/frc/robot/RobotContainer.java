@@ -7,20 +7,18 @@ package frc.robot;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
-import frc.robot.commands.auto.LiftThenLeave;
+import frc.robot.commands.auto.LiftArmToPosition;
+import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.gripper.Hold;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
 import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.SendableCameraWrapper;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,8 +56,7 @@ public class RobotContainer {
 
   private final GripperSystem gripperSystem;
   
-  private final LiftThenLeave liftThenLeave;
-
+  
   /* Controller and button instantiations */
   private final XboxController operator;
   private final JoystickButton rightBumper;
@@ -67,6 +64,7 @@ public class RobotContainer {
   private final Trigger leftTrigger;
   private final JoystickButton xButton;
   private final JoystickButton aButton;
+  private final JoystickButton bButton;
   private final JoystickButton yButton;
 
   private final Joystick driverLeft;
@@ -89,8 +87,8 @@ public class RobotContainer {
     driverRight = new Joystick(OperatorConstants.DRIVER_RIGHT_PORT);
     
     // autobalance driver buttons
-    balanceLeftBtn = new JoystickButton(driverLeft, 3);
-    balanceRightBtn = new JoystickButton(driverRight, 3);
+    balanceLeftBtn = new JoystickButton(driverLeft, 2);
+    balanceRightBtn = new JoystickButton(driverRight, 2);
 
     // intake + outtake
     rightBumper = new JoystickButton(operator, OperatorConstants.OP_BUTTON_CONE_INTAKE);
@@ -101,6 +99,7 @@ public class RobotContainer {
     xButton = new JoystickButton(operator, XboxController.Button.kX.value);
     aButton = new JoystickButton(operator, XboxController.Button.kA.value);
     yButton = new JoystickButton(operator, XboxController.Button.kY.value);
+    bButton = new JoystickButton(operator, XboxController.Button.kB.value);
 
     // operator assist lift buttons
     liftUp = new POVButton(operator, 0);
@@ -121,10 +120,8 @@ public class RobotContainer {
     limelight = new Limelight();
 
     /** Gripper instantiations */
-    gripperSystem = new GripperSystem(limelight);
+    gripperSystem = new GripperSystem();
     gripperSystem.setDefaultCommand(new Hold(gripperSystem, aLEDSub));
-
-    liftThenLeave = new LiftThenLeave(driveSystem, lSystem, gripperSystem);
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -139,11 +136,12 @@ public class RobotContainer {
 
     // hardware check
     Shuffleboard.getTab("Hardware").add(getCheckCommand());
-    Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
+     Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
-    // autos
+ 
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    //autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("Score low and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Do nothing", new InstantCommand());
 
     // blue side
@@ -177,13 +175,20 @@ public class RobotContainer {
 
     // autobalance driver buttons
     balanceLeftBtn.whileTrue(driveSystem.autoBalance());
+    SmartDashboard.putData(CommandScheduler.getInstance());
+    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    yButton.onTrue(togglePipeline);
+
+    // autobalance driver buttons
+    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
     balanceRightBtn.whileTrue(driveSystem.autoBalance());
     
     // operator assist arm lift buttons
-    liftUp.whileTrue(lSystem.liftArmsToPosition(LiftConstants.TOP_POSITION));
-    liftMidL.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftMidR.whileTrue(lSystem.liftArmsToPosition(LiftConstants.MID_POSITION));
-    liftDown.whileTrue(lSystem.liftArmsToPosition(LiftConstants.LOW_POSITION));
+    liftUp.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.TOP_POSITION));
+    liftMidL.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftMidR.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.MID_POSITION));
+    liftDown.whileTrue(new LiftArmToPosition(lSystem, LiftConstants.LOW_POSITION));
   }
 
   private CommandBase getCheckCommand() {
@@ -192,6 +197,18 @@ public class RobotContainer {
       new InstantCommand(
         () -> { hardware.getEntry("Drive").setString(driveSystem.checkAllConnections()); },
         driveSystem
+      ),
+
+      // lift
+      new InstantCommand(
+        () -> { hardware.getEntry("Lift").setString(driveSystem.checkAllConnections()); },
+        lSystem
+      ),
+
+      // gripper
+      new InstantCommand(
+        () -> { hardware.getEntry("Gripper").setString(gripperSystem.checkAllConnections()); },
+        gripperSystem
       ),
 
       // limelight
@@ -224,11 +241,37 @@ public class RobotContainer {
        * - turn counterclockwise
        * - drive forwards in slow mode
        */
-      driveSystem.testRoutine()
+      driveSystem.testRoutine(),
+
+      /*
+       * intake
+       */
+      gripperSystem.testRoutine(),
+
+      /*
+       * led test routine
+       * - both sides purple for 2 seconds
+       * - both sides yellow for 2 seconds
+       * - leds off
+       */
+      aLEDSub.testRoutine(),
+
+      /*
+       * limelight test routine
+       * - blink leds for 2 seconds
+       * - go back to pipeline default for leds
+       */
+      limelight.testRoutine()
+
+      // arm test is not included for safety reasons
     );
   }
 
   public void setBrakeMode(boolean mode){
     lSystem.setBrakeMode(mode);
+  }
+
+  public void disableLL3DMode(){
+    limelight.setPipeline(0);
   }
 }
