@@ -35,17 +35,19 @@ public class Hold extends CommandBase {
       // hold game piece in intake
       gripperSubsystem.spin(0.15);
 
+      // change in encoder position in gripper motors
+      double delta = gripperSubsystem.getCurrentPosition() - gripperSubsystem.getLastPosition();
+
       // if there is a game piece in the intake, display the red driver light
-      if (gripperSubsystem.getCurrentPosition() <= (gripperSubsystem.getLastPosition() + 0.5)) {
+      if (delta <= 0.01) {
         aLedSubsystem.driverColorMethod(ColorType.RED);
-        System.out.print("HOLD");
       } else {
-        System.out.print("NO");
-        aLedSubsystem.LEDOff();
+        aLedSubsystem.driverOff();
       }
     } else {
-      // otherwise just don't spin
+      // otherwise just don't spin and turn leds off
       gripperSubsystem.spin(0);
+      aLedSubsystem.driverOff();
     }
   }
 

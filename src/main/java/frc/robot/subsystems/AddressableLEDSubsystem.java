@@ -7,11 +7,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.LEDConstants.*;
 
 public class AddressableLEDSubsystem extends SubsystemBase {
-  /** Creates a new AddressableLEDSubsystem. */
 
   public enum ColorType {
     YELLOW,
@@ -33,11 +33,29 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * This method sets all the LED groups (Human Player & Driver) to off
    */
-  public void LEDOff() {
+  public void allOff() {
     // Sets each LED to off
     for(int i = 0; i < LEDBuffer.getLength(); i++) {
       LEDBuffer.setHSV(i, 0, 0, 0);
     }
+    LED.setData(LEDBuffer);
+  }
+
+  public void driverOff() {
+    // driver panel is indices 0 to DRIVER_START_RANGE
+    for (int i = 0; i < DRIVER_START_RANGE; i++) {
+      LEDBuffer.setHSV(i, 0, 0, 0);
+    }
+
+    LED.setData(LEDBuffer);
+  }
+
+  public void humanPlayerOff() {
+    // human player panel is indices DRIVER_START_RANGE to the end of the buffer
+    for (int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++) {
+      LEDBuffer.setHSV(i, 0, 0, 0);
+    }
+
     LED.setData(LEDBuffer);
   }
 
@@ -98,11 +116,23 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   }
 
   public CommandBase HumanColor(ColorType colorType) {
-    return runEnd(() -> humanColorMethod(colorType), this::LEDOff);   
+    return new RunCommand(
+      // turn leds on while command is active
+      () -> humanColorMethod(colorType)
+    ).andThen(
+      // turn leds off when command ends
+      this::humanPlayerOff
+    );   
   }
 
   public CommandBase DriverColor(ColorType colorType) {
-    return runEnd(() -> driverColorMethod(colorType), this::LEDOff);
+    return new RunCommand(
+      // turn leds on while command is active
+      () -> driverColorMethod(colorType)
+    ).andThen(
+      // turn leds off when command ends
+      this::driverOff
+    );   
   }
 
   @Override
