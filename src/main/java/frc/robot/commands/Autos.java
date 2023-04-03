@@ -35,9 +35,9 @@ public final class Autos {
         // hold preloaded game piece in gripper
         gripper.hold(led),
         // lift arms to high scoring position
-        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
+        lift.liftArmsToPosition(LiftConstants.TOP_POSITION),
         // cancel command group if not finished in x seconds
-        //new WaitCommand(9)
+        new WaitCommand(4)
       ),
       // outtake game piece
       gripper.outtake(led).withTimeout(0.8),
@@ -46,10 +46,13 @@ public final class Autos {
     );
   }
 
-  public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem) {
+  public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-      new RotateToAngle(new Rotation2d(180), driveSubsystem),
-      new DriveDistance( 3.0, Constants.AutoConstants.FAST_SPEED, driveSubsystem)
+      new RotateToAngle(Rotation2d.fromDegrees(180), driveSubsystem).withTimeout(2.5),
+      new ParallelCommandGroup(
+        new DriveDistance(1.8, Constants.AutoConstants.FAST_SPEED, driveSubsystem).withTimeout(2),
+        gripper.coneIntake(led).withTimeout(3)
+      )
     );
   }
 
@@ -74,6 +77,16 @@ public final class Autos {
       
   }
 
+    /** robot scores low then drives onto charge station and balances */
+    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+      return Commands.sequence(
+        gripper.outtake(led).withTimeout(0.5),
+        new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+        drivesystem.autoBalance()
+      );
+        
+    }
+
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
   public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
@@ -81,8 +94,8 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
-      new DriveDistance(-1.7, 1.3, drivesystem), 
-      new WaitCommand(1.5)
+      new DriveDistance(-2.2, 1.3, drivesystem),
+      rotateThenDriveAuto(drivesystem, gripper, led)
     );
   }
 
@@ -93,8 +106,8 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drivesystem), 
-      new WaitCommand(1.5)
+      new DriveDistance(-3.2, 1.5, drivesystem)
+      //rotateThenDriveAuto(drivesystem, gripper, led)
     );
   }
 
@@ -104,8 +117,8 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
-      new DriveDistance(-3.05, 1.5, drive), 
-      new WaitCommand(1.5)
+      new DriveDistance(-3.2, 1.5, drive) 
+      //new WaitCommand(1.5)
     );
   }
 
@@ -115,8 +128,8 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
-      new DriveDistance(-1.7, 1.3, drive), 
-      new WaitCommand(1.5)
+      new DriveDistance(-1.7, 1.3, drive) 
+      //new WaitCommand(1.5)
     );
   }
 
