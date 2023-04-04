@@ -106,8 +106,8 @@ public final class Autos {
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
-      new DriveDistance(-3.2, 1.5, drivesystem)
-      //rotateThenDriveAuto(drivesystem, gripper, led)
+      new DriveDistance(-3.2, 1.5, drivesystem),
+      rotateThenDriveAuto(drivesystem, gripper, led)
     );
   }
 
