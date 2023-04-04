@@ -141,7 +141,7 @@ public class RobotContainer {
 
  
     autoChooser = new SendableChooser<>();
-    autoChooser.setDefaultOption("Back up and balance", Autos.backUpAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.setDefaultOption("Back up and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
     autoChooser.addOption("Do nothing", new InstantCommand());
 
     // blue side

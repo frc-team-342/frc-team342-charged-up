@@ -46,6 +46,7 @@ public final class Autos {
     );
   }
 
+  /** Additional part of auto that turns the robot around and attempts to intake a game piece */
   public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
       new RotateToAngle(Rotation2d.fromDegrees(180), driveSubsystem).withTimeout(2.5),
@@ -56,17 +57,6 @@ public final class Autos {
     );
   }
 
-  public static CommandBase liftThenLeave(LiftSystem lSystem, DriveSystem driveSystem) {
-    return Commands.sequence(
-      lSystem.liftArmsToPosition(LiftConstants.MID_POSITION), 
-      new InstantCommand(
-        () -> {
-          driveSystem.drivePercent(-0.1, -0.1);
-        }, driveSystem
-      ).withTimeout(3)
-    );
-  }
-  
   /** robot drives onto charge station and balances */
   public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
