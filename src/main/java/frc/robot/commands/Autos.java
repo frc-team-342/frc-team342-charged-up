@@ -85,6 +85,8 @@ public final class Autos {
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-2.2, 1.3, drivesystem),
+  
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
       additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
     );
   }
@@ -97,6 +99,8 @@ public final class Autos {
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-3.2, 1.5, drivesystem),
+
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
       additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
     );
   }
@@ -108,6 +112,8 @@ public final class Autos {
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
       new DriveDistance(-3.2, 1.5, drive), 
+
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
       additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
     );
   }
@@ -119,6 +125,8 @@ public final class Autos {
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
       new DriveDistance(-1.7, 1.3, drive),
+      
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
       additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
     );
   }
