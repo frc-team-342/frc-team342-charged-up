@@ -49,7 +49,7 @@ public final class Autos {
   /** Additional part of auto that turns the robot around and attempts to intake a game piece */
   public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-      new RotateToAngle(Rotation2d.fromDegrees(180), driveSubsystem).withTimeout(2.5),
+      new RotateToAngle(Rotation2d.fromDegrees(182), driveSubsystem).withTimeout(2.5),
       new ParallelCommandGroup(
         new DriveDistance(1.8, Constants.AutoConstants.FAST_SPEED, driveSubsystem).withTimeout(2),
         gripper.coneIntake(led).withTimeout(3)
@@ -78,48 +78,48 @@ public final class Autos {
     }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-2.2, 1.3, drivesystem),
-      rotateThenDriveAuto(drivesystem, gripper, led)
+      additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
     );
   }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
       new DriveDistance(-0.5, 1, drivesystem), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
       new DriveDistance(-3.2, 1.5, drivesystem),
-      rotateThenDriveAuto(drivesystem, gripper, led)
+      additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
     );
   }
 
-  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
-      new DriveDistance(-3.2, 1.5, drive) 
-      //new WaitCommand(1.5)
+      new DriveDistance(-3.2, 1.5, drive), 
+      additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
     );
   }
 
-  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
       new DriveDistance(-0.5, 1, drive), 
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
-      new DriveDistance(-1.7, 1.3, drive) 
-      //new WaitCommand(1.5)
+      new DriveDistance(-1.7, 1.3, drive),
+      additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
     );
   }
 
