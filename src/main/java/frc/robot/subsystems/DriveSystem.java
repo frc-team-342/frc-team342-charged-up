@@ -31,7 +31,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,7 +40,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.commands.drive.DriveVelocity;
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -318,21 +316,21 @@ public class DriveSystem extends SubsystemBase implements Testable {
       // runs repeatedly while command active
       () -> {
         // robot is back-heavy
-        double forwardP = 0.17;
-        double backP = 0.32;
+        double forwardP = 0.2;
+        double backP = 0.28;
 
         // maximum drivetrain output
-        double maxPercentOutput = 0.33;
+        double maxPercentOutput = 0.38;
 
         double maxAngle = 20;
 
         // Negative because of robot orientation
-        double angle = -MathUtil.clamp(gyro.getRoll(), -maxAngle, maxAngle); 
+        double angle = -MathUtil.clamp(gyro.getRoll() - 1.9, -maxAngle, maxAngle); 
 
         // Speed is proportional to the angle 
         //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
 
-        double speed = (angle > 0)
+        double speed = (angle < 0)
           ? (angle / maxAngle) * forwardP
           : (angle / maxAngle) * backP;
 
@@ -343,7 +341,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
         if (angle < tolerance && angle > -tolerance) {
           // hold position if within roll tolerance
-          drivePercent(0, 0);
+        leftController.setReference(0.0, ControlType.kVelocity);
+        rightController.setReference(0.0, ControlType.kVelocity);
+          
+          backP = .10;
         } else {
           // drive to balance if outside of roll tolerance
           drivePercent(speed, speed);
@@ -351,24 +352,11 @@ public class DriveSystem extends SubsystemBase implements Testable {
       },
       // when it ends
       () -> {
-        leftController.setReference(0.0, ControlType.kVelocity);
-        rightController.setReference(0.0, ControlType.kVelocity);
+        // leftController.setReference(0.0, ControlType.kVelocity);
+        // rightController.setReference(0.0, ControlType.kVelocity);
+        this.setVelocity(new DifferentialDriveWheelSpeeds(0, 0));
       }
     );
-  }
-
-  /**
-   * sets the reference velocity of the PID controllers
-   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
-   */
-  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
-    // clamp wheel speeds to max velocity
-    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-
-    // apply drivetrain speeds to drive pid controllers
-    leftController.setReference(left, ControlType.kVelocity);
-    rightController.setReference(right, ControlType.kVelocity);
   }
 
   @Override
