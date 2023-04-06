@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -127,13 +128,20 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
    */
   public CommandBase HumanColor(ColorType colorType) {
     // subsystem requirement is PURPOSEFULLY OMITTED
-    return new RunCommand(
-      // turn leds on while command is active
-      () -> humanColorMethod(colorType)
-    ).andThen(
-      // turn leds off when command ends
-      this::humanPlayerOff
-    );   
+    return new FunctionalCommand(
+      // start
+      () -> {},
+      // execute
+      () -> {
+        this.humanColorMethod(colorType);
+      },
+      // end
+      (Boolean interrupted) -> {
+        this.humanPlayerOff();
+      },
+      // is finished
+      () -> { return false; }
+    );
   }
 
   /**
@@ -143,13 +151,20 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
    */
   public CommandBase DriverColor(ColorType colorType) {
     // subsystem requirement is PURPOSEFULLY OMITTED
-    return new RunCommand(
-      // turn leds on while command is active
-      () -> driverColorMethod(colorType)
-    ).andThen(
-      // turn leds off when command ends
-      this::driverOff
-    );   
+    return new FunctionalCommand(
+      // start
+      () -> {},
+      // execute
+      () -> {
+        this.driverColorMethod(colorType);
+      },
+      // end
+      (Boolean interrupted) -> {
+        this.driverOff();
+      },
+      // is finished
+      () -> { return false; }
+    );
   }
 
   @Override
