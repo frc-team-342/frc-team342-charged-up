@@ -25,7 +25,7 @@ import frc.robot.subsystems.LiftSystem;
 /** Example static factory for an autonomous command. */
 public final class Autos {
   /** intake, lift arms, outtake, lower arms */
-  private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, LEDSystem led) {
     return Commands.sequence(
       // intake preloaded game piece
       new Hold(gripper, led).withTimeout(0.5),
@@ -44,7 +44,7 @@ public final class Autos {
   }
 
   /** Additional part of auto that turns the robot around and attempts to intake a game piece */
-  public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, LEDSystem led) {
     return Commands.sequence(
       new RotateToAngle(Rotation2d.fromDegrees(182), driveSubsystem).withTimeout(2.5),
       new ParallelCommandGroup(
@@ -55,7 +55,7 @@ public final class Autos {
   }
 
   /** robot drives onto charge station and balances */
-  public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+  public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, LEDSystem led) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
@@ -65,7 +65,7 @@ public final class Autos {
   }
 
     /** robot scores low then drives onto charge station and balances */
-    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, LEDSystem led) {
       return Commands.sequence(
         gripper.outtake().withTimeout(0.5),
         new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
@@ -75,7 +75,7 @@ public final class Autos {
     }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, LEDSystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
@@ -89,7 +89,7 @@ public final class Autos {
   }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, LEDSystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
@@ -102,7 +102,7 @@ public final class Autos {
     );
   }
 
-  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, LEDSystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
@@ -115,7 +115,7 @@ public final class Autos {
     );
   }
 
-  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, LEDSystem led, Boolean additionalAuto) {
     return Commands.sequence(
       liftAndOuttake(lift, gripper, led),
       new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),

@@ -9,19 +9,21 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.LEDConstants.*;
 
 public class LEDSystem extends SubsystemBase implements Testable {
 
-  public enum Location {
+  public enum LEDPanel {
     BackPanel(0, FRONT_PANEL_INDEX),
-    FrontPanel(FRONT_PANEL_INDEX, LENGTH);
+    FrontPanel(FRONT_PANEL_INDEX, LENGTH),
+    BothPanels(0, LENGTH);
 
     public final int lower;
     public final int upper;
 
-    private Location(int lower, int upper) {
+    private LEDPanel(int lower, int upper) {
       this.lower = lower;
       this.upper = upper;
     }
@@ -52,15 +54,6 @@ public class LEDSystem extends SubsystemBase implements Testable {
     led.setData(buffer);
   }
 
-  /** disable the leds on the back panel */
-  public void backPanelOff() {
-    for (int i = 0; i < FRONT_PANEL_INDEX; i++) {
-      buffer.setLED(i, Color.kBlack);
-    }
-
-    led.setData(buffer);
-  }
-
   /**
    * set the front panel of leds on the robot to a specific color
    * @param color the color to set the leds to
@@ -74,14 +67,39 @@ public class LEDSystem extends SubsystemBase implements Testable {
     led.setData(buffer);
   }
 
-  /** disable the leds on the front panel */
-  public void frontPanelOff() {
-    for (int i = FRONT_PANEL_INDEX; i < LENGTH; i++) {
+  /** set either panel to off */
+  public void off(LEDPanel panel) {
+    for(int i = panel.lower; i < panel.upper; i++) {
       buffer.setLED(i, Color.kBlack);
     }
 
     led.setData(buffer);
   }
+
+  public CommandBase rainbow(LEDPanel panel) {
+    // requirements purposefully omitted
+    return new FunctionalCommand(
+      // init
+      () -> {}, 
+      // execute
+      () -> {
+        int previous = 0; // TODO: find out how to get hsv from color in buffer
+        Color next = Color.fromHSV(previous + 1, 255, 70);
+
+        for (int i = panel.lower; i < panel.upper; i++) {
+          buffer.setLED(i, next);
+        }
+
+        led.setData(buffer);
+      }, 
+      // end
+      (Boolean interrupted) -> { this.off(panel); }, 
+      // is finished
+      () -> { return false; }
+    );
+  }
+
+  public CommandBase pulse(LEDPanel panel, Color... colors) 
 
   @Override
   public void periodic() {
