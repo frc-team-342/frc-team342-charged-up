@@ -5,16 +5,16 @@
 package frc.robot.commands.gripper;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.AddressableLEDSubsystem;
+import frc.robot.subsystems.LEDSystem;
+import frc.robot.subsystems.LEDSystem.ColorType;
 import frc.robot.subsystems.GripperSystem;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 public class Hold extends CommandBase {
   private GripperSystem gripperSubsystem;
-  private AddressableLEDSubsystem aLedSubsystem;
+  private LEDSystem aLedSubsystem;
 
   /** hold game piece, display led if game piece is in gripper */
-  public Hold(GripperSystem gripperSubSystem, AddressableLEDSubsystem aLedSubsystem) {
+  public Hold(GripperSystem gripperSubSystem, LEDSystem aLedSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.gripperSubsystem = gripperSubSystem;
     this.aLedSubsystem = aLedSubsystem;

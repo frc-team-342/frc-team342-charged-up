@@ -12,7 +12,7 @@ import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.gripper.Hold;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
+import frc.robot.subsystems.LEDSystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -43,7 +43,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final DriveSystem driveSystem;
   private final LiftSystem lSystem;
-  private final AddressableLEDSubsystem aLEDSub;
+  private final LEDSystem led;
 
   private POVButton liftUp;
   private POVButton liftMidL;
@@ -111,7 +111,7 @@ public class RobotContainer {
     driveSystem = new DriveSystem();
     driveSystem.setDefaultCommand(driveSystem.driveWithJoystick(driverLeft, driverRight));
 
-    aLEDSub = new AddressableLEDSubsystem();
+    led = new LEDSystem();
   
     lSystem = new LiftSystem();
     lSystem.setDefaultCommand(lSystem.liftArms(operator));
@@ -121,7 +121,7 @@ public class RobotContainer {
 
     /** Gripper instantiations */
     gripperSystem = new GripperSystem();
-    gripperSystem.setDefaultCommand(new Hold(gripperSystem, aLEDSub));
+    gripperSystem.setDefaultCommand(new Hold(gripperSystem, led));
 
     /** Dashboard sendables for the subsystems go here */
     SmartDashboard.putData(driveSystem);
@@ -139,24 +139,24 @@ public class RobotContainer {
      Shuffleboard.getTab("Hardware").add(CommandScheduler.getInstance());
 
     autoChooser = new SendableChooser<>();
-    autoChooser.addOption("Score low and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, aLEDSub));
+    autoChooser.addOption("Score low and balance", Autos.outtakeAndBalance(driveSystem, lSystem, gripperSystem, led));
     autoChooser.addOption("Do nothing", new InstantCommand());
 
     // blue side
-    autoChooser.addOption("2-Side Blue Leave: 1 Piece", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub, false));
-    autoChooser.addOption("8-Side Blue Leave: 1 Piece", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub, false));
+    autoChooser.addOption("2-Side Blue Leave: 1 Piece", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, led, false));
+    autoChooser.addOption("8-Side Blue Leave: 1 Piece", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, led, false));
 
     // red side
-    autoChooser.addOption("8-Side Red Leave: 1 Piece", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, aLEDSub, false));
-    autoChooser.addOption("2-Side Red Leave: 1 Piece", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, aLEDSub, false));
+    autoChooser.addOption("8-Side Red Leave: 1 Piece", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, led, false));
+    autoChooser.addOption("2-Side Red Leave: 1 Piece", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, led, false));
     
     // blue side
-    autoChooser.addOption("2-Side Blue Leave: 2 Piece", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub, true));
-    autoChooser.addOption("8-Side Blue Leave: 2 Piece", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, aLEDSub, true));
+    autoChooser.addOption("2-Side Blue Leave: 2 Piece", Autos.leftSideBlue(driveSystem, lSystem, gripperSystem, led, true));
+    autoChooser.addOption("8-Side Blue Leave: 2 Piece", Autos.rightSideBlue(driveSystem, lSystem, gripperSystem, led, true));
 
     // red side
-    autoChooser.addOption("8-Side Red Leave: 2 Piece", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, aLEDSub, true));
-    autoChooser.addOption("2-Side Red Leave: 2 Piece", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, aLEDSub, true));
+    autoChooser.addOption("8-Side Red Leave: 2 Piece", Autos.rightSideRed(driveSystem, lSystem, gripperSystem, led, true));
+    autoChooser.addOption("2-Side Red Leave: 2 Piece", Autos.leftSideRed(driveSystem, lSystem, gripperSystem, led, true));
 
     SmartDashboard.putData(autoChooser);
   }
@@ -175,15 +175,15 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.intake());
     leftTrigger.whileTrue(gripperSystem.outtake());
 
-    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
-    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
 
     // autobalance driver buttons
     balanceLeftBtn.whileTrue(driveSystem.autoBalance());
     SmartDashboard.putData(CommandScheduler.getInstance());
-    xButton.whileTrue(aLEDSub.HumanColor(ColorType.YELLOW));
-    aButton.whileTrue(aLEDSub.HumanColor(ColorType.PURPLE));
+    xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
+    aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
 
     // autobalance driver buttons
@@ -260,7 +260,7 @@ public class RobotContainer {
        * - both sides yellow for 2 seconds
        * - leds off
        */
-      aLEDSub.testRoutine(),
+      led.testRoutine(),
 
       /*
        * limelight test routine

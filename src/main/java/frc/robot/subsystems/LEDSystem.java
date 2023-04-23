@@ -16,7 +16,7 @@ import static frc.robot.Constants.LEDConstants.*;
 
 import java.util.List;
 
-public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
+public class LEDSystem extends SubsystemBase implements Testable {
   /** Creates a new AddressableLEDSubsystem. */
 
   public enum ColorType {
@@ -28,7 +28,7 @@ public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
   private final AddressableLED LED;
   private final AddressableLEDBuffer LEDBuffer;
 
-  public AddressableLEDSubsystem() {
+  public LEDSystem() {
     LED = new AddressableLED(PWM_PORT);
     LEDBuffer = new AddressableLEDBuffer(LENGTH);
     LED.setLength(LEDBuffer.getLength());
