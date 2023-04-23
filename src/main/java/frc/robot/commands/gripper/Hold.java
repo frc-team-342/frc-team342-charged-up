@@ -4,9 +4,9 @@
 
 package frc.robot.commands.gripper;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LEDSystem;
-import frc.robot.subsystems.LEDSystem.ColorType;
 import frc.robot.subsystems.GripperSystem;
 
 public class Hold extends CommandBase {
@@ -40,14 +40,14 @@ public class Hold extends CommandBase {
 
       // if there is a game piece in the intake, display the red driver light
       if (delta <= 0.01) {
-        aLedSubsystem.driverColorMethod(ColorType.RED);
+        aLedSubsystem.setBackPanel(Color.kRed);
       } else {
-        aLedSubsystem.driverOff();
+        aLedSubsystem.setBackPanel(Color.kBlack);
       }
     } else {
       // otherwise just don't spin and turn leds off
       gripperSubsystem.spin(0);
-      aLedSubsystem.driverOff();
+      aLedSubsystem.setBackPanel(Color.kBlack);
     }
   }
 

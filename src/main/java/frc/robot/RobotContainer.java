@@ -8,11 +8,9 @@ import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftArmToPosition;
-import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.gripper.Hold;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.LEDSystem.ColorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
@@ -175,15 +173,8 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.intake());
     leftTrigger.whileTrue(gripperSystem.outtake());
 
-    xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
-    aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
-    yButton.onTrue(togglePipeline);
-
-    // autobalance driver buttons
-    balanceLeftBtn.whileTrue(driveSystem.autoBalance());
-    SmartDashboard.putData(CommandScheduler.getInstance());
-    xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
-    aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
+    //xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
+    //aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
 
     // autobalance driver buttons
