@@ -4,17 +4,17 @@
 
 package frc.robot.commands.gripper;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.AddressableLEDSubsystem;
+import frc.robot.subsystems.LEDSystem;
 import frc.robot.subsystems.GripperSystem;
-import frc.robot.subsystems.AddressableLEDSubsystem.ColorType;
 
 public class Hold extends CommandBase {
   private GripperSystem gripperSubsystem;
-  private AddressableLEDSubsystem aLedSubsystem;
+  private LEDSystem aLedSubsystem;
 
   /** hold game piece, display led if game piece is in gripper */
-  public Hold(GripperSystem gripperSubSystem, AddressableLEDSubsystem aLedSubsystem) {
+  public Hold(GripperSystem gripperSubSystem, LEDSystem aLedSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.gripperSubsystem = gripperSubSystem;
     this.aLedSubsystem = aLedSubsystem;
@@ -40,15 +40,17 @@ public class Hold extends CommandBase {
 
       // if there is a game piece in the intake, display the red driver light
       if (delta <= 0.01) {
-        aLedSubsystem.driverColorMethod(ColorType.RED);
+        aLedSubsystem.setBackPanel(Color.kRed);
       } else {
-        aLedSubsystem.driverOff();
+        aLedSubsystem.setBackPanel(Color.kBlack);
       }
     } else {
       // otherwise just don't spin and turn leds off
       gripperSubsystem.spin(0);
-      aLedSubsystem.driverOff();
+      aLedSubsystem.setBackPanel(Color.kBlack);
     }
+
+    System.out.println("HOLD");
   }
 
   // Called once the command ends or is interrupted.

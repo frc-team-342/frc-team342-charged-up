@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     robotContainer.setBrakeMode(false);
+    robotContainer.getDisabledCommand().schedule();
   }
 
   @Override

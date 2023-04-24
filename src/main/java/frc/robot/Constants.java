@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -18,7 +19,6 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
 
   public static class OperatorConstants {
-  
     /* Driver controller constants */
     public static final int DRIVER_LEFT_PORT = 1;
     public static final int DRIVER_RIGHT_PORT = 2;
@@ -34,18 +34,11 @@ public final class Constants {
   public static class LEDConstants {
     public static final int PWM_PORT = 0;
     public static final int LENGTH = 512;
-    public static final int DRIVER_START_RANGE = 256;
+    public static final int FRONT_PANEL_INDEX = 256;
 
-    //HSV Values
-    public static final int YELLOW_H = 40;
-    public static final int YELLOW_S = 255;
-    public static final int YELLOW_V = 70;
-    public static final int PURPLE_H = 150;
-    public static final int PURPLE_S = 255;
-    public static final int PURPLE_V = 70;
-    public static final int RED_H = 0;
-    public static final int RED_S = 255;
-    public static final int RED_V = 255;
+    // Colors
+    public static final Color YELLOW = Color.fromHSV(27, 255, 70);
+    public static final Color PURPLE = Color.fromHSV(135, 255, 70);
   }
   
   public static class GripperConstants {
