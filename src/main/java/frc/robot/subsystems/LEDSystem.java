@@ -60,7 +60,7 @@ public class LEDSystem extends SubsystemBase implements Testable {
    */
   public void setFrontPanel(Color color) {
     // front panel is indexed FRONT_PANEL_INDEX through end of buffer
-    for (int i = FRONT_PANEL_INDEX; i < LENGTH; i++) {
+    for (int i = FRONT_PANEL_INDEX; i < buffer.getLength(); i++) {
       buffer.setLED(i, color);
     }
 
@@ -74,6 +74,32 @@ public class LEDSystem extends SubsystemBase implements Testable {
     }
 
     led.setData(buffer);
+  }
+
+  public CommandBase humanPlayer(Color color) {
+    return new FunctionalCommand(
+      () -> {}, 
+      () -> {
+        setFrontPanel(color);
+      }, 
+      (Boolean interrupted) -> {
+        off(LEDPanel.FrontPanel);
+      }, 
+      () -> { return false; }
+    );
+  }
+
+  public CommandBase driver(Color color) {
+    return new FunctionalCommand(
+      () -> {}, 
+      () -> {
+        setBackPanel(color);
+      }, 
+      (Boolean interrupted) -> {
+        off(LEDPanel.BackPanel);
+      }, 
+      () -> { return false; }
+    );
   }
 
   @Override

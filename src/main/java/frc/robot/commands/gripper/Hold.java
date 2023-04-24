@@ -49,6 +49,8 @@ public class Hold extends CommandBase {
       gripperSubsystem.spin(0);
       aLedSubsystem.setBackPanel(Color.kBlack);
     }
+
+    System.out.println("HOLD");
   }
 
   // Called once the command ends or is interrupted.

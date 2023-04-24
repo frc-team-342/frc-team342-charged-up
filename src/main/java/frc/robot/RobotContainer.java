@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.LiftConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
@@ -53,7 +54,6 @@ public class RobotContainer {
   private final Limelight limelight;
 
   private final GripperSystem gripperSystem;
-  
   
   /* Controller and button instantiations */
   private final XboxController operator;
@@ -173,8 +173,9 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.intake());
     leftTrigger.whileTrue(gripperSystem.outtake());
 
-    xButton.whileTrue(new Rainbow(led));
-    //aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
+    xButton.whileTrue(led.humanPlayer(LEDConstants.YELLOW));
+    xButton.whileTrue(led.humanPlayer(LEDConstants.PURPLE));
+
     yButton.onTrue(togglePipeline);
 
     // autobalance driver buttons
@@ -222,6 +223,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Command getDisabledCommand() {
+    return new Rainbow(led).ignoringDisable(true);
   }
 
   public Command getTestCommand() {

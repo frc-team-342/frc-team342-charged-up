@@ -37,8 +37,8 @@ public final class Constants {
     public static final int FRONT_PANEL_INDEX = 256;
 
     // Colors
-    public static final Color YELLOW = Color.kYellow;
-    public static final Color PURPLE = Color.kPurple;
+    public static final Color YELLOW = Color.fromHSV(27, 255, 70);
+    public static final Color PURPLE = Color.fromHSV(135, 255, 70);
   }
   
   public static class GripperConstants {
