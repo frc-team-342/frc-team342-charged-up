@@ -325,7 +325,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
         double maxAngle = 20;
 
         // Negative because of robot orientation
-        double angle = -MathUtil.clamp(gyro.getRoll() - 1.9, -maxAngle, maxAngle); 
+        double angle = -MathUtil.clamp(gyro.getRoll() - 1.5, -maxAngle, maxAngle); 
 
         // Speed is proportional to the angle 
         //double speed = MathUtil.clamp((angle / maxAngle) * proportional, -maxPercentOutput, maxPercentOutput); 
@@ -341,9 +341,9 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
         if (angle < tolerance && angle > -tolerance) {
           // hold position if within roll tolerance
-        leftController.setReference(0.0, ControlType.kVelocity);
-        rightController.setReference(0.0, ControlType.kVelocity);
-          
+          leftController.setReference(0.0, ControlType.kVelocity);
+          rightController.setReference(0.0, ControlType.kVelocity);
+            
           backP = .10;
         } else {
           // drive to balance if outside of roll tolerance
