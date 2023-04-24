@@ -76,31 +76,6 @@ public class LEDSystem extends SubsystemBase implements Testable {
     led.setData(buffer);
   }
 
-  public CommandBase rainbow(LEDPanel panel) {
-    // requirements purposefully omitted
-    return new FunctionalCommand(
-      // init
-      () -> {}, 
-      // execute
-      () -> {
-        int previous = 0; // TODO: find out how to get hsv from color in buffer
-        Color next = Color.fromHSV(previous + 1, 255, 70);
-
-        for (int i = panel.lower; i < panel.upper; i++) {
-          buffer.setLED(i, next);
-        }
-
-        led.setData(buffer);
-      }, 
-      // end
-      (Boolean interrupted) -> { this.off(panel); }, 
-      // is finished
-      () -> { return false; }
-    );
-  }
-
-  public CommandBase pulse(LEDPanel panel, Color... colors) 
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

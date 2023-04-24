@@ -10,6 +10,7 @@ import frc.robot.commands.*;
 import frc.robot.commands.auto.LiftArmToPosition;
 import frc.robot.commands.drive.DriveDistance;
 import frc.robot.commands.gripper.Hold;
+import frc.robot.commands.led.Rainbow;
 import frc.robot.subsystems.*;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -172,7 +173,7 @@ public class RobotContainer {
     rightTrigger.whileTrue(gripperSystem.intake());
     leftTrigger.whileTrue(gripperSystem.outtake());
 
-    //xButton.whileTrue(led.HumanColor(ColorType.YELLOW));
+    xButton.whileTrue(new Rainbow(led));
     //aButton.whileTrue(led.HumanColor(ColorType.PURPLE));
     yButton.onTrue(togglePipeline);
 
