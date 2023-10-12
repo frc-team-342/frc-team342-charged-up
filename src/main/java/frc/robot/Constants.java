@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -20,9 +21,16 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  
+  public static class GripperConstants{
+    public static final I2C.Port I2C_PORT = I2C.Port.kOnboard;
+    public static final int ROLLER_MOTOR = 5;
+    public static final double ROLLER_SPEED = 0.5;
+  }
 
   
   public static class DriveConstants{
+
     public static final int FRONT_LEFT_MOTOR = 1;
     public static final int FRONT_RIGHT_MOTOR = 2;
     public static final int BACK_LEFT_MOTOR = 3;
@@ -37,10 +45,10 @@ public final class Constants {
     /** meters */
     public static final double WHEEL_CIRCUMFERENCE = 2 * Math.PI * WHEEL_RADIUS;
 
-     /** distance between left and right wheels - meters */
-     public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
+    /** distance between left and right wheels - meters */
+    public static final double TRACK_WIDTH = Units.inchesToMeters(25.245);
 
-      /** driving to driven */
+    /** driving to driven */
     public static final double GEAR_RATIO = 5.45 / 1;
 
     /** meters / second */

@@ -37,12 +37,17 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 import static frc.robot.Constants.DriveConstants.*;
 
-public class DriveSystem extends SubsystemBase {
+import java.util.List;
+
+public class DriveSystem extends SubsystemBase implements Testable {
   // speeds are statically imported constants
   private enum Mode {
 
@@ -70,6 +75,8 @@ public class DriveSystem extends SubsystemBase {
   private final AHRS gyro;
 
   private final PIDController rotateController;
+
+  private final PIDController balanceController;
 
   private final DifferentialDriveKinematics kinematics;
   private final DifferentialDriveOdometry odometry;
@@ -127,6 +134,9 @@ public class DriveSystem extends SubsystemBase {
     // pid
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
+
+    balanceController = new PIDController(0, 0, 0);
+    balanceController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
     kinematics = new DifferentialDriveKinematics(TRACK_WIDTH);    
@@ -234,7 +244,6 @@ public class DriveSystem extends SubsystemBase {
   public CommandBase driveDistance(double velocityIn, double distance) {
     double velocity = MathUtil.clamp(velocityIn, -MAX_SPEED, MAX_SPEED);
 
-    // TODO: refactor to use odometry
     Pose2d start = odometry.getPoseMeters();
     Transform2d transform = new Transform2d(
       // distance from current position facing current direction
@@ -332,22 +341,16 @@ public class DriveSystem extends SubsystemBase {
         ChassisSpeeds rotationVel = new ChassisSpeeds(0, 0, nextVel);
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(rotationVel);
 
-        // clamp wheel speeds to max velocity
-        double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-        double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
-
-        // apply drivetrain speeds to drive pid controllers
-        leftController.setReference(left, ControlType.kVelocity);
-        rightController.setReference(right, ControlType.kVelocity);
+        setDrivePIDControllers(wheelSpeeds);
       },
       // runs once at end of command 
       () -> {
         rotateController.reset();
-
+        
         // stop motors
         leftController.setReference(0, ControlType.kVelocity);
         rightController.setReference(0, ControlType.kVelocity);
-
+        
         frontLeft.stopMotor();
         frontRight.stopMotor();
       }
@@ -359,6 +362,51 @@ public class DriveSystem extends SubsystemBase {
 
   public CommandBase autoBalance() {
     
+<<<<<<< HEAD
+=======
+    return runEnd(
+      // runs repeatedly until end of command
+      () -> {
+        // radians
+        double currAngle = Math.toRadians(gyro.getRoll());
+
+        double endAngle = 0;
+
+        // rad/s ????
+        double nextVel = balanceController.calculate(currAngle, endAngle);
+
+        // convert radial velocity to drivetrain speeds
+        ChassisSpeeds balanceVel = new ChassisSpeeds(nextVel, 0, 0);
+        DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVel);
+
+        setDrivePIDControllers(wheelSpeeds);
+      },
+      // runs once at end of command 
+      () -> {
+        balanceController.reset();
+        
+        // stop motors
+        leftController.setReference(0, ControlType.kVelocity);
+        rightController.setReference(0, ControlType.kVelocity);
+        
+        frontLeft.stopMotor();
+        frontRight.stopMotor();
+      }
+    ).until(
+      // returns true if robot is at end angle
+      balanceController::atSetpoint
+    );
+  }
+
+  private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
+    // clamp wheel speeds to max velocity
+    double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+    double right = MathUtil.clamp(wheelSpeeds.rightMetersPerSecond, -MAX_SPEED, MAX_SPEED);
+
+    // apply drivetrain speeds to drive pid controllers
+    leftController.setReference(left, ControlType.kVelocity);
+    rightController.setReference(right, ControlType.kVelocity);
+>>>>>>> 51077c99a141266424f0fbb643780a5e949a8346
   }
 
   @Override
@@ -384,7 +432,7 @@ public class DriveSystem extends SubsystemBase {
 
       // update field visualization from drivetrain sim in simulation
       field.setRobotPose(drivetrainSim.getPose());
-    }    
+    } 
   }
 
   @Override
@@ -436,5 +484,91 @@ public class DriveSystem extends SubsystemBase {
       builder.addDoubleProperty("Left output", () -> frontLeft.getAppliedOutput(), null);
       builder.addDoubleProperty("Right output", () -> frontRight.getAppliedOutput(), null);
     }
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    return List.of(
+      // default constructor for spark connections
+      Connection.fromSparkMax(frontLeft),
+      Connection.fromSparkMax(frontRight),
+      Connection.fromSparkMax(backLeft),
+      Connection.fromSparkMax(backRight),
+      // default constructor for navx connection
+      Connection.fromNavx(gyro)
+    );
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    // if/when joystick drive uses pid this should be changed to also use pid
+    return Commands.sequence(
+      // drive forwards
+      new RunCommand(
+        () -> {
+          // both wheels forwards at speed set by mode
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this // this command depends on drivesystem
+      ).withTimeout(1.5), // run this for 3 seconds before continuing
+
+      // drive backwards
+      new RunCommand(
+        () -> {
+          // both wheels backwards at speed set by mode
+          drivePercent(-currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // drive clockwise
+      new RunCommand(
+        () -> {
+          // left wheel forwards right wheel backwards
+          drivePercent(currentMode.speedMultiplier, -currentMode.speedMultiplier);
+        }, 
+        this 
+      ).withTimeout(1.5), 
+
+      // drive counterclockwise
+      new RunCommand(
+        () -> {
+          // left wheel backwards right wheel forwards
+          drivePercent(-currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // enable slow mode
+      new InstantCommand(
+        () -> { 
+          toggleSlowMode();
+        },
+        this
+      ),
+
+      // drive forwards in slow mode
+      new RunCommand(
+        () -> {
+          // both wheels forwards
+          drivePercent(currentMode.speedMultiplier, currentMode.speedMultiplier);
+        }, 
+        this
+      ).andThen(
+        () -> {
+          // stop driving
+          drivePercent(0, 0);
+        }, 
+        this
+      ).withTimeout(1.5),
+
+      // disable slow mode
+      new InstantCommand(
+        () -> { 
+          toggleSlowMode(); 
+        },
+        this
+      )
+    );
   }
 }
