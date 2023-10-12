@@ -5,58 +5,127 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+
+import frc.robot.Constants.LiftConstants;
+import frc.robot.commands.drive.DriveDistance;
+import frc.robot.commands.drive.RotateToAngle;
+import frc.robot.commands.gripper.Hold;
+import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.DriveSystem;
+import frc.robot.subsystems.GripperSystem;
+import frc.robot.subsystems.LiftSystem;
 
+/** Example static factory for an autonomous command. */
 public final class Autos {
-  /** Example static factory for an autonomous command. */
-
-  public static CommandBase RotateThenDriveAuto(DriveSystem driveSubsystem) {
-
+  /** intake, lift arms, outtake, lower arms */
+  private static CommandBase liftAndOuttake(LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
-    driveSubsystem.rotateToAngle(new Rotation2d(180)),
-    driveSubsystem.driveDistance(Constants.AutoConstants.FAST_SPEED, 3.0)
+      // intake preloaded game piece
+      new Hold(gripper, led).withTimeout(0.5),
+      // run until either command finishes
+      new ParallelRaceGroup(
+        // hold preloaded game piece in gripper
+        new Hold(gripper, led),
+        // lift arms to high scoring position
+        lift.liftArmsToPosition(LiftConstants.TOP_POSITION)
+      ),
+      // outtake game piece
+      gripper.outtake().withTimeout(0.8),
+      // lower arms
+      lift.liftArmsToPosition(LiftConstants.LOW_POSITION)
     );
   }
 
-  public static CommandBase DriveFast(DriveSystem driveSubsystem)
-  {
-    return driveSubsystem.driveDistance(Constants.AutoConstants.FAST_SPEED, 3.0);
-  }
-
-  public static CommandBase DriveSlow(DriveSystem driveSubsystem)
-  {
-    return driveSubsystem.driveDistance(Constants.AutoConstants.SLOW_SPEED, 3.0);
-  }
-  
-  // needs testing 
-  /** robot drives onto charge station and balances */
-
-  public static CommandBase driveUpAndBalance(DriveSystem drivesystem) {
+  /** Additional part of auto that turns the robot around and attempts to intake a game piece */
+  public static CommandBase rotateThenDriveAuto(DriveSystem driveSubsystem, GripperSystem gripper, AddressableLEDSubsystem led) {
     return Commands.sequence(
+      new RotateToAngle(Rotation2d.fromDegrees(182), driveSubsystem).withTimeout(2.5),
+      new ParallelCommandGroup(
+        new DriveDistance(1.8, Constants.AutoConstants.FAST_SPEED, driveSubsystem).withTimeout(2),
+        gripper.intake().withTimeout(3)
+      )
+    );
+  }
 
-      drivesystem.driveDistance(.5, 3),
-      drivesystem.autoBalance());
+  /** robot drives onto charge station and balances */
+  public static CommandBase backUpAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+      drivesystem.autoBalance()
+    );
       
   }
 
-  
+    /** robot scores low then drives onto charge station and balances */
+    public static CommandBase outtakeAndBalance(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led) {
+      return Commands.sequence(
+        gripper.outtake().withTimeout(0.5),
+        new DriveDistance(-1.5, 1.8, drivesystem).withTimeout(2), 
+        drivesystem.autoBalance()
+      );
+        
+    }
 
   /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
-
-  public static CommandBase leftSide(DriveSystem drivesystem) {
+  public static CommandBase leftSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
     return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
+      new DriveDistance(-0.5, 1, drivesystem), 
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
+      new DriveDistance(-2.2, 1.3, drivesystem),
+  
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
+      additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
+    );
+  }
 
-    drivesystem.driveDistance(.5, 3), 
-    drivesystem.autoBalance(), 
-    drivesystem.driveDistance(.5, 5),
-    drivesystem.driveDistance(-.5,-5),
-    drivesystem.autoBalance());
+  /** robot drives onto charge station, balances, drives out of community, then back onto charge station and balances */
+  public static CommandBase rightSideBlue(DriveSystem drivesystem, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drivesystem).withTimeout(1),
+      new DriveDistance(-0.5, 1, drivesystem), 
+      new RotateToAngle(Rotation2d.fromDegrees(40), drivesystem).withTimeout(1),
+      new DriveDistance(-3.2, 1.5, drivesystem),
 
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
+      additionalAuto ? rotateThenDriveAuto(drivesystem, gripper, led) : new WaitCommand(0.1)
+    );
+  }
+
+  public static CommandBase leftSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
+      new DriveDistance(-0.5, 1, drive), 
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
+      new DriveDistance(-3.2, 1.5, drive), 
+
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
+      additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
+    );
+  }
+
+  public static CommandBase rightSideRed(DriveSystem drive, LiftSystem lift, GripperSystem gripper, AddressableLEDSubsystem led, Boolean additionalAuto) {
+    return Commands.sequence(
+      liftAndOuttake(lift, gripper, led),
+      new RotateToAngle(Rotation2d.fromDegrees(-40), drive).withTimeout(1),
+      new DriveDistance(-0.5, 1, drive), 
+      new RotateToAngle(Rotation2d.fromDegrees(40), drive).withTimeout(1),
+      new DriveDistance(-1.7, 1.3, drive),
+      
+      // Checks if parameter was set to enable the additional auto. If not, proceed as normal
+      additionalAuto ? rotateThenDriveAuto(drive, gripper, led) : new WaitCommand(0.1)
+    );
   }
 
   private Autos() {

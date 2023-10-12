@@ -7,15 +7,22 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.LEDConstants.*;
 
-public class AddressableLEDSubsystem extends SubsystemBase {
+import java.util.List;
+
+public class AddressableLEDSubsystem extends SubsystemBase implements Testable {
   /** Creates a new AddressableLEDSubsystem. */
 
   public enum ColorType {
     YELLOW,
-    PURPLE;
+    PURPLE,
+    RED;
   }
 
   private final AddressableLED LED;
@@ -32,12 +39,29 @@ public class AddressableLEDSubsystem extends SubsystemBase {
   /**
    * This method sets all the LED groups (Human Player & Driver) to off
    */
-  public void LEDOff() {
-    //Sets each LED to off
-    for(int i = 0; i < LEDBuffer.getLength(); i++)
-    {
+  public void allOff() {
+    // Sets each LED to off
+    for(int i = 0; i < LEDBuffer.getLength(); i++) {
       LEDBuffer.setHSV(i, 0, 0, 0);
     }
+    LED.setData(LEDBuffer);
+  }
+
+  public void driverOff() {
+    // driver panel is indices 0 to DRIVER_START_RANGE
+    for (int i = 0; i < DRIVER_START_RANGE; i++) {
+      LEDBuffer.setHSV(i, 0, 0, 0);
+    }
+
+    LED.setData(LEDBuffer);
+  }
+
+  public void humanPlayerOff() {
+    // human player panel is indices DRIVER_START_RANGE to the end of the buffer
+    for (int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++) {
+      LEDBuffer.setHSV(i, 0, 0, 0);
+    }
+
     LED.setData(LEDBuffer);
   }
 
@@ -59,9 +83,16 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colortype)
     {
       //Sets each LED to Purple
+      for(int i = 0; i < DRIVER_START_RANGE; i++) {
+        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+      }
+      LED.setData(LEDBuffer);
+    }
+    else if(ColorType.RED == colortype)
+    {
       for(int i = 0; i < DRIVER_START_RANGE; i++)
       {
-        LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
+        LEDBuffer.setHSV(i, RED_H, RED_S, 70);
       }
       LED.setData(LEDBuffer);
     }
@@ -83,16 +114,91 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     else if(ColorType.PURPLE == colorType)
     {
       //Sets each LED to Purple
-      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++)
-      {
+      for(int i = DRIVER_START_RANGE; i < LEDBuffer.getLength(); i++) {
         LEDBuffer.setHSV(i, PURPLE_H, PURPLE_S, PURPLE_V);
       }
       LED.setData(LEDBuffer);
     }
   }
 
+  /**
+   * show a color on the led panel on the front of the robot
+   * @param colorType purple or yellow
+   * @return
+   */
+  public CommandBase HumanColor(ColorType colorType) {
+    // subsystem requirement is PURPOSEFULLY OMITTED
+    return new FunctionalCommand(
+      // start
+      () -> {},
+      // execute
+      () -> {
+        this.humanColorMethod(colorType);
+      },
+      // end
+      (Boolean interrupted) -> {
+        this.humanPlayerOff();
+      },
+      // is finished
+      () -> { return false; }
+    );
+  }
+
+  /**
+   * show a color on the led panel on the back of the robot
+   * @param colorType purple, yellow, or red
+   * @return 
+   */
+  public CommandBase DriverColor(ColorType colorType) {
+    // subsystem requirement is PURPOSEFULLY OMITTED
+    return new FunctionalCommand(
+      // start
+      () -> {},
+      // execute
+      () -> {
+        this.driverColorMethod(colorType);
+      },
+      // end
+      (Boolean interrupted) -> {
+        this.driverOff();
+      },
+      // is finished
+      () -> { return false; }
+    );
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  @Override
+  public List<Connection> hardwareConnections() {
+    // cannot check for leds bc they are connected over pwm
+    return List.of();
+  }
+
+  @Override
+  public CommandBase testRoutine() {
+    return Commands.sequence(
+      // show purple on both leds
+      new RunCommand(
+        () -> {
+          driverColorMethod(ColorType.PURPLE);
+          humanColorMethod(ColorType.PURPLE);
+        }
+      ).withTimeout(2.0),
+      // show yellow on both leds
+      new RunCommand(
+        () -> {
+          driverColorMethod(ColorType.YELLOW);
+          humanColorMethod(ColorType.YELLOW);
+        }
+      ).withTimeout(2.0),
+      // turn all leds off
+      new InstantCommand(
+        () -> allOff()
+      )
+    );
   }
 }
