@@ -31,8 +31,8 @@ import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+
 
 import static frc.robot.Constants.DriveConstants.*;
 
@@ -124,6 +125,10 @@ public class DriveSystem extends SubsystemBase implements Testable {
     leftEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     rightEncoder.setVelocityConversionFactor(WHEEL_CIRCUMFERENCE * (1.0/60.0) / GEAR_RATIO);
     
+    // Inverts the leader motors
+    frontRight.setInverted(true);
+    frontLeft.setInverted(false);
+
     // back motors follow voltages from front motor
     backLeft.follow(frontLeft);
     backRight.follow(frontRight);
@@ -135,7 +140,7 @@ public class DriveSystem extends SubsystemBase implements Testable {
     rotateController = new PIDController(0, 0, 0); // TODO: tune pid controller
     rotateController.setTolerance(Math.PI / 4, 0);
 
-    balanceController = new PIDController(0, 0, 0);
+    balanceController = new PIDController(0.85, 0, 0); // TODO: tune/test number
     balanceController.setTolerance(Math.PI / 4, 0);
     
     // kinematics
@@ -217,15 +222,16 @@ public class DriveSystem extends SubsystemBase implements Testable {
 
   /**
    * 
-   * @param xbox the xbox controller being used to drive the robot
+   * @param joyLeft the left joystick being used to drive the robot
+   * @param joyRight the right joystick being used to drive the robot
    * @return command that drives with joystick
    */
-  public CommandBase driveWithJoystick(XboxController xbox) {
+  public CommandBase driveWithJoystick(Joystick joyLeft, Joystick joyRight) {
     return runEnd(
       // Runs drive repeatedly until command is stopped
       () -> {
-        double left = MathUtil.applyDeadband(xbox.getLeftY(), 0.15);
-        double right = MathUtil.applyDeadband(xbox.getRightY(), 0.15);
+        double left = MathUtil.applyDeadband(joyLeft.getY(), 0.15);
+        double right = MathUtil.applyDeadband(joyRight.getY(), 0.15);
         
         drivePercent(left, right);
       },
@@ -359,11 +365,14 @@ public class DriveSystem extends SubsystemBase implements Testable {
       rotateController::atSetpoint
     );
   }
-
+/**
+ * it returns a command that autobalances
+ * @return
+ */
   public CommandBase autoBalance() {
     
-<<<<<<< HEAD
-=======
+    
+
     return runEnd(
       // runs repeatedly until end of command
       () -> {
@@ -380,6 +389,8 @@ public class DriveSystem extends SubsystemBase implements Testable {
         DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(balanceVel);
 
         setDrivePIDControllers(wheelSpeeds);
+
+        
       },
       // runs once at end of command 
       () -> {
@@ -393,11 +404,15 @@ public class DriveSystem extends SubsystemBase implements Testable {
         frontRight.stopMotor();
       }
     ).until(
-      // returns true if robot is at end angle
       balanceController::atSetpoint
     );
+    
   }
 
+  /**
+   * sets the reference velocity of the PID controllers
+   * @param wheelSpeeds - the desired referenece velocity for the PID controller  
+   */
   private void setDrivePIDControllers(DifferentialDriveWheelSpeeds wheelSpeeds) {
     // clamp wheel speeds to max velocity
     double left = MathUtil.clamp(wheelSpeeds.leftMetersPerSecond, -MAX_SPEED, MAX_SPEED);
@@ -406,7 +421,6 @@ public class DriveSystem extends SubsystemBase implements Testable {
     // apply drivetrain speeds to drive pid controllers
     leftController.setReference(left, ControlType.kVelocity);
     rightController.setReference(right, ControlType.kVelocity);
->>>>>>> 51077c99a141266424f0fbb643780a5e949a8346
   }
 
   @Override
